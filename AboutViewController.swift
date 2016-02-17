@@ -29,7 +29,9 @@ class AboutViewController : TamViewController {
   
   override func loadView() {
     title = "About Taminations"
-    view = AboutLayout(frame: contentFrame)
+    let aboutView = AboutLayout(frame: contentFrame)
+    view = aboutView
+    aboutView.loadPage("about")
   }
   
 }

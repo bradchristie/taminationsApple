@@ -34,10 +34,27 @@ class SequencerViewController : TamViewController {
     let layout = SequencerLayout(frame: contentFrame)
     view = layout
     sequencerContol.reset(layout)
+    layout.instructionsButton.addTarget(self, action: "instructionsSelector", forControlEvents: .TouchUpInside)
+    layout.formationButton.addTarget(self,action:"formationSelector", forControlEvents: .TouchUpInside)
   }
   
   override func viewWillDisappear(animated: Bool) {
     sequencerContol.stopListening()
+  }
+
+  @objc func instructionsSelector() {
+    self.navigationController?.pushViewController(SequencerInstructionsViewController(intent), animated: true)
+  }
+  
+  @objc func formationSelector() {
+    let alert = UIAlertView(title: "Select Starting Formation", message: "", delegate: self, cancelButtonTitle: nil)
+    alert.addButtonWithTitle("Facing Couples")
+    alert.addButtonWithTitle("Squared Set")
+    alert.show()
+  }
+  
+  @objc func alertView(alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+    sequencerContol.startingFormation(buttonIndex==0 ? "Facing Couples" : "Static Square")
   }
   
   override func shouldAutorotate() -> Bool {
@@ -46,5 +63,5 @@ class SequencerViewController : TamViewController {
   override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
     //  Don't do anything
   }
-    
+
 }

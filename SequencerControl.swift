@@ -45,6 +45,15 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     panelControl.reset(layout.animationPanel, view: layout.animationView)
     startSequence()
   }
+
+  func startingFormation(f:String) {
+    formation = f
+    callNames = []
+    callBeats = []
+    layout!.callList.reloadData()
+    startSequence()
+    layout!.animationPanel.ticview.setTics(layout!.animationView.totalBeats, partstr: "", isCalls: true)
+  }
   
   @objc func mikeAction() {
     if layout!.calltext.text!.matches(".*->") {
@@ -67,7 +76,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   
   func startListening() {
     try! OEPocketsphinxController.sharedInstance().setActive(true)
-    let lmPath = NSBundle.mainBundle().pathForResource("1958", ofType: "lm", inDirectory:"files/src")!
+    let lmPath = NSBundle.mainBundle().pathForResource("1958", ofType: "lmod", inDirectory:"files/src")!
     let dicPath = NSBundle.mainBundle().pathForResource("1958", ofType: "dic", inDirectory:"files/src")!
     OEPocketsphinxController.sharedInstance().startListeningWithLanguageModelAtPath(lmPath, dictionaryAtPath: dicPath, acousticModelAtPath: OEAcousticModel.pathToModel("AcousticModelEnglish"), languageModelIsJSGF: false)
   }

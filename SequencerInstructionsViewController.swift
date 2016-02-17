@@ -20,25 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class AboutLayout : UIView {
+class SequencerInstructionsViewController : TamViewController {
   
-  let webview:UIWebView
-  
-  override init(frame: CGRect) {
-    let webframe = CGRectMake(frame.origin.x+4,frame.origin.y,frame.width-8,frame.height-4)
-    webview = UIWebView(frame: webframe)
-    super.init(frame:frame)
-    backgroundColor = UIColor.whiteColor()
-    addSubview(webview)
+  override init(_ intent:[String:String]) {
+    super.init(intent)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
-  func loadPage(link:String) {
-    let path = "files/info"
-    let filePath = NSBundle.mainBundle().pathForResource(link, ofType: "html", inDirectory:path)!
-    let htmlfile = try? String(contentsOfFile: filePath)
-    let baseURL = NSURL.fileURLWithPath(filePath)
-    webview.loadHTMLString(htmlfile!, baseURL: baseURL)    
+  
+  override func loadView() {
+    title = "Sequencer Instructions"
+    let instructionsView = AboutLayout(frame: contentFrame)
+    instructionsView.loadPage("sequencer")
+    view = instructionsView
   }
   
 }

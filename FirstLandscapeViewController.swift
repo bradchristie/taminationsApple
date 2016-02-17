@@ -52,6 +52,7 @@ class FirstLandscapeViewController: TamViewController {
 
     let aboutLayout = AboutLayout(frame:rightbounds)
     rightview.addSubview(aboutLayout)
+    aboutLayout.loadPage("about")
 
     let settingsLayout = SettingsLayout(frame:rightbounds)
     settingsControl.reset(settingsLayout)
