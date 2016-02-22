@@ -35,7 +35,7 @@ class LevelLayout: UIView {
     var layout:LevelLayout
     var color:UIColor
     
-    init(_ layout:LevelLayout, _ text:String, top:CGFloat, height:CGFloat, indent:CGFloat, color: UIColor /* , selectAction:(String)->Void  */ ) {
+    init(_ layout:LevelLayout, _ text:String, top:CGFloat, height:CGFloat, indent:CGFloat, color: UIColor) {
       self.layout = layout
       self.color = color
       //  Add a text view
@@ -56,9 +56,12 @@ class LevelLayout: UIView {
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {  }
     override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {  }
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+      //select()
+      layout.selectAction(label.text ?? "")
+    }
+    func select() {
       backgroundColor = UIColor.blueColor()
       label.textColor = UIColor.whiteColor()
-      layout.selectAction(label.text ?? "")
       layout.selectedLabel = self
     }
     func unselect() {
@@ -105,6 +108,20 @@ class LevelLayout: UIView {
   }
 
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+  
+  func selectLevel(level:String) {
+    if let data = LevelData.find(level) {
+      for v in subviews {
+        if let levelView = v as? LevelView {
+          if levelView.label.text! == data.name {
+            unselect()
+            levelView.select()
+            selectedLabel = levelView
+          }
+        }
+      }
+    }
+  }
   
   func unselect(isLandscape isLandscape:Bool = false) {
     if let label = selectedLabel {

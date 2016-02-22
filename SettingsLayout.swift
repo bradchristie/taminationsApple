@@ -142,6 +142,9 @@ class SettingsLayout: UIScrollView {
     addSubview(numbersPanel)
     addSubview(phantomsPanel)
     addSubview(geometryPanel)
+    
+    //  This is needed to enable scrolling on smaller devices (iPhone 4s)
+    contentSize = CGSize(width: frame.width, height: geometryPanel.frame.origin.y + geometryPanel.bounds.height)
   }
 
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }

@@ -54,11 +54,12 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   var title = ""
   var animtitle = ""
   var animlistdata:[AnimListData] = []
-  var selectAction:(String,String,Int,Int)->Void = { arg in }
+  var selectAction:(String,String,AnimListData,Int)->Void = { arg in }
   var hideDifficulty:()->Void = { }
   var link:String = ""
   var level:String = ""
   var xmlcount = 0
+  var firstanim = -1
 
   func reset(link:String, level:String, call:String?) {
     self.link = link
@@ -152,8 +153,9 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     
     //  Go to a requested animation
     if (selectanim >= 0) {
+      firstanim = selectanim
       animtitle = animlistdata[selectanim].title
-      selectAction(level,link,animlistdata[selectanim].xmlindex,xmlcount)
+      selectAction(level,link,animlistdata[selectanim],xmlcount)
     }
     else if (currentrow >= 0) {
       animtitle = animlistdata[currentrow].title
@@ -245,7 +247,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     let data = animlistdata[indexPath.row]
     animtitle = data.title
-    selectAction(level,link,data.xmlindex,xmlcount)
+    selectAction(level,link,data,xmlcount)
   }
   
   

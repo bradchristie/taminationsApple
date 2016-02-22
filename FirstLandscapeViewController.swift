@@ -25,6 +25,7 @@ class FirstLandscapeViewController: TamViewController {
   var settingsControl:SettingsControl
   var callListControl:CallListControl
   var firstcall = true
+  var selectLevel:(String)->Void = { arg in }
   var unselect:()->Void = { }
 
   override init(_ intent:[String:String]) {
@@ -72,16 +73,19 @@ class FirstLandscapeViewController: TamViewController {
       levelLayout.unselect()
       self.title = "Taminations"
       switch level {
-      case "About" : rightview.bringSubviewToFront(aboutLayout)
-      case "Settings" : rightview.bringSubviewToFront(settingsLayout)
-      case "Practice" : self.navigationController?.pushViewController(StartPracticeViewController(self.intent), animated: true)
-      case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
-      default :
-        self.callListControl.reset(level)
-        calllistview.reloadData()
-        rightview.bringSubviewToFront(calllistview)
-        self.title = "Taminations - " + LevelData.find(level)!.name
+        case "About" : rightview.bringSubviewToFront(aboutLayout)
+        case "Settings" : rightview.bringSubviewToFront(settingsLayout)
+        case "Practice" : self.navigationController?.pushViewController(StartPracticeViewController(self.intent), animated: true)
+        case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
+        default : self.selectLevel(level)
       }
+    }
+    selectLevel = { level in
+      self.callListControl.reset(level)
+      calllistview.reloadData()
+      rightview.bringSubviewToFront(calllistview)
+      levelLayout.selectLevel(level)
+      self.title = "Taminations - " + LevelData.find(level)!.name
     }
     unselect = { levelLayout.unselect(isLandscape: true) }
     callListControl.selectAction = { (level:String,link:String)->Void in

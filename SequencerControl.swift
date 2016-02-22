@@ -29,6 +29,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   var formation="Static Square"
   var listening = false
   let panelControl:AnimationPanelControl
+  var callNamesChanged:()->Void = { }
   
   override init() {
     panelControl = AnimationPanelControl()
@@ -109,6 +110,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
         layout!.callList.insertRowsAtIndexPaths([NSIndexPath(forRow: callNames.count-1, inSection: 0)], withRowAnimation: .None)
         layout!.callList.scrollToRowAtIndexPath(NSIndexPath(forRow: callNames.count-1, inSection: 0), atScrollPosition: .Bottom, animated: false)
         callBeats.append(newbeats - prevbeats)
+        callNamesChanged()
       }
       
     } catch let err as CallError {

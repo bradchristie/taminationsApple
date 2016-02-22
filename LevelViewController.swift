@@ -29,6 +29,7 @@ class LevelViewController: TamViewController {
     levelLayout!.selectAction = { (level:String)->Void in
       var intent = [String: String]()
       intent["level"] = level
+      self.levelLayout!.selectLevel(level)
       switch level {
       case "Settings" : self.navigationController?.pushViewController(SettingsViewController(intent), animated: true)
       case "About" : self.navigationController?.pushViewController(AboutViewController(intent), animated: true)

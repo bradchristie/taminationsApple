@@ -59,16 +59,17 @@ class AnimListViewController : TamViewController {
     definitionAction = {
       self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
     }
-    animListControl.selectAction = { (level:String,link:String,animnum:Int,animcount:Int)->Void in
+    animListControl.selectAction = { (level:String,link:String,item:AnimListControl.AnimListData,animcount:Int)->Void in
       var intent = [String: String]()
       intent["level"] = level
       intent["link"] = link
-      intent["animnum"] = "\(animnum)"
+      intent["animnum"] = "\(item.xmlindex)"
       intent["animcount"] = "\(animcount)"
       self.navigationController?.pushViewController(AnimationViewController(intent), animated: true)
     }
     animListControl.reset(link, level: level, call: call)
     title = animListControl.title
+    setShareButton("http://www.tamtwirlers.org/tamination/"+link+".html")
   }
  
   @objc func settingsSelector() {

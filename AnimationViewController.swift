@@ -54,6 +54,7 @@ class AnimationViewController : TamViewController {
     animationControl.reset(animationLayout, animationLayout.animationView, link: link, animnum: animnum)
     title = animationControl.title
     setLevelButton(level)
+    setShareButton("http://www.tamtwirlers.org/tamination/\(link).html?\(animationControl.animname)")
     panelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
 
     //  Hook up controls

@@ -22,7 +22,7 @@ import UIKit
 
 class SequencerViewController : TamViewController {
 
-  let sequencerContol = SequencerControl()
+  let sequencerControl = SequencerControl()
   
   override init(_ intent:[String:String]) {
     super.init(intent)
@@ -33,13 +33,16 @@ class SequencerViewController : TamViewController {
     title = "Sequencer"
     let layout = SequencerLayout(frame: contentFrame)
     view = layout
-    sequencerContol.reset(layout)
+    sequencerControl.reset(layout)
     layout.instructionsButton.addTarget(self, action: "instructionsSelector", forControlEvents: .TouchUpInside)
     layout.formationButton.addTarget(self,action:"formationSelector", forControlEvents: .TouchUpInside)
+    sequencerControl.callNamesChanged = {
+      self.setShareButton(self.sequencerControl.callNames.joinWithSeparator("\n"))
+    }
   }
   
   override func viewWillDisappear(animated: Bool) {
-    sequencerContol.stopListening()
+    sequencerControl.stopListening()
   }
 
   @objc func instructionsSelector() {
@@ -54,7 +57,7 @@ class SequencerViewController : TamViewController {
   }
   
   @objc func alertView(alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
-    sequencerContol.startingFormation(buttonIndex==0 ? "Facing Couples" : "Static Square")
+    sequencerControl.startingFormation(buttonIndex==0 ? "Facing Couples" : "Static Square")
   }
   
   override func shouldAutorotate() -> Bool {

@@ -23,9 +23,18 @@ import UIKit
 class TamViewController : UIViewController {
 
   let intent:[String:String]
+  let levelButton = TamButton()
+  let shareButton = ShareButton()
+  var levelText = ""
+  var shareText = ""
+  var levelAction:()->Void = { }
+  var shareAction:()->Void = { }
+  
   init(_ intent:[String:String]) {
     self.intent = intent
     super.init(nibName:nil,bundle:nil)
+    levelButton.addTarget(self, action: "levelSelector", forControlEvents: .TouchUpInside)
+    shareButton.addTarget(self, action: "shareSelector", forControlEvents: .TouchUpInside)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
@@ -36,7 +45,6 @@ class TamViewController : UIViewController {
     //  hard-wired status bar size = 20, don't know how to detect it
     return CGRectMake(frame1.origin.x,frame1.origin.y,frame1.size.width,frame1.size.height-frame2.size.height-20)
   }
-  var levelAction: () -> Void = { }
   
   override var title:String? {
     get {
@@ -71,28 +79,63 @@ class TamViewController : UIViewController {
     navigationController?.popViewControllerAnimated(true)
   }
   
-  func setLevelButton(level:String) {
-    let navbarframe = navigationController!.navigationBar.bounds
-    let levelButton = TamButton(frame:CGRectMake(0,0,navbarframe.height*3,navbarframe.height*0.6))
-    levelButton.setTitle(level,forState:UIControlState.Normal)
-    levelButton.sizeToFit()
-    navigationItem.rightBarButtonItem = UIBarButtonItem(customView: levelButton)
-    levelButton.addTarget(self, action: "levelSelector", forControlEvents: .TouchUpInside)
-    //  Hook up action to pop to list of calls for this level
-    levelAction = {
-      for vc in (self.navigationController?.viewControllers)! {
-        if let callListViewController = vc as? CallListViewController {
-          //  might not be the same level
-          callListViewController.level = level
-          callListViewController.loadView()
-          self.navigationController?.popToViewController(callListViewController, animated: true)
+  func setRightButtonItems() {
+    var items:[UIBarButtonItem] = []
+    if (levelText.length > 0) {
+      levelButton.setTitle(levelText,forState:UIControlState.Normal)
+      levelButton.sizeToFit()
+      items.append(UIBarButtonItem(customView: levelButton))
+      //  Hook up action to pop to list of calls for this level
+      levelAction = {
+        for vc in (self.navigationController?.viewControllers)! {
+          if let callListViewController = vc as? CallListViewController {
+            //  might not be the same level
+            callListViewController.level = self.levelText
+            callListViewController.loadView()
+            self.navigationController?.popToViewController(callListViewController, animated: true)
+            return
+          }
         }
+        for vc in (self.navigationController?.viewControllers)! {
+          if let firstViewController = vc as? FirstLandscapeViewController {
+            firstViewController.selectLevel(self.levelText)
+            self.navigationController?.popToViewController(firstViewController, animated: true)
+            return
+          }
+        }
+      }
+    }
+    if (shareText.length > 0) {
+      shareButton.sizeToFit()
+      items.append(UIBarButtonItem(customView: shareButton))
+    }
+    navigationItem.rightBarButtonItems = items
+  }
+  
+  func setLevelButton(level:String) {
+    levelText = level
+    setRightButtonItems()
+  }
+  
+  func setShareButton(share:String) {
+    shareText = share
+    setRightButtonItems()
+    shareAction = {
+      let controller = UIActivityViewController(activityItems: [self.shareText.matches("http.*") ? NSURL(string:self.shareText.replaceAll("\\s",""))! : self.shareText], applicationActivities: nil)
+      if (UIDevice.currentDevice().userInterfaceIdiom == .Pad) {
+        let pop = UIPopoverController(contentViewController: controller)
+        pop.presentPopoverFromRect(self.shareButton.bounds, inView: self.shareButton, permittedArrowDirections: .Any, animated: true)
+      } else {
+        self.presentViewController(controller, animated:true, completion:nil)
       }
     }
   }
   
   @objc func levelSelector() {
     levelAction()
+  }
+  @objc func shareSelector() {
+    shareAction()
   }
 
   override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {

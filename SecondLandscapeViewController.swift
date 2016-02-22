@@ -33,6 +33,7 @@ class SecondLandscapeViewController: TamViewController {
   
   var settingsAction:()->Void = { }
   var definitionAction:()->Void = { }
+  var selectAnimation:(AnimListControl.AnimListData)->Void = { arg in }
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -64,6 +65,7 @@ class SecondLandscapeViewController: TamViewController {
     topview.addSubview(animListLayout)
     view = topview
     title = animListControl.title
+    setLevelButton(level)
     
     let animationLayout = AnimationLayout(frame: middleframe)
     animationLayout.layer.borderWidth = 1
@@ -83,12 +85,12 @@ class SecondLandscapeViewController: TamViewController {
     var rightview:UIView = definitionLayout
 
     //  Hook up controls
-    animListControl.selectAction = { (level:String,link:String,animnum:Int, animcount:Int)->Void in
+    animListControl.selectAction = { (level:String,link:String,item:AnimListControl.AnimListData, animcount:Int)->Void in
       background1.animate(fromView: animationLayout, toView: animationLayout, callback: {
-        self.animationControl.reset(animationLayout, animationLayout.animationView, link:link, animnum: animnum)
-        self.definitionControl.setTitle(title: self.animListControl.animtitle)
+        self.selectAnimation(item)
       } )
     }
+    
     animationLayout.settingsButton.addTarget(self, action: "settingsSelector", forControlEvents: .TouchUpInside)
     settingsAction = {
       if rightview != settingsLayout {
@@ -110,10 +112,21 @@ class SecondLandscapeViewController: TamViewController {
     animationLayout.animationView.partCallback = { (part:Int) in
       self.definitionControl.setPart(part: part)
     }
-    animationPanelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
+
     animListControl.reset(link, level: level, call:call)
     title = animListControl.title
-    definitionControl.setTitle(title: animListControl.animtitle)
+
+    selectAnimation = { item in
+      self.animationControl.reset(animationLayout, animationLayout.animationView, link:self.link, animnum: item.xmlindex)
+      self.title = item.title
+      self.animationPanelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
+      self.definitionControl.setTitle(title: self.animListControl.animtitle)  // for definition highlighting
+      self.setShareButton("http://www.tamtwirlers.org/tamination/"+self.link+".html?"+item.fullname)
+    }
+    if (animListControl.currentrow >= 0) {
+      selectAnimation(animListControl.animlistdata[animListControl.currentrow])
+    }
+    
   }
   
   @objc func settingsSelector() {
