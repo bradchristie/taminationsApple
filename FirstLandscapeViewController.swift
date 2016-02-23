@@ -75,8 +75,8 @@ class FirstLandscapeViewController: TamViewController {
       switch level {
         case "About" : rightview.bringSubviewToFront(aboutLayout)
         case "Settings" : rightview.bringSubviewToFront(settingsLayout)
-        case "Practice" : self.navigationController?.pushViewController(StartPracticeViewController(self.intent), animated: true)
-        case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
+        case "Practice" : self.navigationController?.presentViewController(PracticeNavigationController(rootViewController: StartPracticeViewController(self.intent)), animated: true, completion: nil)
+          case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
         default : self.selectLevel(level)
       }
     }

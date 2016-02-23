@@ -229,6 +229,20 @@ extension UIColor {
 
 //  This lets a view controller restrict rotation
 extension UINavigationController {
+
+  func customNavBar() {
+    let navbar = navigationBar
+    navbar.translucent = false
+    let grad = CAGradientLayer()
+    grad.frame = navbar.bounds
+    grad.colors = [UIColor(red:0,green:0.75,blue:0,alpha:1).CGColor,UIColor(red:0,green:0.25,blue:0,alpha:1).CGColor]
+    UIGraphicsBeginImageContext(grad.frame.size)
+    grad.renderInContext(UIGraphicsGetCurrentContext()!)
+    let bgimage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    navbar.setBackgroundImage(bgimage, forBarMetrics: UIBarMetrics.Default)
+  }
+  
   public override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
     return visibleViewController!.supportedInterfaceOrientations()
   }
@@ -237,6 +251,15 @@ extension UINavigationController {
   }
 }
 
+@available(iOS 8.0, *)
+class UIAlertControllerExtension : UIAlertController {
+  override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+    return UIInterfaceOrientationMask.Portrait
+  }
+  override func shouldAutorotate() -> Bool {
+    return false
+  }
+}
 
 extension UIView {
   

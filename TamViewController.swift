@@ -53,7 +53,7 @@ class TamViewController : UIViewController {
     set {
       super.title = newValue
       let navbarframe = navigationController!.navigationBar.bounds
-      if (navigationController?.childViewControllers.count > 1) {
+      if (navigationController?.childViewControllers.count > 1 || presentingViewController != nil) {
         let backButton = TamButton(frame: CGRectMake(0,0,navbarframe.height*2,navbarframe.height*0.6))
         backButton.setTitle("Back",forState:UIControlState.Normal)
         backButton.sizeToFit()
@@ -76,7 +76,11 @@ class TamViewController : UIViewController {
   }
   
   @objc func backAction() {
-    navigationController?.popViewControllerAnimated(true)
+    if (navigationController?.childViewControllers.count > 1) {
+      navigationController?.popViewControllerAnimated(true)
+    } else if (presentingViewController != nil) {
+      dismissViewControllerAnimated(true, completion: nil)
+    }
   }
   
   func setRightButtonItems() {

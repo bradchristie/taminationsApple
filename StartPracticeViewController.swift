@@ -26,6 +26,7 @@ class StartPracticeViewController : TamViewController {
   var unselectAction:()->Void = { }
   
   override func loadView() {
+    navigationController!.customNavBar()
     let layout = StartPracticeLayout(frame:contentFrame)
     view = layout
     title = "Practice"
@@ -47,9 +48,12 @@ class StartPracticeViewController : TamViewController {
   }
   
   override func shouldAutorotate() -> Bool {
-    return false
+    return true
   }
   override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
     //  Don't do anything
   }
+  
+
+
 }

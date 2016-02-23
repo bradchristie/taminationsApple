@@ -25,19 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var mywindow:UIWindow?
 
-  func customNavBar(nav:UINavigationController) {
-    let navbar = nav.navigationBar
-    navbar.translucent = false
-    let grad = CAGradientLayer()
-    grad.frame = navbar.bounds
-    grad.colors = [UIColor(red:0,green:0.75,blue:0,alpha:1).CGColor,UIColor(red:0,green:0.25,blue:0,alpha:1).CGColor]
-    UIGraphicsBeginImageContext(grad.frame.size)
-    grad.renderInContext(UIGraphicsGetCurrentContext()!)
-    let bgimage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    navbar.setBackgroundImage(bgimage, forBarMetrics: UIBarMetrics.Default)
-  }
-  
   func processURL(url:NSURL)->[String:String] {
     var intent:[String:String] = [:]
     if let parts = url.pathComponents {
@@ -59,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let islandscape = mybounds.width > mybounds .height
     let myroot = istablet && islandscape ? FirstLandscapeViewController(intent) : LevelViewController(intent)
     let nav = UINavigationController.init(rootViewController: myroot)
-    customNavBar(nav)
+    nav.customNavBar()
     mywindow?.rootViewController = nav
     mywindow?.addSubview(myroot.view)
     mywindow?.makeKeyAndVisible()

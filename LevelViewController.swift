@@ -34,7 +34,7 @@ class LevelViewController: TamViewController {
       case "Settings" : self.navigationController?.pushViewController(SettingsViewController(intent), animated: true)
       case "About" : self.navigationController?.pushViewController(AboutViewController(intent), animated: true)
       case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(intent), animated: true)
-      case "Practice" : self.navigationController?.pushViewController(StartPracticeViewController(intent), animated: true)
+      case "Practice" : self.navigationController?.presentViewController(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
       default : self.navigationController?.pushViewController(CallListViewController(intent), animated: true)
       }
     }

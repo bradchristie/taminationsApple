@@ -40,4 +40,20 @@ class TutorialViewController : TamViewController {
     control.nextAnimation()
   }
   
+  override func shouldAutorotate() -> Bool {
+    return false
+  }
+  override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+    //  Don't do anything
+  }
+
+  override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+    return UIInterfaceOrientationMask.LandscapeLeft
+  }
+  
+  override func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
+    return UIInterfaceOrientation.LandscapeLeft
+  }
+  
+  
 }

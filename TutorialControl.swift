@@ -61,6 +61,7 @@ class TutorialControl : PracticeControl {
       let tam = tamlist![self.tutnum*2+offset]
       self.setTitle(title: tam["title"]!)
       practiceLayout.animationView.setAnimation(tam, intdan: gender.rawValue)
+      practiceLayout.animationView.setSpeed(Speed(rawValue: settings.integerForKey("practicespeed"))!)
       self.showInstructions()
     }
     
@@ -70,11 +71,20 @@ class TutorialControl : PracticeControl {
       let instructions = self.tutdata[self.tutnum].replaceAll("%primary%", primaryIsLeft ? "Left" : "Right")
                                                   .replaceAll("%secondary%",primaryIsLeft ? "Right" : "Left")
       let title = "Tutorial \(self.tutnum+1) of \(self.tutdata.count)"
-      let alert = UIAlertView(title: title, message: instructions, delegate: self, cancelButtonTitle: "OK")
       self.dismissedInstructions = {
         practiceLayout.animationView.doPlay()
       }
-      alert.show()
+      if #available(iOS 8, *) {
+        let alert = UIAlertControllerExtension(title: title, message: instructions, preferredStyle: .Alert)
+        let handler:(UIAlertAction)->Void = { arg in self.dismissedInstructions() }
+        let ok = UIAlertAction(title: "OK", style: .Default, handler: handler)
+        alert.addAction(ok)
+        let nav = UIApplication.sharedApplication().keyWindow!.rootViewController! as! UINavigationController
+        nav.visibleViewController!.presentViewController(alert, animated: true, completion: nil)
+      } else {
+        let alert = UIAlertView(title: title, message: instructions, delegate: self, cancelButtonTitle: "OK")
+        alert.show()
+      }
     }
     
     //  This overrides the parent method which starts the animation
@@ -96,15 +106,23 @@ class TutorialControl : PracticeControl {
       if (self.tutnum+1 >= self.tutdata.count) {
         practiceLayout.congratsView.text = "Tutorial Complete"
         practiceLayout.continueButton.hidden = false
-        let alert = UIAlertView(title: "Tutorial Complete",
-          message:  "Congratulations!  You have successfully completed the tutorial." +
-          "  Now select the level you would like to practice.",
-          delegate: self, cancelButtonTitle: "Return")
-        self.tutnum = 0
         self.dismissedInstructions = {
           self.dismissAction()
         }
-        alert.show()
+        let message =  "Congratulations!  You have successfully completed the tutorial." +
+        "  Now select the level you would like to practice."
+        if #available(iOS 8, *) {
+          let alert = UIAlertControllerExtension(title: "Tutorial Complete", message: message, preferredStyle: .Alert)
+          let handler:(UIAlertAction)->Void = { arg in self.dismissedInstructions() }
+          let ok = UIAlertAction(title: "Return", style: .Default, handler: handler)
+          alert.addAction(ok)
+          let nav = UIApplication.sharedApplication().keyWindow!.rootViewController! as! UINavigationController
+          nav.visibleViewController!.presentViewController(alert, animated: true, completion: nil)
+        } else {
+          let alert = UIAlertView(title: "Tutorial Complete", message: message, delegate: self, cancelButtonTitle: "Return")
+          alert.show()
+        }
+        self.tutnum = 0
       }
     }
     

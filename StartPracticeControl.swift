@@ -44,11 +44,11 @@ class StartPracticeControl {
     }
     switch settings.integerForKey("practicespeed") {
     case Speed.SLOW.rawValue :
-      layout.speedControl.selectedSegmentIndex = Speed.SLOW.rawValue
+      layout.speedControl.selectedSegmentIndex = 0
     case Speed.NORMAL.rawValue :
-      layout.speedControl.selectedSegmentIndex = Speed.NORMAL.rawValue
+      layout.speedControl.selectedSegmentIndex = 2
     default :
-      layout.speedControl.selectedSegmentIndex = Speed.MODERATE.rawValue
+      layout.speedControl.selectedSegmentIndex = 1
     }
     
     //  Hook up controllers
