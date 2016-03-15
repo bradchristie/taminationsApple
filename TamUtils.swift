@@ -111,7 +111,7 @@ class TamUtils {
     case "path" : return TamUtils.translatePath(elem)
     case "move" : return TamUtils.translateMove(elem)
     case "movement" : return TamUtils.translateMovement(elem)
-    case _ : return nil
+    case _ : return []
     }
   }
   

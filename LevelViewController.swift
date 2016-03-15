@@ -26,7 +26,7 @@ class LevelViewController: TamViewController {
   
   override func loadView() {
     levelLayout = LevelLayout(frame: contentFrame)
-    levelLayout!.selectAction = { (level:String)->Void in
+    Callouts.LevelButtonAction = { (level:String)->Void in
       var intent = [String: String]()
       intent["level"] = level
       self.levelLayout!.selectLevel(level)

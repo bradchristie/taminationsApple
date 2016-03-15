@@ -23,13 +23,13 @@ import UIKit
 class FirstLandscapeViewController: TamViewController {
 
   var settingsControl:SettingsControl
-  var callListControl:CallListControl
+  var model:CallListModel
   var firstcall = true
   var selectLevel:(String)->Void = { arg in }
   var unselect:()->Void = { }
 
   override init(_ intent:[String:String]) {
-    callListControl = CallListControl()
+    model = CallListModel()
     settingsControl = SettingsControl()
     super.init(intent)
   }
@@ -60,16 +60,16 @@ class FirstLandscapeViewController: TamViewController {
     rightview.addSubview(settingsLayout)
 
     let calllistview = CallListLayout(frame: rightbounds)
-    calllistview.dataSource = callListControl
-    calllistview.delegate = callListControl
-    calllistview.sb.delegate = callListControl
-    callListControl.reloadTable = { calllistview.reloadData() }
+    calllistview.dataSource = model
+    calllistview.delegate = model
+    calllistview.sb.delegate = model
+    model.reloadTable = { calllistview.reloadData() }
     rightview.addSubview(calllistview)
 
     view = topview
     title = "Taminations"
     rightview.bringSubviewToFront(aboutLayout)
-    levelLayout.selectAction = { (level:String)->Void in
+    Callouts.LevelButtonAction = { (level:String)->Void in
       levelLayout.unselect()
       self.title = "Taminations"
       switch level {
@@ -81,14 +81,14 @@ class FirstLandscapeViewController: TamViewController {
       }
     }
     selectLevel = { level in
-      self.callListControl.reset(level)
+      self.model.reset(level)
       calllistview.reloadData()
       rightview.bringSubviewToFront(calllistview)
       levelLayout.selectLevel(level)
       self.title = "Taminations - " + LevelData.find(level)!.name
     }
     unselect = { levelLayout.unselect(isLandscape: true) }
-    callListControl.selectAction = { (level:String,link:String)->Void in
+    model.selectAction = { (level:String,link:String)->Void in
       var intent = [String: String]()
       intent["level"] = level
       intent["link"] = link
@@ -96,7 +96,7 @@ class FirstLandscapeViewController: TamViewController {
     }
     //  If level passed in from URL sent to app, go there immediately
     if firstcall && intent["level"] != nil {
-      levelLayout.selectAction(intent["level"]!)
+      Callouts.LevelButtonAction(intent["level"]!)
     }
   }
 

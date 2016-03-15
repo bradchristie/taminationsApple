@@ -25,7 +25,7 @@ class CallListViewController : TamViewController {
   var level:String
   var firstcall = true
   //  Need to keep a pointer to the control so iOS doesn't zap it
-  var callListControl = CallListControl()
+  var model = CallListModel()
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -35,19 +35,19 @@ class CallListViewController : TamViewController {
   
   override func loadView() {
     let myview = CallListLayout(frame: contentFrame)
-    myview.dataSource = callListControl
-    myview.delegate = callListControl
-    callListControl.reset(level)
-    myview.sb.delegate = callListControl
+    myview.dataSource = model
+    myview.delegate = model
+    model.reset(level)
+    myview.sb.delegate = model
     view = myview
     title = LevelData.find(level)!.name
-    callListControl.selectAction = { (level:String,link:String)->Void in
+    model.selectAction = { (level:String,link:String)->Void in
       var intent = [String: String]()
       intent["level"] = level
       intent["link"] = link
       self.navigationController?.pushViewController(AnimListViewController(intent), animated: true)
     }
-    callListControl.reloadTable = { myview.reloadData() }
+    model.reloadTable = { myview.reloadData() }
   }
   
   override func viewDidAppear(animated: Bool) {

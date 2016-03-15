@@ -26,7 +26,6 @@ class LevelLayout: UIView {
   var labelwidth:CGFloat = 0
   var leftmargin:CGFloat = 0
   
-  var selectAction:(String)->Void = { arg in }
   var selectedLabel:LevelView? = nil
   
   class LevelView : UIView {
@@ -56,8 +55,7 @@ class LevelLayout: UIView {
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {  }
     override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {  }
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-      //select()
-      layout.selectAction(label.text ?? "")
+      Callouts.LevelButtonAction(label.text ?? "")
     }
     func select() {
       backgroundColor = UIColor.blueColor()

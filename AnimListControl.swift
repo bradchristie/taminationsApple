@@ -84,7 +84,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
         continue    // animations for sequencer only
       }
       let tamtitle = tam["title"]!
-      var from = tam["from"] ?? ""
+      var from = TamUtils.tamXref(tam)["from"] ?? ""
       var fullname = tamtitle + "from" + (from ?? "")  // for matching search request
       let group = tam["group"] ?? ""
       let difficulty = Int(tam["difficulty"] ?? "0") ?? 0
