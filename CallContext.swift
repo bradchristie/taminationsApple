@@ -56,17 +56,25 @@ class CallContext {
   }
   
   //  Test if dancer d2 is directly in front, back. left, right of dancer d1
-  static func isInFront(d1:Dancer)(_ d2:Dancer) -> Bool {
-    return d1 != d2 && angle(d1,d2).angleEquals(0)
+  static func isInFront(d1:Dancer) -> (Dancer) -> Bool {
+    return { (d2:Dancer) -> Bool in
+      return d1 != d2 && angle(d1,d2).angleEquals(0)
+    }
   }
-  static func isInBack(d1:Dancer)(_ d2:Dancer) -> Bool {
-    return d1 != d2 && angle(d1,d2).angleEquals(CG_PI)
+  static func isInBack(d1:Dancer) -> (Dancer) -> Bool {
+    return { (d2:Dancer) -> Bool in
+      return d1 != d2 && angle(d1,d2).angleEquals(CG_PI)
+    }
   }
-  static func isLeft(d1:Dancer)(_ d2:Dancer) -> Bool {
-    return d1 != d2 && angle(d1,d2).angleEquals(CG_PI/2)
+  static func isLeft(d1:Dancer) -> (Dancer) -> Bool {
+    return { (d2:Dancer) -> Bool in
+      return d1 != d2 && angle(d1,d2).angleEquals(CG_PI/2)
+    }
   }
-  static func isRight(d1:Dancer)(_ d2:Dancer) -> Bool {
-    return d1 != d2 && angle(d1,d2).angleEquals(-CG_PI/2)
+  static func isRight(d1:Dancer) -> (Dancer) -> Bool {
+    return { (d2:Dancer) -> Bool in
+      return d1 != d2 && angle(d1,d2).angleEquals(-CG_PI/2)
+    }
   }
   
   var callname = ""
@@ -286,7 +294,7 @@ class CallContext {
         if (testMapping(ctx1, ctx2, mapping: mapping, index: mapindex, sexy: sexy)) {
           found = true
         } else {
-          nextmapping++
+          nextmapping += 1
         }
       }
       if (nextmapping >= ctx2.dancers.count) {

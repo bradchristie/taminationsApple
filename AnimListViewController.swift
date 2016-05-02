@@ -54,8 +54,8 @@ class AnimListViewController : TamViewController {
     }
     setLevelButton(level)
     //  Hook up controls
-    settingsButton.addTarget(self, action: "settingsSelector", forControlEvents: .TouchUpInside)
-    definitionButton.addTarget(self, action: "definitionSelector", forControlEvents: .TouchUpInside)
+    settingsButton.addTarget(self, action: #selector(AnimListViewController.settingsSelector), forControlEvents: .TouchUpInside)
+    definitionButton.addTarget(self, action: #selector(AnimListViewController.definitionSelector), forControlEvents: .TouchUpInside)
     definitionAction = {
       self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
     }

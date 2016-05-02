@@ -33,8 +33,8 @@ class TamViewController : UIViewController {
   init(_ intent:[String:String]) {
     self.intent = intent
     super.init(nibName:nil,bundle:nil)
-    levelButton.addTarget(self, action: "levelSelector", forControlEvents: .TouchUpInside)
-    shareButton.addTarget(self, action: "shareSelector", forControlEvents: .TouchUpInside)
+    levelButton.addTarget(self, action: #selector(TamViewController.levelSelector), forControlEvents: .TouchUpInside)
+    shareButton.addTarget(self, action: #selector(TamViewController.shareSelector), forControlEvents: .TouchUpInside)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
@@ -58,7 +58,7 @@ class TamViewController : UIViewController {
         backButton.setTitle("Back",forState:UIControlState.Normal)
         backButton.sizeToFit()
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        backButton.addTarget(self, action: "backAction", forControlEvents: .TouchUpInside)
+        backButton.addTarget(self, action: #selector(TamViewController.backAction), forControlEvents: .TouchUpInside)
       } else {
         navigationItem.hidesBackButton = true
       }

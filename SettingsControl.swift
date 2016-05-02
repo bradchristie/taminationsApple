@@ -69,19 +69,19 @@ class SettingsControl {
     }
     
     //  Hook up controllers
-    layout.speedControl.addTarget(self, action: "speedSelector", forControlEvents: .ValueChanged)
-    layout.loopControl.addTarget(self, action: "loopSelector", forControlEvents: .ValueChanged)
-    layout.gridControl.addTarget(self, action: "gridSelector", forControlEvents: .ValueChanged)
-    layout.pathControl.addTarget(self, action: "pathSelector", forControlEvents: .ValueChanged)
-    layout.numbersControl.addTarget(self, action: "numbersSelector", forControlEvents: .ValueChanged)
-    layout.phantomsControl.addTarget(self, action: "phantomsSelector", forControlEvents: .ValueChanged)
-    layout.geometryControl.addTarget(self, action: "geometrySelector", forControlEvents: .ValueChanged)
+    layout.speedControl.addTarget(self, action: #selector(SettingsControl.speedSelector), forControlEvents: .ValueChanged)
+    layout.loopControl.addTarget(self, action: #selector(SettingsControl.loopSelector), forControlEvents: .ValueChanged)
+    layout.gridControl.addTarget(self, action: #selector(SettingsControl.gridSelector), forControlEvents: .ValueChanged)
+    layout.pathControl.addTarget(self, action: #selector(SettingsControl.pathSelector), forControlEvents: .ValueChanged)
+    layout.numbersControl.addTarget(self, action: #selector(SettingsControl.numbersSelector), forControlEvents: .ValueChanged)
+    layout.phantomsControl.addTarget(self, action: #selector(SettingsControl.phantomsSelector), forControlEvents: .ValueChanged)
+    layout.geometryControl.addTarget(self, action: #selector(SettingsControl.geometrySelector), forControlEvents: .ValueChanged)
     speedAction = {
       let s:Speed
       switch layout.speedControl.selectedSegmentIndex {
-      case 2 : s = .FAST
-      case 0 : s = . SLOW
-      default : s = .NORMAL
+      case 2 : s = .FAST; layout.speedHint.text = "Dancers move at a Fast pace"
+      case 0 : s = . SLOW; layout.speedHint.text = "Dancers move at a Slow pace"
+      default : s = .NORMAL; layout.speedHint.text = "Dancers move at a Normal pace"
       }
       NSUserDefaults.standardUserDefaults().setInteger(s.rawValue, forKey: "speed")      
       self.settingsListener()
@@ -100,6 +100,11 @@ class SettingsControl {
     }
     numbersAction = {
       NSUserDefaults.standardUserDefaults().setInteger(layout.numbersControl.selectedSegmentIndex, forKey: "numbers")
+      switch layout.numbersControl.selectedSegmentIndex {
+      case 1: layout.numbersHint.text = "Number dancers 1-8"
+      case 2: layout.numbersHint.text = "Number couples 1-4"
+      default: layout.numbersHint.text = "Dancers not numbered"
+      }
       self.settingsListener()
     }
     phantomsAction = {

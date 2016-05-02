@@ -30,18 +30,8 @@ class StartPracticeControl {
     
     //  Set the switches to the current saved values
     let settings = NSUserDefaults.standardUserDefaults()
-    switch settings.integerForKey("practicegender") {
-    case Gender.GIRL.rawValue :
-      layout.genderControl.selectedSegmentIndex = 1
-    default :
-      layout.genderControl.selectedSegmentIndex = 0
-    }
-    switch settings.integerForKey("primarycontroller") {
-    case 0 :
-      layout.primaryControl.selectedSegmentIndex = 0  // left
-    default :
-      layout.primaryControl.selectedSegmentIndex = 1  // right
-    }
+    layout.genderControl.selectedSegmentIndex = settings.integerForKey("practicegender")
+    layout.primaryControl.selectedSegmentIndex = settings.integerForKey("primarycontroller")
     switch settings.integerForKey("practicespeed") {
     case Speed.SLOW.rawValue :
       layout.speedControl.selectedSegmentIndex = 0
@@ -52,9 +42,9 @@ class StartPracticeControl {
     }
     
     //  Hook up controllers
-    layout.genderControl.addTarget(self, action: "genderSelector", forControlEvents: .ValueChanged)
-    layout.primaryControl.addTarget(self, action: "primarySelector", forControlEvents: .ValueChanged)
-    layout.speedControl.addTarget(self, action: "speedSelector", forControlEvents: .ValueChanged)
+    layout.genderControl.addTarget(self, action: #selector(StartPracticeControl.genderSelector), forControlEvents: .ValueChanged)
+    layout.primaryControl.addTarget(self, action: #selector(StartPracticeControl.primarySelector), forControlEvents: .ValueChanged)
+    layout.speedControl.addTarget(self, action: #selector(StartPracticeControl.speedSelector), forControlEvents: .ValueChanged)
 
     speedAction = {
       let s:Speed
@@ -67,7 +57,7 @@ class StartPracticeControl {
     }
     
     genderAction = {
-      NSUserDefaults.standardUserDefaults().setInteger(layout.genderControl.selectedSegmentIndex==Gender.GIRL.rawValue ? 1 : 0, forKey: "practicegender")
+      NSUserDefaults.standardUserDefaults().setInteger(layout.genderControl.selectedSegmentIndex==1 ? 1 : 0, forKey: "practicegender")
     }
     
     primaryAction = {

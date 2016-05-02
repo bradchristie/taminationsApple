@@ -45,7 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let istablet = UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
     let islandscape = mybounds.width > mybounds .height
     let myroot = istablet && islandscape ? FirstLandscapeViewController(intent) : LevelViewController(intent)
-    let nav = UINavigationController.init(rootViewController: myroot)
+    let nav = istablet ? UINavigationController.init(rootViewController: myroot)
+                       : PortraitNavigationController.init(rootViewController:myroot)
     nav.customNavBar()
     mywindow?.rootViewController = nav
     mywindow?.addSubview(myroot.view)

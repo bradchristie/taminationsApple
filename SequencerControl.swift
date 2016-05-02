@@ -41,7 +41,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     self.layout = layout
     layout.callList.delegate = self
     layout.callList.dataSource = self
-    layout.speakNow.addTarget(self, action: "mikeAction", forControlEvents: .TouchUpInside)
+    layout.speakNow.addTarget(self, action: #selector(SequencerControl.mikeAction), forControlEvents: .TouchUpInside)
     layout.animationView.partCallback = partCallback
     panelControl.reset(layout.animationPanel, view: layout.animationView)
     startSequence()

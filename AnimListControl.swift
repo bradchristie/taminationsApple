@@ -89,7 +89,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
       let group = tam["group"] ?? ""
       let difficulty = Int(tam["difficulty"] ?? "0") ?? 0
       diffsum += difficulty
-      xmlcount++
+      xmlcount += 1
       if (group.length > 0) {
         fullname = tamtitle
         //  Add header for new group as needed
@@ -143,7 +143,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
         animlistdata.append(AnimListData(celltype: CellType.Indented, text: from, title:tamtitle, group: tamtitle+" from", fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
       }
       
-      xmlindex++
+      xmlindex += 1
     }  // end of loop over animations defined in xml file
    
     //  Show or hide difficulty legend

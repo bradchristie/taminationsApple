@@ -300,7 +300,7 @@ class AnimationView: UIView {
     return iscore
   }
   
-  //  TODO interactive functions to process touch
+  //  Interactive functions to process touch
   override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
     //  For interactive dancer, pass all touch events through to its handler
     if (idancer != nil) {
@@ -423,7 +423,7 @@ class AnimationView: UIView {
       if (isRunning) {
         //  setNeedsDispay needs to be called after current processing is done
         //   otherwise the system ignores the request
-        performSelector("setNeedsDisplay",withObject: self, afterDelay: 0)
+        performSelector(#selector(UIView.setNeedsDisplay),withObject: self, afterDelay: 0)
       }
     }
   }
@@ -449,7 +449,15 @@ class AnimationView: UIView {
       GeometryMaker.makeOne(geometry).drawGrid(ctx)
     }
     //  Always show bigon center mark
-    //  TODO
+    if geometry == GeometryType.BIGON {
+      CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+      CGContextSetLineWidth(ctx, 0.05)
+      CGContextMoveToPoint(ctx, -0.5, 0.0)
+      CGContextAddLineToPoint(ctx, 0.5, 0.0)
+      CGContextMoveToPoint(ctx, 0.0, -0.5)
+      CGContextAddLineToPoint(ctx, 0.0, 0.5)
+      CGContextStrokePath(ctx)
+    }
     //  Draw paths if requested
     for d in dancers {
       if (!d.hidden && (showPaths || d.showPath)) {
@@ -733,8 +741,8 @@ class AnimationView: UIView {
           let cstr = g == .PHANTOM ? " " : couples[dnum]
           let cnum = g == .PHANTOM ? UIColor.lightGrayColor() : dancerColor[Int(cstr)!-1]
           //  add one dancer
-          //  TODO interactive dancer
-          if (g.rawValue == interactiveDancer  && --icount == 0) {
+          icount -= 1
+          if (g.rawValue == interactiveDancer  && icount == 0) {
             idancer = InteractiveDancer(number: nstr, number_couple: cstr, gender: g, fillcolor: cnum, mat: m, geom: geom.clone(), moves: movelist)
             dancers.append(idancer!)
           } else {
@@ -744,7 +752,7 @@ class AnimationView: UIView {
             }
           }
           beats = max(beats,dancers[dnum].beats+leadout)
-          dnum++
+          dnum += 1
         }
       }  //  All dancers added
       

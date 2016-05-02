@@ -58,13 +58,13 @@ class AnimationViewController : TamViewController {
     panelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
 
     //  Hook up controls
-    animationLayout.settingsButton.addTarget(self, action: "settingsSelector", forControlEvents: .TouchUpInside)
-    animationLayout.definitionButton.addTarget(self, action: "definitionSelector", forControlEvents: .TouchUpInside)
+    animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), forControlEvents: .TouchUpInside)
+    animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), forControlEvents: .TouchUpInside)
     definitionAction = {
       self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
     }
-    downSwiper.addTarget(self, action: "downSwipeAction")
-    upSwiper.addTarget(self, action: "upSwipeAction")
+    downSwiper.addTarget(self, action: #selector(AnimationViewController.downSwipeAction))
+    upSwiper.addTarget(self, action: #selector(AnimationViewController.upSwipeAction))
     animationLayout.addGestureRecognizer(downSwiper)
     animationLayout.addGestureRecognizer(upSwiper)
     

@@ -42,8 +42,8 @@ class SliderTicView: UIView {
       //  Draw tic marks
       CGContextSetStrokeColorWithColor(ctx, UIColor.whiteColor().CGColor)
       CGContextSetLineWidth(ctx, 1)
-      for var loc:CGFloat = 0; loc <= beats; loc += 1 {
-        x = width * loc/beats + xmargin
+      for loc in 0 ..< Int(beats) {
+        x = width * CGFloat(loc)/beats + xmargin
         CGContextMoveToPoint(ctx, x, 0)
         CGContextAddLineToPoint(ctx, x, height/4)
       }
@@ -60,7 +60,7 @@ class SliderTicView: UIView {
       let end:NSString = "End"
       x = width*(beats-2)/beats + xmargin - height/5
       end.drawAtPoint(CGPoint(x:x,y:y), withAttributes: attributes)
-      for var i=0; i<parts.count; i++ {
+      for i in 0 ..< parts.count {
         if (parts[i] < beats-4) {
           x = width*(2+parts[i])/beats + xmargin - (isParts ? height/10 : height/6)
           let text:NSString = (isParts && i == 0) ? "Part 2"

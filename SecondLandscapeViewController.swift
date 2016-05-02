@@ -91,14 +91,14 @@ class SecondLandscapeViewController: TamViewController {
       } )
     }
     
-    animationLayout.settingsButton.addTarget(self, action: "settingsSelector", forControlEvents: .TouchUpInside)
+    animationLayout.settingsButton.addTarget(self, action: #selector(SecondLandscapeViewController.settingsSelector), forControlEvents: .TouchUpInside)
     settingsAction = {
       if rightview != settingsLayout {
         background2.animate(fromView: definitionLayout, toView: settingsLayout, callback: { } )
         rightview = settingsLayout
       }
     }
-    animationLayout.definitionButton.addTarget(self, action: "definitionSelector", forControlEvents: .TouchUpInside)
+    animationLayout.definitionButton.addTarget(self, action: #selector(SecondLandscapeViewController.definitionSelector), forControlEvents: .TouchUpInside)
     definitionAction = {
       if rightview != definitionLayout {
         background2.animate(fromView: settingsLayout, toView: definitionLayout, callback: { } )

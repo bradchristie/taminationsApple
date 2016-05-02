@@ -117,11 +117,7 @@ class StartPracticeLayout: UIView {
     //  Put it together
     addSubview(settingsPanel)
     addSubview(levelPanel)
- //   if (frame.height > frame.width) {
- //     visualConstraints("V:|[b]-[a(==b)]|", fillHorizontal: true, spacing: 1)
- //   } else {
-      visualConstraints("|[a]-[b(==a)]|", fillVertical: true, spacing: 1)
- //   }
+    visualConstraints("|[a]-[b(==a)]|", fillVertical: true, spacing: 1)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   

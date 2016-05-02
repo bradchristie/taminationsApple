@@ -34,12 +34,12 @@ class Trade : Action {
           if (leftcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestleft)) {
             bestleft = d2
           }
-          leftcount++
+          leftcount += 1
         } else if (CallContext.isRight(d)(d2)) {
           if (rightcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestright)) {
             bestright = d2
           }
-          rightcount++
+          rightcount += 1
         }
       }
     }

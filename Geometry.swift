@@ -101,7 +101,24 @@ class BigonGeometry : Geometry {
   }
   
   func drawGrid(ctx: CGContextRef) {
-    //
+    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+    CGContextSetLineWidth(ctx, 0.01)
+    for xscale:CGFloat in [-1,1] {
+      CGContextSaveGState(ctx)
+      CGContextScaleCTM(ctx, xscale, 1)
+      for x1 in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(0.1)) {
+        CGContextMoveToPoint(ctx, abs(x1), 0)
+        for y1 in CGFloat(0.2).stride(through:CGFloat(7.5), by:CGFloat(0.2)) {
+          let a = 2 * atan2(y1,x1)
+          let r = sqrt(x1*x1+y1*y1)
+          let x = r*cos(a)
+          let y = r*sin(a)
+          CGContextAddLineToPoint(ctx, x, y)
+        }
+      }
+      CGContextStrokePath(ctx)
+      CGContextRestoreGState(ctx)
+    }
   }
   
 }
@@ -124,11 +141,11 @@ class SquareGeometry : Geometry {
   func drawGrid(ctx: CGContextRef) {
     CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
     CGContextSetLineWidth(ctx, 0.01)
-    for var x:CGFloat = -7.5; x <= 7.5; x += 1 {
+    for x in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(1)) {
       CGContextMoveToPoint(ctx, x, -7.5)
       CGContextAddLineToPoint(ctx, x, 7.5)
     }
-    for var y:CGFloat = -7.5; y <= 7.5; y += 1 {
+    for y in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(1)) {
       CGContextMoveToPoint(ctx, -7.5, y)
       CGContextAddLineToPoint(ctx, 7.5, y)
     }
@@ -173,7 +190,27 @@ class HexagonGeometry : Geometry {
   }
   
   func drawGrid(ctx: CGContextRef) {
-    //
+    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+    CGContextSetLineWidth(ctx, 0.01)
+    for a in CGFloat(0).stride(through:CGFloat(6), by:(1)) {
+      for yscale in CGFloat(-1).stride(through:CGFloat(1), by:CGFloat(2)) {
+        for x0 in CGFloat(0).stride(through:CGFloat(8.5), by:CGFloat(1)) {
+          CGContextSaveGState(ctx)
+          CGContextRotateCTM(ctx, (30.0 + a*60.0)*CG_PI/180.0)
+          CGContextScaleCTM(ctx, 1.0, yscale)
+          CGContextMoveToPoint(ctx, 0, x0)
+          for y0 in CGFloat(0.5).stride(through:CGFloat(8.5), by:CGFloat(0.5)) {
+            let a:CGFloat = atan2(y0,x0) * 2.0 / 3.0
+            let r:CGFloat = sqrt(x0*x0+y0*y0)
+            let x:CGFloat = r * sin(a)
+            let y:CGFloat = r * cos(a)
+            CGContextAddLineToPoint(ctx, x, y)
+          }
+          CGContextStrokePath(ctx)
+          CGContextRestoreGState(ctx)
+        }
+      }
+    }
   }
   
 }

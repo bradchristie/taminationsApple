@@ -34,8 +34,8 @@ class SequencerViewController : TamViewController {
     let layout = SequencerLayout(frame: contentFrame)
     view = layout
     sequencerControl.reset(layout)
-    layout.instructionsButton.addTarget(self, action: "instructionsSelector", forControlEvents: .TouchUpInside)
-    layout.formationButton.addTarget(self,action:"formationSelector", forControlEvents: .TouchUpInside)
+    layout.instructionsButton.addTarget(self, action: #selector(SequencerViewController.instructionsSelector), forControlEvents: .TouchUpInside)
+    layout.formationButton.addTarget(self,action:#selector(SequencerViewController.formationSelector), forControlEvents: .TouchUpInside)
     sequencerControl.callNamesChanged = {
       self.setShareButton(self.sequencerControl.callNames.joinWithSeparator("\n"))
     }

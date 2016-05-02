@@ -87,9 +87,9 @@ class PracticeLayout : UIView {
     addSubview(resultsPanel)
     visualConstraints("|[d] V:|[d]|")
     
-    repeatButton.addTarget(self, action: "repeatButtonClick", forControlEvents: .TouchUpInside)
-    continueButton.addTarget(self, action: "continueButtonClick", forControlEvents: .TouchUpInside)
-    returnButton.addTarget(self, action: "returnButtonClick", forControlEvents: .TouchUpInside)
+    repeatButton.addTarget(self, action: #selector(PracticeLayout.repeatButtonClick), forControlEvents: .TouchUpInside)
+    continueButton.addTarget(self, action: #selector(PracticeLayout.continueButtonClick), forControlEvents: .TouchUpInside)
+    returnButton.addTarget(self, action: #selector(PracticeLayout.returnButtonClick), forControlEvents: .TouchUpInside)
   }
   
   func hideExtraStuff() {

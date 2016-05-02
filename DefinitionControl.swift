@@ -75,7 +75,7 @@ class DefinitionControl {
 
     //  Show abbrev/full buttons only for Basic and Mainstream
     view.defstyle.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().boolForKey("abbrev") ? 0 : 1
-    view.defstyle.addTarget(self, action: "defstyleSelector", forControlEvents: .ValueChanged)
+    view.defstyle.addTarget(self, action: #selector(DefinitionControl.defstyleSelector), forControlEvents: .ValueChanged)
     defstyleAction = {
       let s = view.defstyle.selectedSegmentIndex
       view.webview.stringByEvaluatingJavaScriptFromString(s==0 ? "setAbbrev(true)" : "setAbbrev(false)")
