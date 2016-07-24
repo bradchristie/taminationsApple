@@ -73,16 +73,13 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     //  TODO "clickedfullname"
     
     //  Get the list of animations
-    let tams = TamUtils.tamList(tamxml)
+    let tams = TamUtils.tamList(tamxml).filter{$0["display"] != "none"}
     var prevtitle = ""
     var prevgroup = ""
     var diffsum = 0
     var selectanim = -1
     var xmlindex = 0
     for tam in tams {
-      if (tam["display"] == "none") {
-        continue    // animations for sequencer only
-      }
       let tamtitle = tam["title"]!
       var from = TamUtils.tamXref(tam)["from"] ?? ""
       var fullname = tamtitle + "from" + (from ?? "")  // for matching search request

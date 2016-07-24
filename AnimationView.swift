@@ -741,8 +741,10 @@ class AnimationView: UIView {
           let cstr = g == .PHANTOM ? " " : couples[dnum]
           let cnum = g == .PHANTOM ? UIColor.lightGrayColor() : dancerColor[Int(cstr)!-1]
           //  add one dancer
-          icount -= 1
-          if (g.rawValue == interactiveDancer  && icount == 0) {
+          if (g.rawValue == interactiveDancer) {
+            icount -= 1
+          }
+          if (g.rawValue == interactiveDancer && icount == 0) {
             idancer = InteractiveDancer(number: nstr, number_couple: cstr, gender: g, fillcolor: cnum, mat: m, geom: geom.clone(), moves: movelist)
             dancers.append(idancer!)
           } else {

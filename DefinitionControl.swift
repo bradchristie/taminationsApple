@@ -35,7 +35,7 @@ class DefinitionControl {
     //  See if the page is available in user's language
     //  Just use the first part of language e.g. "en" not "en-US"
     let lang = NSLocale.preferredLanguages()[0].replaceFirst("[-_].*", "")
-    let localefilename = filename + "." + lang
+    let localefilename = filename + ".lang-" + lang
     if NSBundle.mainBundle().pathForResource(localefilename, ofType: "html", inDirectory: path) != nil {
       filename = localefilename
     }

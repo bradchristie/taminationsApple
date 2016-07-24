@@ -114,7 +114,7 @@ class CallContext {
       var m = Matrix().postRotate(CGFloat(Double(fd["angle"]!)!)*CG_PI/180)
       m = m.postTranslate(CGFloat(Double(fd["x"]!)!), y: CGFloat(Double(fd["y"]!)!))
       dancers.append(Dancer(number: "\(i*2+1)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.whiteColor(), mat: m, geom: GeometryMaker.makeOne(GeometryType.SQUARE, r: 0), moves: [Movement]()))
-      dancers.append(Dancer(number: "\(i*2+1)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.whiteColor(), mat: m, geom: GeometryMaker.makeOne(GeometryType.SQUARE, r: 1), moves: [Movement]()))
+      dancers.append(Dancer(number: "\(i*2+2)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.whiteColor(), mat: m, geom: GeometryMaker.makeOne(GeometryType.SQUARE, r: 1), moves: [Movement]()))
     }
   }
   
@@ -311,7 +311,7 @@ class CallContext {
   }
   
   func testMapping(ctx1: CallContext, _ ctx2:CallContext, mapping:[Int], index i:Int, sexy:Bool) -> Bool {
-    if (sexy && ctx1.dancers[i].gender != ctx2.dancers[mapping[i]].gender) {
+    if (sexy && (ctx1.dancers[i].gender != ctx2.dancers[mapping[i]].gender)) {
       return false
     }
     return ctx1.dancers.enumerate().every { (j,d1) in

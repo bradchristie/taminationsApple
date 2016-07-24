@@ -106,6 +106,7 @@ class InteractiveDancer : Dancer {
       //  Also need to remember the Touch to correlate future move events
       let controller = NSUserDefaults.standardUserDefaults().integerForKey("primarycontroller")
       let xy = m.locationInView(inView)
+      //  controller values are 0 for left, 1 for right
       if ((xy.x > inView.bounds.size.width/2.0) ^ (controller == 0)) {
         primaryTouch.x = xy.x * s
         primaryTouch.y = xy.y * s
@@ -129,7 +130,7 @@ class InteractiveDancer : Dancer {
       }
     }
     else if (action == .Moved) {
-      //  MOvements
+      //  Movements
       let xy = m.locationInView(inView)
       if (m == primaryUITouch) {
         primaryMove.x = xy.x * s

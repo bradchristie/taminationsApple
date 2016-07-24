@@ -33,7 +33,7 @@ class AnimationControl {
     //self.animationView = animationView
     //  Fetch the XML animation and send it to the animation view
     let tamdoc = TamUtils.getXMLAsset(link)
-    let tam = TamUtils.tamList(tamdoc)[animnum]
+    let tam = TamUtils.tamList(tamdoc).filter{$0["display"] != "none"}[animnum]
     animationView.setAnimation(tam)
     
     //  Calculate name for sharing

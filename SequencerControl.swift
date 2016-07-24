@@ -35,6 +35,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     panelControl = AnimationPanelControl()
     super.init()
     observer.delegate = self
+    OEPocketsphinxController.sharedInstance().requestMicPermission()
   }
   
   func reset(layout:SequencerLayout) {
