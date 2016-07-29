@@ -33,6 +33,11 @@ class PracticeViewController : TamViewController {
     layout.returnButtonAction = {
       self.navigationController?.popViewControllerAnimated(true)
     }
+    layout.definitionButtonAction = {
+      var intent = [String: String]()
+      intent["link"] = self.control.link;
+      self.navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
+    }
     control.reset(intent, practiceLayout: layout)
     control.nextAnimation()
   }

@@ -28,8 +28,8 @@ class DefinitionViewController : TamViewController {
   
   override init(_ intent:[String:String]) {
     super.init(intent)
-    level = intent["level"]!
     link = intent["link"]!
+    level = LevelData.find(link.split("/")[0])!.name
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 

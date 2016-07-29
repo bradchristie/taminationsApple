@@ -37,6 +37,7 @@ class PracticeLayout : UIView {
   var repeatButtonAction:()->Void = { }
   var continueButtonAction:()->Void = { }
   var returnButtonAction:()->Void = { }
+  var definitionButtonAction:()->Void = { }
 
   override init(frame: CGRect) {
     super.init(frame:frame)
@@ -90,6 +91,7 @@ class PracticeLayout : UIView {
     repeatButton.addTarget(self, action: #selector(PracticeLayout.repeatButtonClick), forControlEvents: .TouchUpInside)
     continueButton.addTarget(self, action: #selector(PracticeLayout.continueButtonClick), forControlEvents: .TouchUpInside)
     returnButton.addTarget(self, action: #selector(PracticeLayout.returnButtonClick), forControlEvents: .TouchUpInside)
+    definitionButton.addTarget(self, action: #selector(PracticeLayout.definitionButtonClick), forControlEvents: .TouchUpInside)
   }
   
   func hideExtraStuff() {
@@ -108,6 +110,10 @@ class PracticeLayout : UIView {
   
   @objc func returnButtonClick() {
     returnButtonAction()
+  }
+  
+  @objc func definitionButtonClick() {
+    definitionButtonAction()
   }
   
   

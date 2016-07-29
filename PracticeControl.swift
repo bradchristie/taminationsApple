@@ -28,20 +28,20 @@ class PracticeControl {
   var success:()->Void = { }
   var failure:()->Void = { }
   let calldoc = TamUtils.getXMLAsset("src/calls.xml")
+  var link = ""
   
   func reset(intent:[String:String], practiceLayout:PracticeLayout) {
     let animationView = practiceLayout.animationView
     
     nextAnimation = {
-      var link = ""
       var tam:JiNode? = nil
       let selector = LevelData.find(intent["level"]!)!.selector
       let calls = self.calldoc.xPath("/calls/call[@\(selector)]")!
       while (tam == nil) {
-        let e = calls[(Int)(rand()) % calls.count]
+        let e = calls[(Int)(arc4random_uniform((UInt32)(calls.count)))]
         //  Remember link for definition
-        link = e["link"]!
-        let tamdoc = TamUtils.getXMLAsset(link)
+        self.link = e["link"]!
+        let tamdoc = TamUtils.getXMLAsset(self.link)
         let tams = tamdoc.xPath("/tamination/tam")!
           //  For now, skip any "difficult" animations
           .filter{($0["difficulty"] ?? "") != "3"}
@@ -49,7 +49,7 @@ class PracticeControl {
           //  to a concept call from a higher level
           .filter{!$0["title"]!.containsString("(")}
         if (tams.nonEmpty) {
-          tam = tams[(Int)(rand()) % tams.count]
+          tam = tams[(Int)(arc4random_uniform((UInt32)(tams.count)))]
           let settings = NSUserDefaults.standardUserDefaults()
           animationView.setAnimation(tam!, intdan: settings.integerForKey("practicegender")==1 ? Gender.GIRL.rawValue : Gender.BOY.rawValue)
           animationView.setSpeed(Speed(rawValue: settings.integerForKey("practicespeed"))!)
