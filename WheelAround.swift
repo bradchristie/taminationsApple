@@ -22,18 +22,18 @@ class WheelAround : Action {
   
   override var name:String { get { return "Wheel Around" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     if let d2 = d.data.partner {
       if (!d2.data.active) {
-        throw CallError("Dancer \(d.number) must Wheel Around with partner")
+        throw CallError("Dancer \(d.number) must Wheel Around with partner") as Error
       }
       if ((d.data.beau ^ d2.data.beau) && (d.data.belle ^ d2.data.belle)) {
         return TamUtils.getMove(d.data.beau ? "Beau Wheel" : "Belle Wheel")
       } else {
-        throw CallError("Dancer \(d.number) is not part of a Facing Couple")
+        throw CallError("Dancer \(d.number) is not part of a Facing Couple") as Error
       }
     } else {
-      throw CallError("Dancer \(d.number) is not part of a Facing Couple")
+      throw CallError("Dancer \(d.number) is not part of a Facing Couple") as Error
     }
   }
   

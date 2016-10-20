@@ -53,36 +53,36 @@ class Vector3D {
   var isZero:Bool { get { return x==0.0 && y==0.0 && z==0.0 } }
 
   //  Rotate by a given angle
-  func rotate(th:CGFloat) -> Vector3D {
+  func rotate(_ th:CGFloat) -> Vector3D {
     let d = length
     let a = angle + th
     return Vector3D(x: d*cos(a), y: d*sin(a))
   }
   
-  func cross(v: Vector3D) -> Vector3D {
+  func cross(_ v: Vector3D) -> Vector3D {
     return Vector3D(x: y*v.z - z*v.y,
       y: z*v.x - x*v.z,
       z: x*v.y - y*v.x)
   }
   
-  func vectorTo(v: Vector3D) -> Vector3D {
+  func vectorTo(_ v: Vector3D) -> Vector3D {
     return Vector3D(x:v.x-x, y:v.y-y, z:v.z-z)
   }
   
-  func angleDiff(v: Vector3D) -> CGFloat {
+  func angleDiff(_ v: Vector3D) -> CGFloat {
     return Vector3D.angleDiff(self.angle,a2:v.angle)
   }
   
-  func concatenate(tx:Matrix) -> Vector3D {
+  func concatenate(_ tx:Matrix) -> Vector3D {
     return Matrix().preTranslate(x, y: y).postConcat(tx).location
   }
   
-  func preConcatenate(tx:Matrix) -> Vector3D {
+  func preConcatenate(_ tx:Matrix) -> Vector3D {
     return Matrix().preTranslate(x, y: y).preConcat(tx).location
   }
   
-  class func angleDiff(a1:CGFloat, a2:CGFloat) -> CGFloat {
-    return ((a1-a2 + CGFloat(M_PI)*3.0) % (CGFloat(M_PI)*2.0)) - CGFloat(M_PI);
+  class func angleDiff(_ a1:CGFloat, a2:CGFloat) -> CGFloat {
+    return ((a1-a2 + CGFloat(M_PI)*3.0).truncatingRemainder(dividingBy: (CGFloat(M_PI)*2.0))) - CGFloat(M_PI);
   }
   
 }

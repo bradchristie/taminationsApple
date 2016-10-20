@@ -22,7 +22,7 @@ class ExplodeAnd : LineCall {
   
   override var name:String { get { return "Explode and" } }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     try ctx.applyCalls("Extend","Quarter In")
   }
   

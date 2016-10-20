@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class CodedCall : Call {
 
-  static func getCodedCall(callname:String) -> CodedCall? {
+  static func getCodedCall(_ callname:String) -> CodedCall? {
     return nil
   }
   

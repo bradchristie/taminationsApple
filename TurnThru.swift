@@ -22,17 +22,17 @@ class TurnThru : Action {
   
   override var name:String { get { return "Turn Thru" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     //  Can only turn thru with another dancer
     //  in front of this dancer
     //  who is also facing this dancer
     if let d2 = ctx.dancerInFront(d) {
       let dist = CallContext.distance(d,d2)
-      return TamUtils.getMove("Extend Left").scale(dist/2,0.5) ++
-        TamUtils.getMove("Swing Right").scale(0.5,0.5) ++
+      return TamUtils.getMove("Extend Left").scale(dist/2,0.5) +
+        TamUtils.getMove("Swing Right").scale(0.5,0.5) +
         TamUtils.getMove("Extend Right").scale(dist/2,0.5)
     } else {
-      throw CallError("Cannot find dancer to Turn Thru with \(d.number)");
+      throw CallError("Cannot find dancer to Turn Thru with \(d.number)") as Error;
     }
   }
   

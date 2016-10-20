@@ -22,33 +22,33 @@ class Zoom : Action {
   
   override var name:String { get { return "Zoom" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     if (d.data.leader) {
       if let d2 = ctx.dancerInBack(d) {
         if (!d2.data.active) {
-          throw CallError ("Trailer of dancer $\(d.number) is not active")
+          throw CallError ("Trailer of dancer $\(d.number) is not active") as Error
         }
         let a = CallContext.angle(d)
         let c = a < 0 ? "Run Left" : "Run Right"
         let dist = CallContext.distance(d,d2)
-        return TamUtils.getMove(c).changebeats(2).skew(-dist/2, 0) ++ TamUtils.getMove(c).changebeats(2).skew(dist/2, 0)
+        return TamUtils.getMove(c).changebeats(2).skew(-dist/2, 0) + TamUtils.getMove(c).changebeats(2).skew(dist/2, 0)
       }
       else {
-        throw CallError("Dancer \(d.number) cannot Zoom")
+        throw CallError("Dancer \(d.number) cannot Zoom") as Error
       }
     }
     else if (d.data.trailer) {
       if let d2 = ctx.dancerInFront(d) {
         if (!d2.data.active) {
-          throw CallError ("Leader of dancer \(d.number) is not active")
+          throw CallError ("Leader of dancer \(d.number) is not active") as Error
         }
         let dist = CallContext.distance(d,d2)
         return TamUtils.getMove("Forward").changebeats(4).scale(dist, 1)
       } else {
-        throw CallError("Dancer \(d.number) cannot Zoom")
+        throw CallError("Dancer \(d.number) cannot Zoom") as Error
       }
     } else {
-      throw CallError("Dancer \(d.number) cannot Zoom")
+      throw CallError("Dancer \(d.number) cannot Zoom") as Error
     }
   }
   

@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class FourDancerCall : Action {
   
-  func preferFilter(ctx:CallContext) -> Bool { return true }
+  func preferFilter(_ ctx:CallContext) -> Bool { return true }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     //  If there are just 4 dancers, run the call with no modifications
     if (ctx.dancers.count <= 4) {
       try super.perform(ctx,index:index)
@@ -47,13 +47,13 @@ class FourDancerCall : Action {
     
   }
 
-  override func preProcess(ctx: CallContext, index:Int=0) {
+  override func preProcess(_ ctx: CallContext, index:Int=0) {
     ctx.center()
     // TODO Need to do additional transforms here ??? e.g. expand
     ctx.analyze()
   }
   
-  override func postProcess(ctx: CallContext, index:Int=0) {
+  override func postProcess(_ ctx: CallContext, index:Int=0) {
     if (ctx.dancers.count > 4) {
       // And transform the resulting paths back
       ctx.dancers.forEach { d in
@@ -75,14 +75,14 @@ class FourDancerCall : Action {
   
   //  This returns an array of 2 contexts, 4 dancers each
   //  divided by an axis
-  func split(ctx:CallContext, isVertical:Bool) -> [CallContext] {
-    func f(d:Dancer) -> CGFloat { return isVertical ? d.location.x : d.location.y }
+  func split(_ ctx:CallContext, isVertical:Bool) -> [CallContext] {
+    func f(_ d:Dancer) -> CGFloat { return isVertical ? d.location.x : d.location.y }
     //  Fail if there are any dancers on the axis
     if (ctx.dancers.exists{f($0).isApprox(0)}) {
       return []
     } else {
       //  Create the two contexts
-      let spl = ctx.dancers.partition{f($0) < 0}
+      let spl = ctx.dancers.partitionAndSplit { f($0) < 0 }
       let ctx1 = CallContext(source: spl[0])
       let ctx2 = CallContext(source: spl[1])
       ctx1.isVertical = isVertical

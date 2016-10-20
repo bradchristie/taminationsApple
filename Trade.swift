@@ -22,7 +22,7 @@ class Trade : Action {
   
   override var name:String { get { return "Trade" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     //  Figure out what dancer we're trading with
     var leftcount = 0
     var bestleft = d
@@ -58,12 +58,12 @@ class Trade : Action {
       call = "Run Left"
       samedir = CallContext.isRight(dtrade)(d)
     } else {
-      throw CallError("Unable to calculate Trade")
+      throw CallError("Unable to calculate Trade") as Error
     }
     
     //  Found the dancer to trade with.
     //  Now make room for any dancers in between
-    var hands = Hands.NOHANDS
+    var hands = Hands.nohands
     let dist = CallContext.distance(d,dtrade)
     var scaleX:CGFloat = 1.0
     if (ctx.inBetween(d,dtrade).nonEmpty) {
@@ -83,9 +83,9 @@ class Trade : Action {
       //  Hold hands for trades that are swing/slip
       if (!samedir && dist < 2.1) {
         if (call == "Run Left") {
-          hands = Hands.LEFTHAND
+          hands = Hands.lefthand
         } else{
-          hands = Hands.RIGHTHAND
+          hands = Hands.righthand
         }
       }
     }

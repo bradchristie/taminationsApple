@@ -22,24 +22,24 @@ import UIKit
 
 class PlayButton : TamButton {
 
-  override func drawRect(rect: CGRect) {
-    super.drawRect(rect)
+  override func draw(_ rect: CGRect) {
+    super.draw(rect)
     
     //  This controls the size
     let h = bounds.height/2
-    let black = UIColor.blackColor()
+    let black = UIColor.black
     black.setFill()
     let path = UIBezierPath()
     
-    if (selected) {
+    if (isSelected) {
       let w = h/3
-      path.appendPath(UIBezierPath(rect: CGRectMake(bounds.width/2-w*1.5,bounds.height/2-h/2,w,h)))
-      path.appendPath(UIBezierPath(rect: CGRectMake(bounds.width/2+w*1.5,bounds.height/2-h/2,w,h)))
+      path.append(UIBezierPath(rect: CGRect(x: bounds.width/2-w*1.5,y: bounds.height/2-h/2,width: w,height: h)))
+      path.append(UIBezierPath(rect: CGRect(x: bounds.width/2+w*1.5,y: bounds.height/2-h/2,width: w,height: h)))
     } else {
-      path.moveToPoint(CGPoint(x: bounds.width/2-h*0.433, y: bounds.height/2-h/2))
-      path.addLineToPoint(CGPoint(x: bounds.width/2+h*0.433, y: bounds.height/2))
-      path.addLineToPoint(CGPoint(x: bounds.width/2-h*0.433, y: bounds.height/2+h/2))
-      path.closePath()
+      path.move(to: CGPoint(x: bounds.width/2-h*0.433, y: bounds.height/2-h/2))
+      path.addLine(to: CGPoint(x: bounds.width/2+h*0.433, y: bounds.height/2))
+      path.addLine(to: CGPoint(x: bounds.width/2-h*0.433, y: bounds.height/2+h/2))
+      path.close()
     }
     
     //  Draw it

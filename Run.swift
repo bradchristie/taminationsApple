@@ -22,21 +22,21 @@ class Run : Action {
   
   override var name:String { get { return "Run" } }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     //  We need to look at all the dancers, not just actives
     //  because partners of the runners need to dodge
     try ctx.dancers.forEach { d in
       if (d.data.active) {
         //  Partner must be inactive
         switch d.data.partner {
-        case .Some(let d2) where !d2.data.active:
+        case .some(let d2) where !d2.data.active:
           d.path.add(TamUtils.getMove(d.data.beau ? "Run Right" : "Run Left"))
         default:
-          throw CallError("Dancer \(d.number) has nobody to Run around")
+          throw CallError("Dancer \(d.number) has nobody to Run around") as Error
         }
       } else {
         switch d.data.partner {
-        case .Some(let d2) where d2.data.active:
+        case .some(let d2) where d2.data.active:
           d.path.add(TamUtils.getMove(d.data.beau ? "Dodge Right" : "Dodge Left"))
         default:
           break  // not involved

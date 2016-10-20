@@ -22,8 +22,8 @@ class Girls : FilterActives {
   
   override var name:String { get { return "Girls" } }
   
-  override func isActive(d: Dancer) -> Bool {
-    return d.gender == .GIRL
+  override func isActive(_ d: Dancer) -> Bool {
+    return d.gender == .girl
   }
   
 }

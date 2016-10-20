@@ -22,7 +22,7 @@ class Leaders : FilterActives {
   
   override var name:String { get { return "Leaders" } }
   
-  override func isActive(d: Dancer) -> Bool {
+  override func isActive(_ d: Dancer) -> Bool {
     return d.data.leader
   }
   

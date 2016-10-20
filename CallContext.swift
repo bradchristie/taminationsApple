@@ -25,53 +25,53 @@ class CallContext {
   //  Angle of d2 as viewed from d1
   //  If angle is 0 then d2 is in front of d1
   //  Angle returned is in the range -pi to pi
-  static func angle(d1:Dancer, _ d2:Dancer) -> CGFloat {
+  static func angle(_ d1:Dancer, _ d2:Dancer) -> CGFloat {
     return d2.location.concatenate(Matrix(d1.tx).inverse()).angle
   }
   
   //  Distance between two dancers
-  static func distance(d1:Dancer, _ d2:Dancer) -> CGFloat {
+  static func distance(_ d1:Dancer, _ d2:Dancer) -> CGFloat {
     return (d1.location - d2.location).length
   }
   
   //  Angle of dancer to the origin
-  static func angle(d:Dancer) -> CGFloat {
+  static func angle(_ d:Dancer) -> CGFloat {
     return Vector3D(x: 0,y: 0).preConcatenate(Matrix(d.tx).inverse()).angle
   }
   
   //  Distance of one dancer to the origin
-  static func distance(d1:Dancer) -> CGFloat {
+  static func distance(_ d1:Dancer) -> CGFloat {
     return d1.location.length
   }
   
   //  Other geometric interrogatives
-  static func isFacingIn(d:Dancer) -> Bool {
+  static func isFacingIn(_ d:Dancer) -> Bool {
     let a = abs(angle(d))
     return !a.isApprox(CG_PI/2) && a < CG_PI / 2
   }
   
-  static func isFacingOut(d:Dancer) -> Bool {
+  static func isFacingOut(_ d:Dancer) -> Bool {
     let a = abs(angle(d))
     return !a.isApprox(CG_PI/2) && a > CG_PI / 2
   }
   
   //  Test if dancer d2 is directly in front, back. left, right of dancer d1
-  static func isInFront(d1:Dancer) -> (Dancer) -> Bool {
+  static func isInFront(_ d1:Dancer) -> (Dancer) -> Bool {
     return { (d2:Dancer) -> Bool in
       return d1 != d2 && angle(d1,d2).angleEquals(0)
     }
   }
-  static func isInBack(d1:Dancer) -> (Dancer) -> Bool {
+  static func isInBack(_ d1:Dancer) -> (Dancer) -> Bool {
     return { (d2:Dancer) -> Bool in
       return d1 != d2 && angle(d1,d2).angleEquals(CG_PI)
     }
   }
-  static func isLeft(d1:Dancer) -> (Dancer) -> Bool {
+  static func isLeft(_ d1:Dancer) -> (Dancer) -> Bool {
     return { (d2:Dancer) -> Bool in
       return d1 != d2 && angle(d1,d2).angleEquals(CG_PI/2)
     }
   }
-  static func isRight(d1:Dancer) -> (Dancer) -> Bool {
+  static func isRight(_ d1:Dancer) -> (Dancer) -> Bool {
     return { (d2:Dancer) -> Bool in
       return d1 != d2 && angle(d1,d2).angleEquals(-CG_PI/2)
     }
@@ -80,7 +80,7 @@ class CallContext {
   var callname = ""
   var callstack = [Call]()
   var dancers = [Dancer]()
-  let genderMap = ["boy" : Gender.BOY, "girl" : Gender.GIRL, "phantom" : Gender.PHANTOM ]
+  let genderMap = ["boy" : Gender.boy, "girl" : Gender.girl, "phantom" : Gender.phantom ]
   var isVertical = false  //  for FourDancerCall
   
   init() { }
@@ -101,7 +101,7 @@ class CallContext {
   }
 
   //  Get a specific dancer
-  func getDancer(i:Int) -> Dancer {
+  func getDancer(_ i:Int) -> Dancer {
     return dancers[i]
   }
   
@@ -109,12 +109,12 @@ class CallContext {
   convenience init(formation:JiNode) {
     self.init()
     let fds = formation.xPath("dancer")
-    for (i,fd) in fds.enumerate() {
+    for (i,fd) in fds.enumerated() {
       //  TODO this assumes square geometry
       var m = Matrix().postRotate(CGFloat(Double(fd["angle"]!)!)*CG_PI/180)
       m = m.postTranslate(CGFloat(Double(fd["x"]!)!), y: CGFloat(Double(fd["y"]!)!))
-      dancers.append(Dancer(number: "\(i*2+1)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.whiteColor(), mat: m, geom: GeometryMaker.makeOne(GeometryType.SQUARE, r: 0), moves: [Movement]()))
-      dancers.append(Dancer(number: "\(i*2+2)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.whiteColor(), mat: m, geom: GeometryMaker.makeOne(GeometryType.SQUARE, r: 1), moves: [Movement]()))
+      dancers.append(Dancer(number: "\(i*2+1)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.white, mat: m, geom: GeometryMaker.makeOne(GeometryType.square, r: 0), moves: [Movement]()))
+      dancers.append(Dancer(number: "\(i*2+2)", number_couple: "\(i+1)", gender: genderMap[fd["gender"]!]!, fillcolor: UIColor.white, mat: m, geom: GeometryMaker.makeOne(GeometryType.square, r: 1), moves: [Movement]()))
     }
   }
   
@@ -122,7 +122,7 @@ class CallContext {
   * Append the result of processing this CallContext to it source.
   * The CallContext must have been previously cloned from the source.
   */
-  func appendToSource() -> CallContext {
+  @discardableResult func appendToSource() -> CallContext {
     for d in dancers {
       d.clonedFrom!.path.add(d.path)
       d.clonedFrom!.animateToEnd()
@@ -130,14 +130,14 @@ class CallContext {
     return self
   }
   
-  func applyCall(calltext:String) throws -> CallContext {
+  @discardableResult func applyCall(_ calltext:String) throws -> CallContext {
     try interpretCall(calltext)
     try performCall()
     appendToSource()
     return self
   }
   
-  func applyCalls(calltext:String ...) throws {
+  func applyCalls(_ calltext:String ...) throws {
     for callstr in calltext {
       try CallContext(source:self).applyCall(callstr)
     }
@@ -151,7 +151,7 @@ class CallContext {
    * This is the main loop for interpreting a call
    * @param calltxt  One complete call, lower case, words separated by single spaces
    */
-  func interpretCall(calltxt:String) throws {
+  func interpretCall(_ calltxt:String) throws {
     var calltext = calltxt
     var err:CallError = CallNotFoundError(calltxt)
     //  Clear out any previous paths from incomplete parsing
@@ -184,12 +184,12 @@ class CallContext {
         return success
       }) {
         //  Every combination from callwords.chopped failed
-        throw err
+        throw err as Error
       }
     }
   }
   
-  func matchXMLCall(calltext:String) throws -> Bool {
+  func matchXMLCall(_ calltext:String) throws -> Bool {
     var found = false
     var matches = false
     var ctx = self
@@ -218,8 +218,8 @@ class CallContext {
     }
     found = tams.nonEmpty
     //  Now find the animations that match the name and formation
-    tams.filter { (tam:JiNode) -> Bool in
-      tam["title"]!.lowercaseString.replaceAll("\\W", "").matches(callquery)
+    _ = tams.filter { (tam:JiNode) -> Bool in
+      tam["title"]!.lowercased().replaceAll("\\W", "").matches(callquery)
     }.exists { (tam:JiNode) -> Bool in
       let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xPath("formation").first!
       let sexy = tam["gender-specific"] != nil
@@ -234,7 +234,7 @@ class CallContext {
     }
     if (found && !matches) {
       //  Found the call but formations did not match
-      throw FormationNotFoundError(calltext)
+      throw FormationNotFoundError(calltext) as Error
     }
     return matches
   }
@@ -259,7 +259,7 @@ class CallContext {
   *
   */
 
-  func angleBin(a:CGFloat) -> Int {
+  func angleBin(_ a:CGFloat) -> Int {
     switch a {
     case let x where x.angleEquals(0) : return 0
     case let x where x.angleEquals(CG_PI / 2) : return 2
@@ -273,17 +273,17 @@ class CallContext {
     }
   }
   
-  func dancerRelation(d1:Dancer, _ d2:Dancer) -> Int {
+  func dancerRelation(_ d1:Dancer, _ d2:Dancer) -> Int {
     return angleBin(CallContext.angle(d1,d2))
   }
   
   
-  func matchFormations(ctx1: CallContext, _ ctx2:CallContext, _ sexy:Bool) -> [Int]? {
+  func matchFormations(_ ctx1: CallContext, _ ctx2:CallContext, _ sexy:Bool) -> [Int]? {
     if (ctx1.dancers.count != ctx2.dancers.count) {
       return nil
     }
     //  Find mapping using DFS
-    var mapping = [Int](count:ctx1.dancers.count, repeatedValue: -1)
+    var mapping = [Int](repeating: -1, count: ctx1.dancers.count)
     var mapindex = 0
     while (mapindex >= 0 && mapindex < ctx1.dancers.count) {
       var nextmapping = mapping[mapindex] + 1
@@ -310,11 +310,11 @@ class CallContext {
     return mapindex < 0 ? nil : mapping
   }
   
-  func testMapping(ctx1: CallContext, _ ctx2:CallContext, mapping:[Int], index i:Int, sexy:Bool) -> Bool {
+  func testMapping(_ ctx1: CallContext, _ ctx2:CallContext, mapping:[Int], index i:Int, sexy:Bool) -> Bool {
     if (sexy && (ctx1.dancers[i].gender != ctx2.dancers[mapping[i]].gender)) {
       return false
     }
-    return ctx1.dancers.enumerate().every { (j,d1) in
+    return ctx1.dancers.enumerated().every { (j,d1) in
       if (mapping[j] < 0 || i==j) {
         return true
       } else {
@@ -335,7 +335,7 @@ class CallContext {
   }
   
   
-  func matchCodedCall(calltext:String) throws -> Bool {
+  func matchCodedCall(_ calltext:String) throws -> Bool {
     if let call = CodedCall.getCodedCall(calltext) {
       callstack.append(call)
       callname += call.name + " "
@@ -352,25 +352,25 @@ class CallContext {
     analyze()
     //  Concepts and modifications primarily use the preProcess and
     //  postProcess methods
-    callstack.enumerate().forEach { (i,c) in c.preProcess(self, index: i) }
+    callstack.enumerated().forEach { (i,c) in c.preProcess(self, index: i) }
     //  Core calls primarly use the performCall method
-    try callstack.enumerate().forEach { (i,c) in try c.performCall(self, index: i) }
-    callstack.enumerate().forEach { (i,c) in c.postProcess(self, index: i) }
+    try callstack.enumerated().forEach { (i,c) in try c.performCall(self, index: i) }
+    callstack.enumerated().forEach { (i,c) in c.postProcess(self, index: i) }
   }
   
   //  This is used to match XML calls
-  func matchShapes(ctx2:CallContext) -> [Int]? {
+  func matchShapes(_ ctx2:CallContext) -> [Int]? {
     let ctx1 = self
     if (ctx1.dancers.count != ctx2.dancers.count) {
       return nil
     }
-    var mapping = [Int](count:ctx1.dancers.count, repeatedValue:0)
-    var reversemap = [Int](count:ctx1.dancers.count, repeatedValue:0)
-    ctx1.dancers.enumerate().forEach { (i,d1) in
+    var mapping = [Int](repeating: 0, count: ctx1.dancers.count)
+    var reversemap = [Int](repeating: 0, count: ctx1.dancers.count)
+    ctx1.dancers.enumerated().forEach { (i,d1) in
       var bestd2 = -1
       var bestdistance:CGFloat = 100
       let v1 = d1.location
-      ctx2.dancers.enumerate().forEach { (j,d2) in
+      ctx2.dancers.enumerated().forEach { (j,d2) in
         let d = (v1 - d2.location).length
         if (d.isApprox(bestdistance)) {
           bestd2 = -1
@@ -391,46 +391,46 @@ class CallContext {
 
   //  Re-center dancers
   func center() {
-    let xave = dancers.map { $0.location.x } .reduce(0, combine: +) / CGFloat(dancers.count)
-    let yave = dancers.map { $0.location.y } .reduce(0, combine: +) / CGFloat(dancers.count)
-    dancers.forEach { $0.starttx.postTranslate(xave, y: yave) }
+    let xave = dancers.map { $0.location.x } .reduce(0, +) / CGFloat(dancers.count)
+    let yave = dancers.map { $0.location.y } .reduce(0, +) / CGFloat(dancers.count)
+    dancers.forEach { $0.starttx = $0.starttx.postTranslate(xave, y: yave) }
   }
   
   //  Return max number of beats among all the dancers
-  var maxBeats:CGFloat { get { return dancers.reduce(0, combine: { max($0,$1.path.beats) } ) } }
+  var maxBeats:CGFloat { get { return dancers.reduce(0, { max($0,$1.path.beats) } ) } }
 
   //  Return all dancers, ordered by distance, that satisfies a conditional
-  func dancersInOrder(d:Dancer, _ f:(Dancer)->Bool) -> [Dancer] {
-    return dancers.filter(f).sort { CallContext.distance($0,d) < CallContext.distance($1,d) }
+  func dancersInOrder(_ d:Dancer, _ f:(Dancer)->Bool) -> [Dancer] {
+    return dancers.filter(f).sorted { CallContext.distance($0,d) < CallContext.distance($1,d) }
   }
   
   //  Return closest dancer that satisfies a given conditional
-  func dancerClosest(d:Dancer, _ f:(Dancer)->Bool) -> Dancer? {
+  func dancerClosest(_ d:Dancer, _ f:(Dancer)->Bool) -> Dancer? {
     return dancersInOrder(d,f).first
   }
   
   //  Return dancer directly in front of given dancer
-  func dancerInFront(d:Dancer) -> Dancer? {
+  func dancerInFront(_ d:Dancer) -> Dancer? {
     return dancerClosest(d,CallContext.isInFront(d))
   }
   
   //  Return dancer directly in back of given dancer
-  func dancerInBack(d:Dancer) -> Dancer? {
+  func dancerInBack(_ d:Dancer) -> Dancer? {
     return dancerClosest(d,CallContext.isInBack(d))
   }
   
   //  Return dancer directly to the right of given dancer
-  func dancerToRight(d:Dancer) -> Dancer? {
+  func dancerToRight(_ d:Dancer) -> Dancer? {
     return dancerClosest(d,CallContext.isRight(d))
   }
   
   //  Return dancer directly to the left of given dancer
-  func dancerToLeft(d:Dancer) -> Dancer? {
+  func dancerToLeft(_ d:Dancer) -> Dancer? {
     return dancerClosest(d,CallContext.isLeft(d))
   }
   
   //  Return dancer that is facing the front of this dancer
-  func dancerFacing(d:Dancer) -> Dancer? {
+  func dancerFacing(_ d:Dancer) -> Dancer? {
     if let d2 = dancerInFront(d) {
       //  Found dancer d2 in front of d
       //  d must also be the dancer in front of d2
@@ -441,32 +441,32 @@ class CallContext {
   }
 
   //  Return dancers that are in between two other dancers
-  func inBetween(d1:Dancer, _ d2:Dancer) -> [Dancer] {
+  func inBetween(_ d1:Dancer, _ d2:Dancer) -> [Dancer] {
     return dancers.filter { d in
       return d != d1 && d != d2 && (CallContext.distance(d, d1) + CallContext.distance(d, d2)).isApprox(CallContext.distance(d1, d2))
     }
   }
   
   //  Return all the dancers to the right, in order
-  func dancersToRight(d:Dancer) -> [Dancer] {
+  func dancersToRight(_ d:Dancer) -> [Dancer] {
     return dancersInOrder(d,CallContext.isRight(d))
   }
   
   //  Return all the dancers to the left, in order
-  func dancersToLeft(d:Dancer) -> [Dancer] {
+  func dancersToLeft(_ d:Dancer) -> [Dancer] {
     return dancersInOrder(d,CallContext.isLeft(d))
   }
   
-  func dancersInFront(d:Dancer) -> [Dancer] {
+  func dancersInFront(_ d:Dancer) -> [Dancer] {
     return dancersInOrder(d,CallContext.isInFront(d))
   }
   
-  func dancersInBack(d:Dancer) -> [Dancer] {
+  func dancersInBack(_ d:Dancer) -> [Dancer] {
     return dancersInOrder(d,CallContext.isInBack(d))
   }
   
   //  Return true if this dancer is in a wave or mini-wave
-  func isInWave(d:Dancer) -> Bool {
+  func isInWave(_ d:Dancer) -> Bool {
     if let d2 = d.data.partner {
       return CallContext.angle(d,d2).angleEquals(CallContext.angle(d2,d))
     } else {
@@ -513,7 +513,7 @@ class CallContext {
   //  and return a vector to the max 1st quadrant rectangle point
   func bounds() -> Vector3D {
     return dancers.map { $0.location }
-      .reduce(Vector3D(x: 0,y: 0), combine: { (v1,v2) in
+      .reduce(Vector3D(x: 0,y: 0), { (v1,v2) in
         return Vector3D(x: max(v1.x,v2.x),y: max(v1.y,v2.y)) })
   }
   
@@ -569,7 +569,7 @@ class CallContext {
     }
     //  Analyze for centers and very centers
     //  Sort dancers by distance from center
-    let dorder = dancers.sort { $0.location.length < $1.location.length }
+    let dorder = dancers.sorted { $0.location.length < $1.location.length }
     //  The 2 dancers closest to the center
     //  are centers (4 dancers) or very centers (8 dancers)
     if (!dorder[1].location.length.isApprox(dorder[2].location.length)) {

@@ -23,25 +23,25 @@ import UIKit
 class DefinitionControl {
   
   var defstyleAction:()->Void = { }
-  var setPart:(part:Int)->Void = { arg in }
-  var setTitle:(title:String)->Void = { arg in }
+  var setPart:(_ part:Int)->Void = { arg in }
+  var setTitle:(_ title:String)->Void = { arg in }
   
-  func reset(view:DefinitionLayout, link:String) {
-    let pathparts = NSURL(string: link)?.pathComponents
+  func reset(_ view:DefinitionLayout, link:String) {
+    let pathparts = URL(string: link)?.pathComponents
     //  We can assume that the file has just one directory and then the filename
     let path = "files/" + pathparts![0]
     var filename = pathparts![1].replaceAll("\\..*", "")
     
     //  See if the page is available in user's language
     //  Just use the first part of language e.g. "en" not "en-US"
-    let lang = NSLocale.preferredLanguages()[0].replaceFirst("[-_].*", "")
+    let lang = Locale.preferredLanguages[0].replaceFirst("[-_].*", "")
     let localefilename = filename + ".lang-" + lang
-    if NSBundle.mainBundle().pathForResource(localefilename, ofType: "html", inDirectory: path) != nil {
+    if Bundle.main.path(forResource: localefilename, ofType: "html", inDirectory: path) != nil {
       filename = localefilename
     }
-    let filePath = NSBundle.mainBundle().pathForResource(filename, ofType: "html", inDirectory:path)!
+    let filePath = Bundle.main.path(forResource: filename, ofType: "html", inDirectory:path)!
     let htmlfile = try? String(contentsOfFile: filePath)
-    let baseURL = NSURL.fileURLWithPath(filePath)
+    let baseURL = URL(fileURLWithPath: filePath)
     view.webview.loadHTMLString(htmlfile!, baseURL: baseURL)
 
     //  Inject javascript to highlight current part
@@ -58,7 +58,7 @@ class DefinitionControl {
       "          classstr += 'definition-highlight'; " +
       "        classstr = classstr.replace(/^\\s+|\\s+$/g,''); " +
       "        elem.className = classstr;      }   }  "
-    view.webview.stringByEvaluatingJavaScriptFromString(jsfunction)
+    view.webview.stringByEvaluatingJavaScript(from: jsfunction)
     //  Function to show either full or abbrev
     let jsfunction2 =
       "    function setAbbrev(isAbbrev) {" +
@@ -71,15 +71,15 @@ class DefinitionControl {
       "          elem.style.display = isAbbrev ? 'none' : '';" +
       "      }" +
       "    }"
-    view.webview.stringByEvaluatingJavaScriptFromString(jsfunction2)
+    view.webview.stringByEvaluatingJavaScript(from: jsfunction2)
 
     //  Show abbrev/full buttons only for Basic and Mainstream
-    view.defstyle.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().boolForKey("abbrev") ? 0 : 1
-    view.defstyle.addTarget(self, action: #selector(DefinitionControl.defstyleSelector), forControlEvents: .ValueChanged)
+    view.defstyle.selectedSegmentIndex = UserDefaults.standard.bool(forKey: "abbrev") ? 0 : 1
+    view.defstyle.addTarget(self, action: #selector(DefinitionControl.defstyleSelector), for: .valueChanged)
     defstyleAction = {
       let s = view.defstyle.selectedSegmentIndex
-      view.webview.stringByEvaluatingJavaScriptFromString(s==0 ? "setAbbrev(true)" : "setAbbrev(false)")
-      NSUserDefaults.standardUserDefaults().setBool(s==0, forKey: "abbrev")
+      view.webview.stringByEvaluatingJavaScript(from: s==0 ? "setAbbrev(true)" : "setAbbrev(false)")
+      UserDefaults.standard.set(s==0, forKey: "abbrev")
     }
     if (link.matches("(b1|b2|ms).*")) {
       defstyleAction()
@@ -88,16 +88,16 @@ class DefinitionControl {
       view.visualConstraints("V:|[a]|",fillHorizontal: true)
     }
     setPart = { (part:Int) in
-      view.webview.stringByEvaluatingJavaScriptFromString("setPart(\(part))")
+      view.webview.stringByEvaluatingJavaScript(from: "setPart(\(part))")
     }
     setTitle = { (title:String) in
       let t = title.replaceAll("\\s+", "")
-      view.webview.stringByEvaluatingJavaScriptFromString("var currentcall = '\(t)'")
+      view.webview.stringByEvaluatingJavaScript(from: "var currentcall = '\(t)'")
     }
     //  This is needed for highlighting definitions that contain several calls
     //  such as Swing Thru and Left Swing Thru
     let title = TamUtils.getTitle(link).replaceAll("\\s+","")
-    view.webview.stringByEvaluatingJavaScriptFromString("var currentcall = '\(title)'")
+    view.webview.stringByEvaluatingJavaScript(from: "var currentcall = '\(title)'")
   }
   
   @objc func defstyleSelector() {

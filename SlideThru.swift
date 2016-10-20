@@ -22,13 +22,13 @@ class SlideThru : Action {
   
   override var name:String { get { return "Slide Thru" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     if let d2 = ctx.dancerFacing(d) {
       let dist = CallContext.distance(d,d2)
-      return TamUtils.getMove("Extend Left").scale(dist/2,0.5) ++
-        (d.gender == .BOY ? TamUtils.getMove("Lead Right").scale(dist/2,0.5) : TamUtils.getMove("Quarter Left").scale(dist/2,-0.5))
+      return TamUtils.getMove("Extend Left").scale(dist/2,0.5) +
+        (d.gender == .boy ? TamUtils.getMove("Lead Right").scale(dist/2,0.5) : TamUtils.getMove("Quarter Left").scale(dist/2,-0.5))
     } else {
-      throw CallError("Dancer \(d.number) has nobody to Slide Thru with")
+      throw CallError("Dancer \(d.number) has nobody to Slide Thru with") as Error
     }
   }
 }

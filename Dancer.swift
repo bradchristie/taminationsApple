@@ -21,15 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 enum Gender:Int {
-  case BOY=1
-  case GIRL=2
-  case PHANTOM=3
+  case boy=1
+  case girl=2
+  case phantom=3
 }
 
 enum ShowNumbers:Int {
-  case NUMBERS_OFF = 0
-  case NUMBERS_DANCERS = 1
-  case NUMBERS_COUPLES = 2
+  case numbers_OFF = 0
+  case numbers_DANCERS = 1
+  case numbers_COUPLES = 2
 }
 
 struct DancerData {
@@ -54,13 +54,13 @@ class Dancer {
   var fillcolor:UIColor  // need to be var for InteractiveDancer
   var starttx:Matrix     // only changed by sequencer
   var path:Path      // only changed by sequencer
-  var hands = Hands.NOHANDS
-  let pathpath:CGMutablePathRef
+  var hands = Hands.nohands
+  let pathpath:CGMutablePath
   let body:UIBezierPath
   var tx:Matrix
   let gender:Gender
   let geom:Geometry
-  var showNumber:ShowNumbers = .NUMBERS_OFF
+  var showNumber:ShowNumbers = .numbers_OFF
   
   //  vars for computing handholds
   var leftdancer:Dancer?
@@ -89,22 +89,24 @@ class Dancer {
     clonedFrom = nil
     //  Create path for drawing body, specific for the gender
     func makeBody() -> UIBezierPath {
-        let rect = CGRectMake(-0.5,-0.5,1,1)
+        let rect = CGRect(x: -0.5,y: -0.5,width: 1,height: 1)
         switch gender {
-        case .BOY : return UIBezierPath(rect: rect)
-        case .GIRL : return UIBezierPath(ovalInRect: rect)
-        case .PHANTOM : return UIBezierPath(roundedRect: rect, cornerRadius: 0.3)
+        case .boy : return UIBezierPath(rect: rect)
+        case .girl : return UIBezierPath(ovalIn: rect)
+        case .phantom : return UIBezierPath(roundedRect: rect, cornerRadius: 0.3)
         }
     }
     body = makeBody()
     
     // Compute points of path for drawing path
-    pathpath = CGPathCreateMutable()
+    pathpath = CGMutablePath()
     animateComputed(0)
-    CGPathMoveToPoint(pathpath, nil, location.x, location.y)
+    pathpath.move(to: CGPoint(x:location.x, y:location.y))
+    //CGPathMoveToPoint(pathpath, nil, location.x, location.y)
     for beat in 0...Int(beats*10) {
       animateComputed(CGFloat(beat)/10)
-      CGPathAddLineToPoint(pathpath, nil, location.x, location.y)
+      pathpath.addLine(to: CGPoint(x:location.x, y:location.y))
+      //CGPathAddLineToPoint(pathpath, nil, location.x, location.y)
     }
     animateComputed(-2.0)
   }
@@ -116,7 +118,7 @@ class Dancer {
     clonedFrom = from
   }
   
-  func animate(beat:CGFloat) {
+  func animate(_ beat:CGFloat) {
     hands = path.hands(beat)
     tx = Matrix(starttx)
     tx = tx.preConcat(path.animate(beat))
@@ -127,7 +129,7 @@ class Dancer {
     animate(path.beats)
   }
   
-  func animateComputed(beat:CGFloat) {
+  func animateComputed(_ beat:CGFloat) {
     animate(beat)
   }
   
@@ -136,7 +138,7 @@ class Dancer {
   }
   
   var location:Vector3D {
-    return Vector3D(pt:CGPointMake(tx.mat.tx,tx.mat.ty))
+    return Vector3D(pt:CGPoint(x: tx.mat.tx,y: tx.mat.ty))
   }
   
   var inCenter:Bool {
@@ -145,45 +147,44 @@ class Dancer {
   }
   
   var isPhantom:Bool {
-    return gender == .PHANTOM
+    return gender == .phantom
   }
   
-  func draw(ctx:CGContextRef) {
+  func draw(_ ctx:CGContext) {
     //  draw the head
-    CGContextSetFillColorWithColor(ctx, drawcolor.CGColor)
-    CGContextAddArc(ctx, 0.5, 0, 0.33, 0, 2*CG_PI, 0)
-    CGContextFillPath(ctx)
+    ctx.setFillColor(drawcolor.cgColor)
+    ctx.fillEllipse(in: CGRect(x:0.17,y:-0.33,width:0.67,height:0.67))
     //  draw the body
-    let bodycolor = showNumber == ShowNumbers.NUMBERS_OFF || gender == .PHANTOM ? fillcolor : fillcolor.veryBright()
-    CGContextSetFillColorWithColor(ctx, bodycolor.CGColor)
-    CGContextAddPath(ctx, body.CGPath)
-    CGContextFillPath(ctx)
+    let bodycolor = showNumber == ShowNumbers.numbers_OFF || gender == .phantom ? fillcolor : fillcolor.veryBright()
+    ctx.setFillColor(bodycolor.cgColor)
+    ctx.addPath(body.cgPath)
+    ctx.fillPath()
     //  draw body border
-    CGContextSetLineWidth(ctx, 0.1)
-    CGContextSetStrokeColorWithColor(ctx, drawcolor.CGColor)
-    CGContextAddPath(ctx, body.CGPath)
-    CGContextStrokePath(ctx)
+    ctx.setLineWidth(0.1)
+    ctx.setStrokeColor(drawcolor.cgColor)
+    ctx.addPath(body.cgPath)
+    ctx.strokePath()
     //  Draw number if on
-    if (showNumber != .NUMBERS_OFF) {
+    if (showNumber != .numbers_OFF) {
       //  The dancer is rotated relative to the display, but of course
       //  the dancer number should not be rotated.
       //  So the number needs to be transformed back
       let angle = atan2(tx.mat.c,tx.mat.d)
       let txtext = Matrix.makeRotation(CG_PI/2+angle)
-      CGContextConcatCTM(ctx, txtext.mat)
-      CGContextSetFillColorWithColor(ctx, UIColor.blackColor().CGColor)
-      CGContextSetTextMatrix(ctx, Matrix.makeScale(-0.06, y: -0.06).mat)
-      CGContextSetFont(ctx, CGFontCreateWithFontName("Helvectica"))
-      CGContextSetFontSize(ctx, 14)
-      CGContextSetTextDrawingMode(ctx, .Fill)
-      CGContextSetTextPosition(ctx, 0.2, 0.3)
-      let attstr = NSAttributedString(string: showNumber == .NUMBERS_COUPLES ? number_couple : number)
+      ctx.concatenate(txtext.mat)
+      ctx.setFillColor(UIColor.black.cgColor)
+      ctx.textMatrix = Matrix.makeScale(-0.06, y: -0.06).mat
+      ctx.setFont(CGFont("Helvetica" as NSString)!)
+      ctx.setFontSize(14)
+      ctx.setTextDrawingMode(.fill)
+      ctx.textPosition = CGPoint(x:0.2, y:0.3)
+      let attstr = NSAttributedString(string: showNumber == .numbers_COUPLES ? number_couple : number)
       let line = CTLineCreateWithAttributedString(attstr)
       CTLineDraw(line, ctx)
     }
   }
   
-  func drawPath(ctx:CGContextRef) {
+  func drawPath(_ ctx:CGContext) {
     //  The path color is a partly transparent version of the draw color
     var red:CGFloat = 0
     var green:CGFloat = 0
@@ -191,13 +192,13 @@ class Dancer {
     var alpha:CGFloat = 1
     drawcolor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
     let pathcolor = UIColor(red: red, green: green, blue: blue, alpha: 0.31)
-    CGContextSetStrokeColorWithColor(ctx, pathcolor.CGColor)
-    CGContextSetLineWidth(ctx, 0.1)
-    CGContextAddPath(ctx, pathpath)
-    CGContextStrokePath(ctx)
+    ctx.setStrokeColor(pathcolor.cgColor)
+    ctx.setLineWidth(0.1)
+    ctx.addPath(pathpath)
+    ctx.strokePath()
   }
   
-  func compare(d:Dancer) -> Int {
+  func compare(_ d:Dancer) -> Int {
     return number.compare(d.number).rawValue
   }
   

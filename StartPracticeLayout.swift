@@ -39,7 +39,7 @@ class StartPracticeLayout: UIView {
       super.init(frame:CGRect())
       label.text = text.length > 0 ? text : data.name
       label.font = font
-      label.textAlignment = .Center
+      label.textAlignment = .center
       addSubview(UIView())
       addSubview(label)
       addSubview(UIView())
@@ -47,18 +47,18 @@ class StartPracticeLayout: UIView {
       visualConstraints("V:|[a][b][c(==a)]|", fillHorizontal: true)
     }
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {  }
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {  }
-    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {  }
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-      backgroundColor = UIColor.blueColor()
-      label.textColor = UIColor.whiteColor()
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {  }
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {  }
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {  }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+      backgroundColor = UIColor.blue
+      label.textColor = UIColor.white
       layout.selectAction(label.text ?? "")
       layout.selectedLabel = self
     }
     func unselect() {
       backgroundColor = data.color
-      label.textColor = UIColor.blackColor()
+      label.textColor = UIColor.black
     }
   }
   
@@ -67,9 +67,9 @@ class StartPracticeLayout: UIView {
     
     //  Build left side panel with a few settings
     let settingsPanel = UIView()
-    settingsPanel.backgroundColor = UIColor.whiteColor()
+    settingsPanel.backgroundColor = UIColor.white
     let levelPanel = UIView()
-    levelPanel.backgroundColor = UIColor.grayColor()
+    levelPanel.backgroundColor = UIColor.gray
     let genderLabel = UILabel()
     genderLabel.text = "Choose a Gender"
     settingsPanel.addSubview(genderLabel)

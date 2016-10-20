@@ -40,7 +40,7 @@ class AnimationPanelLayout: UIView {
     playButton = PlayButton()
     forwardButton = ForwardButton()
     endButton = EndButton()
-    super.init(frame:CGRectInfinite)
+    super.init(frame:CGRect.infinite)
     addSubview(slider)
     addSubview(ticview)
     addSubview(buttonPanel)

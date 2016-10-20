@@ -22,16 +22,16 @@ class BoxtheGnat : Action {
   
   override var name:String { get { return "Box the Gnat" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     if let d2 = ctx.dancerFacing(d) {
       let dist = CallContext.distance(d,d2)
-      let cy1:CGFloat = d.gender == .BOY ? 1 : 0.1
-      let y4:CGFloat = d.gender == .BOY ? -2 : 2
-      let hands = d.gender == .BOY ? Hands.GRIPLEFT : Hands.GRIPRIGHT
+      let cy1:CGFloat = d.gender == .boy ? 1 : 0.1
+      let y4:CGFloat = d.gender == .boy ? -2 : 2
+      let hands = d.gender == .boy ? Hands.gripleft : Hands.gripright
       let m = Movement(fullbeats: 4.0, hands: hands, cx1: 1, cy1: cy1, cx2: dist/2, cy2: cy1, x2: dist/2+1, y2: 0, cx3: 1.3, cx4: 1.3, cy4: y4, x4: 0, y4: y4, beats: 4.0)
       return Path(m)
     } else {
-      throw CallError("Cannot find dancer to turn with \(d.number)")
+      throw CallError("Cannot find dancer to turn with \(d.number)") as Error
     }
   }
 }

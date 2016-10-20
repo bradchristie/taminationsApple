@@ -21,7 +21,7 @@ class BoxCounterRotate : BoxCall {
   
   override var name:String { get { return "Box Counter Rotate" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     let v = d.location
     var v2 = v
     var cy4:CGFloat = 0
@@ -45,7 +45,7 @@ class BoxCounterRotate : BoxCall {
     let dv = (v2-v).rotate(-a1)
     let cv1 = (v2*0.5).rotate(-a1)
     let cv2 = (v*0.5).rotate(-a1) + dv
-    let m = Movement(fullbeats: 2.0, hands: .NOHANDS, cx1: cv1.x, cy1: cv1.y, cx2: cv2.x, cy2: cv2.y, x2: dv.x, y2: dv.y,
+    let m = Movement(fullbeats: 2.0, hands: .nohands, cx1: cv1.x, cy1: cv1.y, cx2: cv2.x, cy2: cv2.y, x2: dv.x, y2: dv.y,
       cx3: 0.55, cx4: 1.0, cy4: cy4, x4: 1, y4: y4, beats: 2.0)
     return Path(m)
   }

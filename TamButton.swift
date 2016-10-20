@@ -23,26 +23,27 @@ import UIKit
 class TamButton : UIButton {
 
   func buttonFont() -> UIFont {
-    return UIFont.boldSystemFontOfSize(max(17,UIScreen.mainScreen().bounds.height/40))
+    return UIFont.boldSystemFont(ofSize: max(17,UIScreen.main.bounds.height/40))
   }
   
-  override func setTitle(title: String?, forState state: UIControlState) {
-    super.setTitle(title, forState: state)
+  override func setTitle(_ title: String?, for state: UIControlState) {
+    super.setTitle(title, for: state)
     titleLabel?.adjustsFontSizeToFitWidth = true
     titleLabel?.minimumScaleFactor = 0.1
     titleLabel?.font = buttonFont()
-    setTitleColor(UIColor.blackColor(), forState: .Normal)
+    setTitleColor(UIColor.black, for: UIControlState())
+    setTitleColor(UIColor.gray, for: UIControlState.disabled)
   }
 
   override func sizeToFit() {
     //  Size the button to fit the label's width
-    let labelSize = titleLabel?.text!.sizeWithAttributes([NSFontAttributeName:buttonFont()])
+    let labelSize = titleLabel?.text!.size(attributes: [NSFontAttributeName:buttonFont()])
     super.sizeToFit()  //  but that leaves no margin on the sides, so ...
-    bounds = CGRectMake(0,0,labelSize!.width+20,labelSize!.height+10)
+    bounds = CGRect(x: 0,y: 0,width: labelSize!.width+20,height: labelSize!.height+10)
    }
   
-  override func drawRect(rect: CGRect) {
-    super.drawRect(rect)
+  override func draw(_ rect: CGRect) {
+    super.draw(rect)
     
     // General Declarations
     let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -58,12 +59,12 @@ class TamButton : UIButton {
     let innerGlow = UIColor(white: 1, alpha: 0.5)
     
     // Gradient Declarations
-    let gradientColors = [bottomColor.CGColor, topColor.CGColor]
-    let gradient = CGGradientCreateWithColors(colorSpace, gradientColors, nil)
-    let highlightedGradientColors = [bottomColor.CGColor,topColor.CGColor]
-    let highligtedGradient = CGGradientCreateWithColors(colorSpace, highlightedGradientColors, nil)
-    let selectedGradientColors = [bottomColor.CGColor,darkColor.CGColor]
-    let selectedGradient = CGGradientCreateWithColors(colorSpace, selectedGradientColors, nil)
+    let gradientColors = [bottomColor.cgColor, topColor.cgColor]
+    let gradient = CGGradient(colorsSpace: colorSpace, colors: gradientColors as CFArray, locations: nil)
+    let highlightedGradientColors = [bottomColor.cgColor,topColor.cgColor]
+    let highligtedGradient = CGGradient(colorsSpace: colorSpace, colors: highlightedGradientColors as CFArray, locations: nil)
+    let selectedGradientColors = [bottomColor.cgColor,darkColor.cgColor]
+    let selectedGradient = CGGradient(colorsSpace: colorSpace, colors: selectedGradientColors as CFArray, locations: nil)
     
     // Draw rounded rectangle bezier path
     let crad = height < 40 ? height/4 : 12
@@ -72,10 +73,10 @@ class TamButton : UIButton {
     roundedRectanglePath.addClip()
     
     // Use one of the gradients depending on the state of the button
-    let background = highlighted ? highligtedGradient : selected ? selectedGradient : gradient
+    let background = isHighlighted ? highligtedGradient : isSelected ? selectedGradient : gradient
     
     // Draw gradient within the path
-    CGContextDrawLinearGradient(context, background, CGPointMake(width,0), CGPointMake(width, height), CGGradientDrawingOptions())
+    context?.drawLinearGradient(background!, start: CGPoint(x: width,y: 0), end: CGPoint(x: width, y: height), options: CGGradientDrawingOptions())
     
     // Draw border
     borderColor.setStroke()
@@ -83,7 +84,7 @@ class TamButton : UIButton {
     roundedRectanglePath.stroke()
     
     // Draw Inner Glow
-    let innerGlowRect = UIBezierPath(roundedRect: CGRectMake(2, 2, width-4, height-4), cornerRadius: 10)
+    let innerGlowRect = UIBezierPath(roundedRect: CGRect(x: 2, y: 2, width: width-4, height: height-4), cornerRadius: 10)
     innerGlow.setStroke()
     innerGlowRect.lineWidth = 1
     innerGlowRect.stroke()

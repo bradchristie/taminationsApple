@@ -28,57 +28,67 @@ class SliderTicView: UIView {
   var isParts = false
   var isCalls = false
   
-  override func drawRect(rect: CGRect) {
+  override func draw(_ rect: CGRect) {
     //  Draw background
     let ctx = UIGraphicsGetCurrentContext()
-    CGContextAddRect(ctx, bounds)
-    CGContextSetFillColorWithColor(ctx, UIColor(red: 0, green: 0.5, blue: 0, alpha: 1).CGColor)
-    CGContextFillPath(ctx)
+    ctx?.addRect(bounds)
+    ctx?.setFillColor(UIColor(red: 0, green: 0.5, blue: 0, alpha: 1).cgColor)
+    ctx?.fillPath()
     var x:CGFloat = 0
+    var y:CGFloat = 0
     let xmargin:CGFloat = 10     // extra space taken by slider ball
     let width = bounds.width - xmargin*2
     let height = bounds.height
     if (beats > 0) {
       //  Draw tic marks
-      CGContextSetStrokeColorWithColor(ctx, UIColor.whiteColor().CGColor)
-      CGContextSetLineWidth(ctx, 1)
+      ctx?.setStrokeColor(UIColor.white.cgColor)
+      ctx?.setLineWidth(1)
       for loc in 0 ..< Int(beats) {
         x = width * CGFloat(loc)/beats + xmargin
-        CGContextMoveToPoint(ctx, x, 0)
-        CGContextAddLineToPoint(ctx, x, height/4)
+        ctx?.move(to: CGPoint(x: x, y: 0))
+        ctx?.addLine(to: CGPoint(x: x, y: height/4))
       }
-      CGContextStrokePath(ctx)
+      ctx?.strokePath()
       //  Draw tic labels
       let attributes = [
-        NSForegroundColorAttributeName: UIColor.whiteColor(),
+        NSForegroundColorAttributeName: UIColor.white,
         NSFontAttributeName: UIFont(name: "Helvetica", size: height/2.0)!
       ]
-      x = width*2/beats + xmargin - height/3   //  hack for centering text
-      let y:CGFloat = height/3
-      let start:NSString = "Start"
-      start.drawAtPoint(CGPoint(x:x,y:y), withAttributes: attributes)
-      let end:NSString = "End"
-      x = width*(beats-2)/beats + xmargin - height/5
-      end.drawAtPoint(CGPoint(x:x,y:y), withAttributes: attributes)
+      if (beats > 2) {
+        x = width*2/beats + xmargin - height/3   //  hack for centering text
+        y = height/3
+        let start:NSString = "Start"
+        start.draw(at: CGPoint(x:x,y:y), withAttributes: attributes)
+        let end:NSString = "End"
+        x = width*(beats-2)/beats + xmargin - height/5
+        end.draw(at: CGPoint(x:x,y:y), withAttributes: attributes)
+      }
       for i in 0 ..< parts.count {
         if (parts[i] < beats-4) {
           x = width*(2+parts[i])/beats + xmargin - (isParts ? height/10 : height/6)
-          let text:NSString = (isParts && i == 0) ? "Part 2"
-            : (isParts || isCalls) ? "\(i+2)"
-            : "\(i+1)/\(parts.count+1)"
-          text.drawAtPoint(CGPoint(x:x,y:y), withAttributes: attributes)
+          var text:String = ""
+          if (isParts && i == 0) {
+            text = "Part 2"
+          }
+          else if (isParts || isCalls) {
+            text = "\(i+2)"
+          }
+          else {
+            text = "\(i+1)/\(parts.count+1)"
+          }
+          text.draw(at: CGPoint(x:x,y:y), withAttributes: attributes)
         }
       }
     }
   }
   
-  func setTics(b:CGFloat, partstr:String, isParts:Bool=false, isCalls:Bool=false) {
+  func setTics(_ b:CGFloat, partstr:String, isParts:Bool=false, isCalls:Bool=false) {
     self.isParts = isParts
     self.isCalls = isCalls
     self.beats = b
     if (partstr.length > 0) {
       let t = partstr.split(";")
-      parts = [CGFloat](count:t.count, repeatedValue:0)
+      parts = [CGFloat](repeating: 0, count: t.count)
       var s:CGFloat = 0
       for i in 0..<t.count {
         let p = CGFloat(Double(t[i])!)

@@ -22,19 +22,19 @@ import UIKit
 
 class BackButton : TamButton {
   
-  override func drawRect(rect: CGRect) {
-    super.drawRect(rect)
+  override func draw(_ rect: CGRect) {
+    super.draw(rect)
     
     let ctx = UIGraphicsGetCurrentContext()
-    CGContextTranslateCTM(ctx, bounds.minX+bounds.width/2, bounds.minY+bounds.height/2)
-    CGContextScaleCTM(ctx, bounds.height/4, bounds.height/4)
-    CGContextSetLineWidth(ctx, 0.2)
-    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+    ctx?.translateBy(x: bounds.minX+bounds.width/2, y: bounds.minY+bounds.height/2)
+    ctx?.scaleBy(x: bounds.height/4, y: bounds.height/4)
+    ctx?.setLineWidth(0.2)
+    ctx?.setStrokeColor(UIColor.black.cgColor)
     
-    CGContextMoveToPoint(ctx, 0.433, -0.5)
-    CGContextAddLineToPoint(ctx, -0.433, 0)
-    CGContextAddLineToPoint(ctx, 0.433, 0.5)
-    CGContextStrokePath(ctx)
+    ctx?.move(to: CGPoint(x: 0.433, y: -0.5))
+    ctx?.addLine(to: CGPoint(x: -0.433, y: 0))
+    ctx?.addLine(to: CGPoint(x: 0.433, y: 0.5))
+    ctx?.strokePath()
     
   }
   

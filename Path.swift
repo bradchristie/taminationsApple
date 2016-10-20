@@ -20,8 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-infix operator ++ { associativity left }
-func ++(p1:Path,p2:Path) -> Path { return p1.add(p2) }
 
 class Path {
   
@@ -29,6 +27,9 @@ class Path {
   var transformlist:[Matrix] = []
   
   init() { }
+  
+  //infix operator + { associativity left }
+  static func + (p1:Path,p2:Path) -> Path { return p1.add(p2) }
   
   //  Create a path from a list of movements
   init(_ move:[Movement]) {
@@ -61,13 +62,13 @@ class Path {
     transformlist = []
   }
   
-  func add(p:Path) -> Path {
+  @discardableResult func add(_ p:Path) -> Path {
     movelist += p.movelist
     recalculate()
     return self
   }
   
-  func add(m:Movement) -> Path {
+  @discardableResult func add(_ m:Movement) -> Path {
     movelist.append(m)
     recalculate()
     return self
@@ -84,27 +85,27 @@ class Path {
   }
   
   var beats:CGFloat { get {
-    return movelist.reduce(0.0, combine:{ $0 + $1.beats})
+    return movelist.reduce(0.0, { $0 + $1.beats})
     } }
   
-  func changebeats(newbeats:CGFloat) -> Path {
+  func changebeats(_ newbeats:CGFloat) -> Path {
     let factor = newbeats / beats
     movelist = movelist.map { m in m.time(m.beats*factor) }
     return self
   }
   
-  func changehands(hands:Hands) -> Path {
+  func changehands(_ hands:Hands) -> Path {
     movelist = movelist.map{$0.useHands(hands)}
     return self
   }
   
-  func scale(x:CGFloat, _ y:CGFloat) -> Path {
+  @discardableResult func scale(_ x:CGFloat, _ y:CGFloat) -> Path {
     movelist = movelist.map{$0.scale(x,y)}
     recalculate()
     return self
   }
   
-  func skew(x:CGFloat, _ y:CGFloat) -> Path {
+  @discardableResult func skew(_ x:CGFloat, _ y:CGFloat) -> Path {
     //  Apply the skew to just the last movement
     movelist.append(movelist.removeLast().skew(x,y))
     recalculate()
@@ -114,7 +115,7 @@ class Path {
   /**
   * Return a transform for a specific point of time
   */
-  func animate(b:CGFloat) -> Matrix {
+  func animate(_ b:CGFloat) -> Matrix {
     var bv = b
     var tx = Matrix()
     //  Apply all completed movements
@@ -139,12 +140,12 @@ class Path {
   /**
   * Return the current hand at a specific point in time
   */
-  func hands(b:CGFloat) -> Hands {
+  func hands(_ b:CGFloat) -> Hands {
     if (b < 0 || b > beats) {
-      return .BOTHHANDS
+      return .bothhands
     }
     var bv = b
-    return movelist.reduce(.BOTHHANDS) { (h:Hands,m:Movement) -> Hands in
+    return movelist.reduce(.bothhands) { (h:Hands,m:Movement) -> Hands in
       if (bv < 0) {
         return h
       }

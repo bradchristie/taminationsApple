@@ -21,7 +21,7 @@ class Belles : FilterActives {
   
   override var name:String { get { return "Belles" } }
   
-  override func isActive(d: Dancer) -> Bool {
+  override func isActive(_ d: Dancer) -> Bool {
     return d.data.belle
   }
   

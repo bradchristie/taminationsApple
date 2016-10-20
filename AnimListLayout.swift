@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 enum DifficultyColor:UInt {
-  case COMMON = 0xffc0ffc0
-  case HARDER = 0xffffffc0
-  case EXPERT = 0xffffc0c0
-  case DEFAULT = 0xffffffff
+  case common = 0xffc0ffc0
+  case harder = 0xffffffc0
+  case expert = 0xffffc0c0
+  case `default` = 0xffffffff
 }
 
 class AnimListLayout : UIView {
@@ -33,33 +33,33 @@ class AnimListLayout : UIView {
   let difficultyview:UIView
   
   override init(frame: CGRect) {
-    let h = UIScreen.mainScreen().bounds.height/40
-    let diffframe = CGRectMake(0, frame.height-h*1.5, frame.width, h*1.5)
+    let h = UIScreen.main.bounds.height/40
+    let diffframe = CGRect(x: 0, y: frame.height-h*1.5, width: frame.width, height: h*1.5)
     difficultyview = UIView(frame:diffframe)
-    let common = UILabel(frame:CGRectMake(0, 0, frame.width/3, h*1.5))
-    common.font = UIFont.systemFontOfSize(h)
-    common.textAlignment = NSTextAlignment.Center
-    common.backgroundColor = UIColor.colorFromHex(DifficultyColor.COMMON.rawValue)
+    let common = UILabel(frame:CGRect(x: 0, y: 0, width: frame.width/3, height: h*1.5))
+    common.font = UIFont.systemFont(ofSize: h)
+    common.textAlignment = NSTextAlignment.center
+    common.backgroundColor = UIColor.colorFromHex(DifficultyColor.common.rawValue)
     common.text = "Common"
-    let harder = UILabel(frame:CGRectMake(frame.width/3,0,frame.width/3,h*1.5))
-    harder.font = UIFont.systemFontOfSize(h)
-    harder.textAlignment = NSTextAlignment.Center
-    harder.backgroundColor = UIColor.colorFromHex(DifficultyColor.HARDER.rawValue)
+    let harder = UILabel(frame:CGRect(x: frame.width/3,y: 0,width: frame.width/3,height: h*1.5))
+    harder.font = UIFont.systemFont(ofSize: h)
+    harder.textAlignment = NSTextAlignment.center
+    harder.backgroundColor = UIColor.colorFromHex(DifficultyColor.harder.rawValue)
     harder.text = "Harder"
-    let expert = UILabel(frame:CGRectMake(frame.width*2/3,0,frame.width/3,h*1.5))
-    expert.font = UIFont.systemFontOfSize(h)
-    expert.textAlignment = NSTextAlignment.Center
-    expert.backgroundColor = UIColor.colorFromHex(DifficultyColor.EXPERT.rawValue)
+    let expert = UILabel(frame:CGRect(x: frame.width*2/3,y: 0,width: frame.width/3,height: h*1.5))
+    expert.font = UIFont.systemFont(ofSize: h)
+    expert.textAlignment = NSTextAlignment.center
+    expert.backgroundColor = UIColor.colorFromHex(DifficultyColor.expert.rawValue)
     expert.text = "Expert"
     difficultyview.addSubview(common)
     difficultyview.addSubview(harder)
     difficultyview.addSubview(expert)
-    table = UITableView(frame:frame, style:UITableViewStyle.Plain)
+    table = UITableView(frame:frame, style:UITableViewStyle.plain)
     super.init(frame: frame)
     addSubview(table)
     addSubview(difficultyview)
     
-    table.registerClass(UITableViewCell.self, forCellReuseIdentifier: "animlisttablecell")
+    table.register(UITableViewCell.self, forCellReuseIdentifier: "animlisttablecell")
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   

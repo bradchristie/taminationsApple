@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Action : CodedCall {
   
   //  Wrapper method for performing one call
-  override func performCall(ctx: CallContext, index: Int) throws {
+  override func performCall(_ ctx: CallContext, index: Int) throws {
     try perform(ctx,index:index)
     ctx.dancers.forEach { d in
       d.path.recalculate()
@@ -33,7 +33,7 @@ class Action : CodedCall {
   //  Default method to perform one call
   //  Pass the call on to each active dancer
   //  Then append the returned paths to each dancer
-  func perform(ctx:CallContext, index:Int=0) throws {
+  func perform(_ ctx:CallContext, index:Int=0) throws {
     //  Get all the paths with performOne calls
     try ctx.actives.forEach { d in
       try d.path.add(performOne(d,ctx))
@@ -42,7 +42,7 @@ class Action : CodedCall {
 
   //  Default method for one dancer to perform one call
   //  Returns an empty path (the dancer just stands there)
-  func performOne(d:Dancer, _ ctx:CallContext) throws -> Path {
+  func performOne(_ d:Dancer, _ ctx:CallContext) throws -> Path {
     return Path()
   }
   

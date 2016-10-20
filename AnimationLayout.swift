@@ -32,11 +32,11 @@ class AnimationLayout: UIView {
   override init(frame: CGRect) {
     let buttonPanel = UIView()
     definitionButton = TamButton()
-    definitionButton.setTitle("Definition", forState: UIControlState.Normal)
+    definitionButton.setTitle("Definition", for: UIControlState())
     settingsButton = TamButton()
-    settingsButton.setTitle("Settings", forState: UIControlState.Normal)
+    settingsButton.setTitle("Settings", for: UIControlState())
     animationPanel = AnimationPanelLayout()
-    animationView = AnimationView(frame:CGRectMake(0,0,frame.width,frame.height-160))
+    animationView = AnimationView(frame:CGRect(x: 0,y: 0,width: frame.width,height: frame.height-160))
     tamsays = UILabel()
     optionsText = UILabel()
     super.init(frame:frame)
@@ -48,13 +48,13 @@ class AnimationLayout: UIView {
     buttonPanel.visualConstraints("|-[a(==b)]-[b]-|",fillVertical:true,spacing:2)
     visualConstraints("V:|[a][b(==100)]-2-[c(==40)]|",fillHorizontal:true)
     
-    tamsays.font = UIFont.italicSystemFontOfSize(frame.height/30)
+    tamsays.font = UIFont.italicSystemFont(ofSize: frame.height/30)
     tamsays.backgroundColor = UIColor(colorLiteralRed: 1, green: 1, blue: 1, alpha: 0.5)
     tamsays.numberOfLines = 0
     addSubview(tamsays)
     visualConstraints("V:|[d]",fillHorizontal: true)
     
-    optionsText.font = UIFont.systemFontOfSize(frame.height/20)
+    optionsText.font = UIFont.systemFont(ofSize: frame.height/20)
     addSubview(optionsText)
     visualConstraints("V:[e]-142-|",fillHorizontal: true)
   }

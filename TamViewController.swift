@@ -19,6 +19,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import UIKit
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class TamViewController : UIViewController {
 
@@ -33,8 +53,8 @@ class TamViewController : UIViewController {
   init(_ intent:[String:String]) {
     self.intent = intent
     super.init(nibName:nil,bundle:nil)
-    levelButton.addTarget(self, action: #selector(TamViewController.levelSelector), forControlEvents: .TouchUpInside)
-    shareButton.addTarget(self, action: #selector(TamViewController.shareSelector), forControlEvents: .TouchUpInside)
+    levelButton.addTarget(self, action: #selector(TamViewController.levelSelector), for: .touchUpInside)
+    shareButton.addTarget(self, action: #selector(TamViewController.shareSelector), for: .touchUpInside)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
@@ -43,7 +63,7 @@ class TamViewController : UIViewController {
     let frame1 = navigationController!.view.frame
     let frame2 = navigationController!.navigationBar.frame
     //  hard-wired status bar size = 20, don't know how to detect it
-    return CGRectMake(frame1.origin.x,frame1.origin.y,frame1.size.width,frame1.size.height-frame2.size.height-20)
+    return CGRect(x: frame1.origin.x,y: frame1.origin.y,width: frame1.size.width,height: frame1.size.height-frame2.size.height-20)
   }
   
   override var title:String? {
@@ -54,21 +74,21 @@ class TamViewController : UIViewController {
       super.title = newValue
       let navbarframe = navigationController!.navigationBar.bounds
       if (navigationController?.childViewControllers.count > 1 || presentingViewController != nil) {
-        let backButton = TamButton(frame: CGRectMake(0,0,navbarframe.height*2,navbarframe.height*0.6))
-        backButton.setTitle("Back",forState:UIControlState.Normal)
+        let backButton = TamButton(frame: CGRect(x: 0,y: 0,width: navbarframe.height*2,height: navbarframe.height*0.6))
+        backButton.setTitle("Back",for:UIControlState())
         backButton.sizeToFit()
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        backButton.addTarget(self, action: #selector(TamViewController.backAction), forControlEvents: .TouchUpInside)
+        backButton.addTarget(self, action: #selector(TamViewController.backAction), for: .touchUpInside)
       } else {
         navigationItem.hidesBackButton = true
       }
       let titleView = UILabel(frame:navbarframe)
       titleView.text = newValue
-      titleView.textColor = UIColor.whiteColor()
-      titleView.font = UIFont.boldSystemFontOfSize(28)
-      titleView.textAlignment = NSTextAlignment.Center
-      titleView.shadowColor = UIColor.blackColor()
-      titleView.shadowOffset = CGSizeMake(1,1)
+      titleView.textColor = UIColor.white
+      titleView.font = UIFont.boldSystemFont(ofSize: 28)
+      titleView.textAlignment = NSTextAlignment.center
+      titleView.shadowColor = UIColor.black
+      titleView.shadowOffset = CGSize(width: 1,height: 1)
       titleView.numberOfLines = 0
       titleView.adjustsFontSizeToFitWidth = true
       navigationItem.titleView = titleView
@@ -77,16 +97,16 @@ class TamViewController : UIViewController {
   
   @objc func backAction() {
     if (navigationController?.childViewControllers.count > 1) {
-      navigationController?.popViewControllerAnimated(true)
+      _ = navigationController?.popViewController(animated: true)
     } else if (presentingViewController != nil) {
-      dismissViewControllerAnimated(true, completion: nil)
+      dismiss(animated: true, completion: nil)
     }
   }
   
   func setRightButtonItems() {
     var items:[UIBarButtonItem] = []
     if (levelText.length > 0) {
-      levelButton.setTitle(levelText,forState:UIControlState.Normal)
+      levelButton.setTitle(levelText,for:UIControlState())
       levelButton.sizeToFit()
       items.append(UIBarButtonItem(customView: levelButton))
       //  Hook up action to pop to list of calls for this level
@@ -96,14 +116,14 @@ class TamViewController : UIViewController {
             //  might not be the same level
             callListViewController.level = self.levelText
             callListViewController.loadView()
-            self.navigationController?.popToViewController(callListViewController, animated: true)
+            _ = self.navigationController?.popToViewController(callListViewController, animated: true)
             return
           }
         }
         for vc in (self.navigationController?.viewControllers)! {
           if let firstViewController = vc as? FirstLandscapeViewController {
             firstViewController.selectLevel(self.levelText)
-            self.navigationController?.popToViewController(firstViewController, animated: true)
+            _ = self.navigationController?.popToViewController(firstViewController, animated: true)
             return
           }
         }
@@ -116,21 +136,21 @@ class TamViewController : UIViewController {
     navigationItem.rightBarButtonItems = items
   }
   
-  func setLevelButton(level:String) {
+  func setLevelButton(_ level:String) {
     levelText = level
     setRightButtonItems()
   }
   
-  func setShareButton(share:String) {
+  func setShareButton(_ share:String) {
     shareText = share
     setRightButtonItems()
     shareAction = {
-      let controller = UIActivityViewController(activityItems: [self.shareText.matches("http.*") ? NSURL(string:self.shareText.replaceAll("\\s",""))! : self.shareText], applicationActivities: nil)
-      if (UIDevice.currentDevice().userInterfaceIdiom == .Pad) {
+      let controller = UIActivityViewController(activityItems: [self.shareText.matches("http.*") ? URL(string:self.shareText.replaceAll("\\s",""))! as Any : self.shareText as Any], applicationActivities: nil)
+      if (UIDevice.current.userInterfaceIdiom == .pad) {
         let pop = UIPopoverController(contentViewController: controller)
-        pop.presentPopoverFromRect(self.shareButton.bounds, inView: self.shareButton, permittedArrowDirections: .Any, animated: true)
+        pop.present(from: self.shareButton.bounds, in: self.shareButton, permittedArrowDirections: .any, animated: true)
       } else {
-        self.presentViewController(controller, animated:true, completion:nil)
+        self.present(controller, animated:true, completion:nil)
       }
     }
   }
@@ -142,9 +162,9 @@ class TamViewController : UIViewController {
     shareAction()
   }
 
-  override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-    let isTablet = UIDevice.currentDevice().userInterfaceIdiom == .Pad
-    if (isTablet && (fromInterfaceOrientation == .Portrait || fromInterfaceOrientation == .PortraitUpsideDown)) {
+  override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
+    let isTablet = UIDevice.current.userInterfaceIdiom == .pad
+    if (isTablet && (fromInterfaceOrientation == .portrait || fromInterfaceOrientation == .portraitUpsideDown)) {
       navigationController?.setViewControllers([FirstLandscapeViewController(intent)], animated: true)
     } else {
       navigationController?.setViewControllers([LevelViewController(intent)], animated: true)

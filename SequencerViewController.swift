@@ -34,14 +34,14 @@ class SequencerViewController : TamViewController {
     let layout = SequencerLayout(frame: contentFrame)
     view = layout
     sequencerControl.reset(layout)
-    layout.instructionsButton.addTarget(self, action: #selector(SequencerViewController.instructionsSelector), forControlEvents: .TouchUpInside)
-    layout.formationButton.addTarget(self,action:#selector(SequencerViewController.formationSelector), forControlEvents: .TouchUpInside)
+    layout.instructionsButton.addTarget(self, action: #selector(SequencerViewController.instructionsSelector), for: .touchUpInside)
+    layout.formationButton.addTarget(self,action:#selector(SequencerViewController.formationSelector), for: .touchUpInside)
     sequencerControl.callNamesChanged = {
-      self.setShareButton(self.sequencerControl.callNames.joinWithSeparator("\n"))
+      self.setShareButton(self.sequencerControl.callNames.joined(separator: "\n"))
     }
   }
   
-  override func viewWillDisappear(animated: Bool) {
+  override func viewWillDisappear(_ animated: Bool) {
     sequencerControl.stopListening()
   }
 
@@ -51,19 +51,19 @@ class SequencerViewController : TamViewController {
   
   @objc func formationSelector() {
     let alert = UIAlertView(title: "Select Starting Formation", message: "", delegate: self, cancelButtonTitle: nil)
-    alert.addButtonWithTitle("Facing Couples")
-    alert.addButtonWithTitle("Squared Set")
+    alert.addButton(withTitle: "Facing Couples")
+    alert.addButton(withTitle: "Squared Set")
     alert.show()
   }
   
-  @objc func alertView(alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+  @objc func alertView(_ alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
     sequencerControl.startingFormation(buttonIndex==0 ? "Facing Couples" : "Static Square")
   }
   
-  override func shouldAutorotate() -> Bool {
+  override var shouldAutorotate : Bool {
     return false
   }
-  override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+  override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
     //  Don't do anything
   }
 

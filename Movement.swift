@@ -22,14 +22,14 @@ import Foundation
 import QuartzCore
 
 enum Hands:Int {
-  case NOHANDS = 0
-  case LEFTHAND = 1
-  case RIGHTHAND = 2
-  case BOTHHANDS = 3
-  case GRIPLEFT = 5
-  case GRIPRIGHT = 6
-  case GRIPBOTH = 7
-  case ANYGRIP = 8
+  case nohands = 0
+  case lefthand = 1
+  case righthand = 2
+  case bothhands = 3
+  case gripleft = 5
+  case gripright = 6
+  case gripboth = 7
+  case anygrip = 8
 }
 func &(left:Hands, right:Hands) -> Hands {
   var raw = left.rawValue & right.rawValue
@@ -125,9 +125,9 @@ class Movement {
    * @param h  String from XML hands parameter
    * @return   int constant used in this class
    */
-  class func getHands(h:String) -> Hands {
-    let d:[String:Hands] = ["none":.NOHANDS, "nohands":.NOHANDS, "left":.LEFTHAND, "right":.RIGHTHAND, "both":.BOTHHANDS,
-      "anygrip":.ANYGRIP, "gripleft":.GRIPLEFT, "gripright":.GRIPRIGHT, "gripboth":.GRIPBOTH]
+  class func getHands(_ h:String) -> Hands {
+    let d:[String:Hands] = ["none":.nohands, "nohands":.nohands, "left":.lefthand, "right":.righthand, "both":.bothhands,
+      "anygrip":.anygrip, "gripleft":.gripleft, "gripright":.gripright, "gripboth":.gripboth]
     return d[h]!
   }
   
@@ -137,7 +137,7 @@ class Movement {
    * @param t  Time in beats
    * @return   Matrix for using with view
    */
-  func translate(t:CGFloat=CGFloat.max) -> Matrix {
+  func translate(_ t:CGFloat=CGFloat.greatestFiniteMagnitude) -> Matrix {
     let tt = min(max(0,t), beats)
     return btranslate!.translate(tt/beats)
   }
@@ -147,7 +147,7 @@ class Movement {
    * @param t  Time in beats
    * @return   Matrix for using with view
    */
-  func rotate(t:CGFloat=CGFloat.max) -> Matrix {
+  func rotate(_ t:CGFloat=CGFloat.greatestFiniteMagnitude) -> Matrix {
     let tt = min(max(0,t),beats)
     return brotate!.rotate(tt/beats)
   }
@@ -155,14 +155,14 @@ class Movement {
   /**
   * Return a new movement by changing the beats
   */
-  func time(b:CGFloat) -> Movement {
+  func time(_ b:CGFloat) -> Movement {
     return Movement(fullbeats: b, hands: hands, cx1: cx1, cy1: cy1, cx2: cx2, cy2: cy2, x2: x2, y2: y2, cx3: cx3, cx4: cx4, cy4: cy4, x4: x4, y4: y4, beats: b)
   }
   
   /**
   * Return a new movement by changing the hands
   */
-  func useHands(h:Hands) -> Movement {
+  func useHands(_ h:Hands) -> Movement {
     return Movement(fullbeats: fullbeats, hands: h, cx1: cx1, cy1: cy1, cx2: cx2, cy2: cy2, x2: x2, y2: y2, cx3: cx3, cx4: cx4, cy4: cy4, x4: x4, y4: y4, beats: beats)
   }
   
@@ -170,20 +170,20 @@ class Movement {
   * Return a new Movement scaled by x and y factors.
   * If y is negative hands are also switched.
   */
-  func scale(x:CGFloat, _ y:CGFloat) -> Movement {
-    return Movement(fullbeats: fullbeats, hands: y<0 && hands==Hands.RIGHTHAND ? Hands.LEFTHAND : y<0 && hands==Hands.LEFTHAND ? Hands.RIGHTHAND : hands, cx1: cx1*x, cy1: cy1*y, cx2: cx2*x, cy2: cy2*y, x2: x2*x, y2: y2*y, cx3: cx3*x, cx4: cx4*x, cy4: cy4*y, x4: x4*x, y4: y4*y, beats: beats)
+  func scale(_ x:CGFloat, _ y:CGFloat) -> Movement {
+    return Movement(fullbeats: fullbeats, hands: y<0 && hands==Hands.righthand ? Hands.lefthand : y<0 && hands==Hands.lefthand ? Hands.righthand : hands, cx1: cx1*x, cy1: cy1*y, cx2: cx2*x, cy2: cy2*y, x2: x2*x, y2: y2*y, cx3: cx3*x, cx4: cx4*x, cy4: cy4*y, x4: x4*x, y4: y4*y, beats: beats)
   }
   
   /**
   * Return a new Movement with the end point shifted by x and y
   */
-  func skew(x:CGFloat, _ y:CGFloat) -> Movement {
+  func skew(_ x:CGFloat, _ y:CGFloat) -> Movement {
     return Movement(fullbeats: fullbeats, hands: hands, cx1: cx1, cy1: cy1, cx2: cx2+x, cy2: cy2+y, x2: x2+x, y2: y2+y, cx3: cx3, cx4: cx4, cy4: cy4, x4: x4, y4: y4, beats: beats)
   }
   
   func reflect() -> Movement { return scale(1,-1) }
   
-  func clip(b:CGFloat) -> Movement {
+  func clip(_ b:CGFloat) -> Movement {
     return Movement(fullbeats: fullbeats, hands: hands, cx1: cx1, cy1: cy1, cx2: cx2, cy2: cy2, x2: x2, y2: y2, cx3: cx3, cx4: cx4, cy4: cy4, x4: x4, y4: y4, beats: b)
   }
   

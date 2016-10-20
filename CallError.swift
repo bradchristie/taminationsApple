@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-class CallError : ErrorType {
+class CallError : Error {
   
   let msg:String
   init(_ msg:String) { self.msg = msg }

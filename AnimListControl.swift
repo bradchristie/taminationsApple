@@ -61,7 +61,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   var xmlcount = 0
   var firstanim = -1
 
-  func reset(link:String, level:String, call:String?) {
+  func reset(_ link:String, level:String, call:String?) {
     self.link = link
     self.level = level
     //  Get the xml file listing the animations
@@ -82,7 +82,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     for tam in tams {
       let tamtitle = tam["title"]!
       var from = TamUtils.tamXref(tam)["from"] ?? ""
-      var fullname = tamtitle + "from" + (from ?? "")  // for matching search request
+      var fullname = tamtitle + "from" + from  // for matching search request
       let group = tam["group"] ?? ""
       let difficulty = Int(tam["difficulty"] ?? "0") ?? 0
       diffsum += difficulty
@@ -126,7 +126,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
           selectanim = animlistdata.count
         }
         let webtarget = group.length > 0 ? tamtitle : tamtitle + "from" + from
-        if call?.lowercaseString == webtarget.lowercaseString.replaceAll("\\W", "") {
+        if call?.lowercased() == webtarget.lowercased().replaceAll("\\W", "") {
           selectanim = animlistdata.count
         }
       }
@@ -181,68 +181,68 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     
   }
   
-  func cellFont(tableView:UITableView) -> UIFont { return UIFont.systemFontOfSize(max(24,tableView.bounds.size.height/40)) }
+  func cellFont(_ tableView:UITableView) -> UIFont { return UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40)) }
   
   //  Required data source methods
-  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let data = animlistdata[indexPath.row]
-    let cell = tableView.dequeueReusableCellWithIdentifier("animlisttablecell", forIndexPath:indexPath)
+  @objc func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let data = animlistdata[(indexPath as NSIndexPath).row]
+    let cell = tableView.dequeueReusableCell(withIdentifier: "animlisttablecell", for:indexPath)
     if (data.celltype != CellType.Separator) {
       cell.textLabel?.text = data.text
       cell.textLabel?.font = cellFont(tableView)
-      cell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
+      cell.textLabel?.lineBreakMode = NSLineBreakMode.byWordWrapping
       cell.textLabel?.numberOfLines = 0
     }
     if (data.celltype == CellType.Indented || data.celltype == CellType.Plain) {
       let bgColorView = UIView()
-      bgColorView.backgroundColor = UIColor.clearColor()
-      bgColorView.layer.borderColor = UIColor.blueColor().CGColor
+      bgColorView.backgroundColor = UIColor.clear
+      bgColorView.layer.borderColor = UIColor.blue.cgColor
       bgColorView.layer.borderWidth = 3
       cell.selectedBackgroundView = bgColorView
-      cell.textLabel?.textColor = data.wasSelected ? UIColor(red: 0, green: 0, blue: 0.5, alpha: 1) : UIColor.blackColor()
+      cell.textLabel?.textColor = data.wasSelected ? UIColor(red: 0, green: 0, blue: 0.5, alpha: 1) : UIColor.black
       switch data.difficulty {
       case 3 : cell.backgroundColor = UIColor(red: 1, green: 0.75, blue: 0.75, alpha: 1)
       case 2 : cell.backgroundColor = UIColor(red: 1, green: 1, blue: 0.75, alpha: 1)
       case 1 : cell.backgroundColor = UIColor(red: 0.75, green: 0.875, blue: 0.75, alpha: 1)
-      default : cell.backgroundColor = UIColor.whiteColor()
+      default : cell.backgroundColor = UIColor.white
       }
       cell.indentationLevel = data.celltype == CellType.Indented ? 2 : 0
-      cell.userInteractionEnabled = true
+      cell.isUserInteractionEnabled = true
     } else {
-      cell.userInteractionEnabled = false
+      cell.isUserInteractionEnabled = false
       cell.backgroundColor = UIColor(red: 0.5, green: 0.25, blue: 0.5, alpha: 1)
-      cell.textLabel?.textColor = UIColor.whiteColor()
+      cell.textLabel?.textColor = UIColor.white
     }
     return cell
   }
 
   
-  @objc func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+  @objc func numberOfSections(in tableView: UITableView) -> Int {
     return 1
   }
   
-  @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return animlistdata.count
   }
   
   
   //  Table view delegate
-  func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-    let data = animlistdata[indexPath.row]
+  func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    let data = animlistdata[(indexPath as NSIndexPath).row]
     if (data.celltype == CellType.Separator) {
       return 16
     } else {
       //  Need to subtract a bit from the width to allow for '>' indicator or indentation
       let wd = data.celltype == CellType.Indented ? 60 : data.celltype == CellType.Plain ? 40 : 10
-      let constraintSize = CGSizeMake(tableView.bounds.width-CGFloat(wd), CGFloat(MAXFLOAT))
-      let labelSize = data.text.boundingRectWithSize(constraintSize,options:[NSStringDrawingOptions.UsesLineFragmentOrigin],
+      let constraintSize = CGSize(width: tableView.bounds.width-CGFloat(wd), height: CGFloat(MAXFLOAT))
+      let labelSize = data.text.boundingRect(with: constraintSize,options:[NSStringDrawingOptions.usesLineFragmentOrigin],
         attributes:[NSFontAttributeName:cellFont(tableView)],context:nil)
       return labelSize.height + 10
     }
   }
   
-  func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let data = animlistdata[indexPath.row]
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let data = animlistdata[(indexPath as NSIndexPath).row]
     animtitle = data.title
     selectAction(level,link,data,xmlcount)
   }

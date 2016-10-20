@@ -21,17 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 enum Speed:Int {
-  case SLOW = 1
-  case NORMAL = 0
-  case MODERATE = 3
-  case FAST = 2
+  case slow = 1
+  case normal = 0
+  case moderate = 3
+  case fast = 2
 }
 
 enum SpeedValues:CGFloat {
-  case SLOWSPEED = 1500
-  case MODERATESPEED = 1000
-  case NORMALSPEED = 500
-  case FASTSPEED = 200
+  case slowspeed = 1500
+  case moderatespeed = 1000
+  case normalspeed = 500
+  case fastspeed = 200
 }
 
 
@@ -54,16 +54,16 @@ class AnimationView: UIView {
   var looping:Bool = false
   var dancers:[Dancer] = []
   var interactiveDancer:Int = -1
-  var speed:SpeedValues = .NORMALSPEED
-  var geometry:GeometryType = .SQUARE
+  var speed:SpeedValues = .normalspeed
+  var geometry:GeometryType = .square
   var tam:JiNode?
   var hasParts = false
   var idancer:InteractiveDancer? = nil
   
   //  callbacks
   var readyCallback:()->() = { }
-  var progressCallback:(beat:CGFloat)->() = { arg in }
-  var partCallback:(part:Int)->() = { arg in }
+  var progressCallback:(_ beat:CGFloat)->() = { arg in }
+  var partCallback:(_ part:Int)->() = { arg in }
   var doneCallback:()->() = { }
   
   
@@ -164,7 +164,7 @@ class AnimationView: UIView {
    */
   func doPrevPart() {
     if (beat > -leadin) {
-      beat = partsValues().reverse().filter({$0 >= beat})[0]
+      beat = partsValues().reversed().filter({$0 >= beat})[0]
       setNeedsDisplay()
     }
   }
@@ -172,7 +172,7 @@ class AnimationView: UIView {
   /**
    *   Set the visibility of the grid
    */
-  func setGridVisibility(show:Bool) {
+  func setGridVisibility(_ show:Bool) {
     showGrid = show
     setNeedsDisplay()
   }
@@ -180,7 +180,7 @@ class AnimationView: UIView {
   /**
    *   Set the visibility of phantom dancers
    */
-  func setPhantomVisibility(show:Bool) {
+  func setPhantomVisibility(_ show:Bool) {
     showPhantoms = show
     for d in dancers {
       d.hidden = d.isPhantom && !show
@@ -190,7 +190,7 @@ class AnimationView: UIView {
   /**
    *  Turn on drawing of dancer paths
    */
-  func setPathVisibility(show:Bool) {
+  func setPathVisibility(_ show:Bool) {
     showPaths = show
     setNeedsDisplay()
   }
@@ -198,7 +198,7 @@ class AnimationView: UIView {
   /**
    *   Set animation looping
    */
-  func setLoop(loopit:Bool) {
+  func setLoop(_ loopit:Bool) {
     looping = loopit
     setNeedsDisplay()
   }
@@ -206,66 +206,66 @@ class AnimationView: UIView {
   /**
    *   Set display of dancer numbers
    */
-  func setNumbers(numberem:ShowNumbers) {
-    let n = interactiveDancer >= 0 ? .NUMBERS_OFF : numberem
+  func setNumbers(_ numberem:ShowNumbers) {
+    let n = interactiveDancer >= 0 ? .numbers_OFF : numberem
     for d in dancers {
       d.showNumber = n
     }
   }
-  func setNumbers(numberstr:String) {
+  func setNumbers(_ numberstr:String) {
     switch numberstr {
-    case "1-8" : setNumbers(.NUMBERS_DANCERS)
-    case "1-4" : setNumbers(.NUMBERS_COUPLES)
-    default : setNumbers(.NUMBERS_OFF)
+    case "1-8" : setNumbers(.numbers_DANCERS)
+    case "1-4" : setNumbers(.numbers_COUPLES)
+    default : setNumbers(.numbers_OFF)
     }
   }
   
   /**
    *   Set speed of animation
    */
-  func setSpeed(myspeed:Speed) {
+  func setSpeed(_ myspeed:Speed) {
     switch myspeed {
-    case .SLOW : speed = .SLOWSPEED
-    case .MODERATE : speed = .MODERATESPEED
-    case .NORMAL : speed = .NORMALSPEED
-    case .FAST : speed = .FASTSPEED
+    case .slow : speed = .slowspeed
+    case .moderate : speed = .moderatespeed
+    case .normal : speed = .normalspeed
+    case .fast : speed = .fastspeed
     }
   }
-  func setSpeed(myspeed:String) {
+  func setSpeed(_ myspeed:String) {
     switch myspeed {
-    case "Slow" : speed = .SLOWSPEED
-    case "Moderate" : speed = .MODERATESPEED
-    case "Fast" : speed = .FASTSPEED
-    default : speed = .NORMALSPEED
+    case "Slow" : speed = .slowspeed
+    case "Moderate" : speed = .moderatespeed
+    case "Fast" : speed = .fastspeed
+    default : speed = .normalspeed
     }
   }
   
   /**  Set hexagon geometry  */
   func setHexagon() {
-    geometry = .HEXAGON
+    geometry = .hexagon
     resetAnimation()
   }
   
   /**  Set bigon geometry  */
   func setBigon() {
-    geometry = .BIGON
+    geometry = .bigon
     resetAnimation()
   }
   
   /**  Set square geometry  */
   func setSquare() {
-    geometry = .SQUARE
+    geometry = .square
     resetAnimation()
   }
   
-  func setGeometry(g:GeometryType) {
+  func setGeometry(_ g:GeometryType) {
     if (geometry != g) {
       geometry = g
       resetAnimation()
     }
   }
   
-  func setGeometry(g:Int) {
+  func setGeometry(_ g:Int) {
     setGeometry(GeometryType(rawValue: g)!)
   }
   
@@ -283,12 +283,12 @@ class AnimationView: UIView {
   /**
    *   Set time of animation as offset from start including leadin
    */
-  func setTime(b:CGFloat) {
+  func setTime(_ b:CGFloat) {
     beat = b - leadin
     setNeedsDisplay()
   }
   
-  @nonobjc func setParts(p:String) {
+  @nonobjc func setParts(_ p:String) {
     parts = p
     partbeats = partsValues()
   }
@@ -301,7 +301,7 @@ class AnimationView: UIView {
   }
   
   //  Interactive functions to process touch
-  override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     //  For interactive dancer, pass all touch events through to its handler
     if (idancer != nil) {
       for t in touches {
@@ -310,12 +310,12 @@ class AnimationView: UIView {
     } else if (touches.count > 0) {
       //  If no interactive dancer, tap on a dancer shows its path
       let t = touches.first!
-      let p = t.locationInView(self)
+      let p = t.location(in: self)
       //  Convert to dancer's coordinate system
-      let range = min(CGRectGetWidth(bounds),CGRectGetHeight(bounds))
+      let range = min(bounds.width,bounds.height)
       let s = range/13.0
-      let x = -(p.y - CGRectGetHeight(bounds)/2.0)/s
-      let y = -(p.x - CGRectGetWidth(bounds)/2.0)/s
+      let x = -(p.y - bounds.height/2.0)/s
+      let y = -(p.x - bounds.width/2.0)/s
       var bestdist:CGFloat = 0.5
       var bestd:Dancer? = nil
       for d in dancers {
@@ -335,7 +335,7 @@ class AnimationView: UIView {
     }
   }
   
-  override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     if (idancer != nil) {
       for t in touches {
         idancer!.doTouch(t, inView: self)
@@ -343,7 +343,7 @@ class AnimationView: UIView {
     }
   }
   
-  override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     if (idancer != nil) {
       for t in touches {
         idancer!.doTouch(t, inView: self)
@@ -351,9 +351,9 @@ class AnimationView: UIView {
     }
   }
   
-  override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
-    if (idancer != nil && touches != nil) {
-      for t in touches! {
+  override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+    if (idancer != nil) {
+      for t in touches {
         idancer!.doTouch(t, inView: self)
       }
     }
@@ -391,7 +391,7 @@ class AnimationView: UIView {
   }
   
   
-  override func drawRect(rect: CGRect) {
+  override func draw(_ rect: CGRect) {
     if (tam != nil) {
      
       //  Update the animation time
@@ -418,45 +418,49 @@ class AnimationView: UIView {
           doneCallback()
         }
       }
-      progressCallback(beat:beat+leadin)
+      progressCallback(beat+leadin)
       //  Continually epeat by telling the system to re-draw
       if (isRunning) {
         //  setNeedsDispay needs to be called after current processing is done
         //   otherwise the system ignores the request
-        performSelector(#selector(UIView.setNeedsDisplay),withObject: self, afterDelay: 0)
+        //perform(#selector(UIView.setNeedsDisplay(_:)),with: self, afterDelay: 0)
+        //setNeedsDisplay()
+        DispatchQueue.main.async {
+          self.setNeedsDisplay()
+        }
       }
     }
   }
   
-  func doDraw(rect: CGRect) {
+  func doDraw(_ rect: CGRect) {
     //  Draw background
     let ctx = UIGraphicsGetCurrentContext()!
-    CGContextAddRect(ctx, bounds)
-    CGContextSetFillColorWithColor(ctx, UIColor(red: 1, green: 0.94, blue: 0.88, alpha: 1).CGColor)
-    CGContextFillPath(ctx)
+    ctx.addRect(bounds)
+    ctx.setFillColor(UIColor(red: 1, green: 0.94, blue: 0.88, alpha: 1).cgColor)
+    ctx.fillPath()
     //  Note loop and dancer speed
     //  TODO
     let range = min(bounds.width,bounds.height)
 
     //  Scale coordinate system to dancer's size
-    CGContextTranslateCTM(ctx, bounds.width/2, bounds.height/2)
+    ctx.translateBy(x: bounds.width/2, y: bounds.height/2)
     //  Flip and rotate
     let s = range/13
-    CGContextScaleCTM(ctx, s, -s)
-    CGContextRotateCTM(ctx, CG_PI/2)
+    ctx.scaleBy(x: s, y: -s)
+    ctx.rotate(by: CG_PI/2)
     //  Draw grid if on
     if (showGrid) {
       GeometryMaker.makeOne(geometry).drawGrid(ctx)
     }
     //  Always show bigon center mark
-    if geometry == GeometryType.BIGON {
-      CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
-      CGContextSetLineWidth(ctx, 0.05)
-      CGContextMoveToPoint(ctx, -0.5, 0.0)
-      CGContextAddLineToPoint(ctx, 0.5, 0.0)
-      CGContextMoveToPoint(ctx, 0.0, -0.5)
-      CGContextAddLineToPoint(ctx, 0.0, 0.5)
-      CGContextStrokePath(ctx)
+    if geometry == GeometryType.bigon {
+      ctx.setStrokeColor(UIColor.black.cgColor)
+      ctx.setLineWidth(0.05)
+      ctx.move(to: CGPoint(x: -0.5, y: 0.0))
+      ctx.addLine(to: CGPoint(x: 0.5, y: 0.0))
+      ctx.move(to: CGPoint(x: 0.0, y: -0.5))
+      ctx.addLine(to: CGPoint(x: 0.0, y: 0.5))
+      ctx.strokePath()
     }
     //  Draw paths if requested
     for d in dancers {
@@ -466,51 +470,51 @@ class AnimationView: UIView {
     }
     
     //  Draw handholds
-    CGContextSetStrokeColorWithColor(ctx, UIColor.orangeColor().CGColor)
-    CGContextSetFillColorWithColor(ctx, UIColor.orangeColor().CGColor)
-    CGContextSetLineWidth(ctx, 0.05)
+    ctx.setStrokeColor(UIColor.orange.cgColor)
+    ctx.setFillColor(UIColor.orange.cgColor)
+    ctx.setLineWidth(0.05)
     for d in dancers {
       let loc = d.location
       if (d.rightHandVisibility) {
         if (d.rightdancer == nil) {  // hexagon center
-          CGContextMoveToPoint(ctx, loc.x, loc.y)
-          CGContextAddLineToPoint(ctx, 0, 0)
-          CGContextStrokePath(ctx)
-          CGContextAddArc(ctx, 0, 0, 0.125, 0, CG_PI*2, 0)
-          CGContextFillPath(ctx)
+          ctx.move(to: CGPoint(x: loc.x, y: loc.y))
+          ctx.addLine(to: CGPoint(x: 0, y: 0))
+          ctx.strokePath()
+          ctx.addArc(center:CGPoint(x:0,y:0), radius:0.125,startAngle:0, endAngle:CG_PI*2, clockwise:false)
+          ctx.fillPath()
         } else if (d.rightdancer!.compare(d) < 0) {
           let loc2 = d.rightdancer!.location
-          CGContextMoveToPoint(ctx, loc.x, loc.y)
-          CGContextAddLineToPoint(ctx, loc2.x, loc2.y)
-          CGContextStrokePath(ctx)
-          CGContextAddArc(ctx, (loc.x+loc2.x)/2, (loc.y+loc2.y)/2, 0.125, 0, CG_PI*2, 0)
-          CGContextFillPath(ctx)
+          ctx.move(to: CGPoint(x: loc.x, y: loc.y))
+          ctx.addLine(to: CGPoint(x: loc2.x, y: loc2.y))
+          ctx.strokePath()
+          ctx.addArc(center:CGPoint(x:(loc.x+loc2.x)/2, y:(loc.y+loc2.y)/2), radius:0.125, startAngle:0, endAngle:CG_PI*2, clockwise:false)
+          ctx.fillPath()
         }
       }
       if (d.leftHandVisibility) {
         if (d.leftdancer == nil) {  // hexagon center
-          CGContextMoveToPoint(ctx, loc.x, loc.y)
-          CGContextAddLineToPoint(ctx, 0, 0)
-          CGContextStrokePath(ctx)
-          CGContextAddArc(ctx, 0, 0, 0.125, 0, CG_PI*2, 0)
-          CGContextFillPath(ctx)
+          ctx.move(to: CGPoint(x: loc.x, y: loc.y))
+          ctx.addLine(to: CGPoint(x: 0, y: 0))
+          ctx.strokePath()
+          ctx.addArc(center:CGPoint(x:0, y:0), radius:0.125, startAngle:0, endAngle:CG_PI*2, clockwise:false)
+          ctx.fillPath()
         } else if (d.leftdancer!.compare(d) < 0) {
           let loc2 = d.leftdancer!.location
-          CGContextMoveToPoint(ctx, loc.x, loc.y)
-          CGContextAddLineToPoint(ctx, loc2.x, loc2.y)
-          CGContextStrokePath(ctx)
-          CGContextAddArc(ctx, (loc.x+loc2.x)/2, (loc.y+loc2.y)/2, 0.125, 0, CG_PI*2, 0)
-          CGContextFillPath(ctx)
+          ctx.move(to: CGPoint(x: loc.x, y: loc.y))
+          ctx.addLine(to: CGPoint(x: loc2.x, y: loc2.y))
+          ctx.strokePath()
+          ctx.addArc(center:CGPoint(x:(loc.x+loc2.x)/2, y:(loc.y+loc2.y)/2), radius:0.125, startAngle:0, endAngle:CG_PI*2, clockwise:false)
+          ctx.fillPath()
         }
       }
     }
     
     //  Draw dancers
     for d in dancers.filter({!$0.hidden}) {
-      CGContextSaveGState(ctx)
-      CGContextConcatCTM(ctx, d.tx.mat)
+      ctx.saveGState()
+      ctx.concatenate(d.tx.mat)
       d.draw(ctx)
-      CGContextRestoreGState(ctx)
+      ctx.restoreGState()
     }
     
   }
@@ -536,14 +540,14 @@ class AnimationView: UIView {
     //  Find the current part, and send a message if it's changed
     var thispart = 0
     if (beat >= 0 && beat <= beats) {
-      let p = partbeats.enumerate().reverse().find { (i,b) in b < self.beat }
+      let p = partbeats.enumerated().reversed().find { (i,b) in b < self.beat }
       if let pp = p {
-        thispart = pp.index
+        thispart = pp.offset
       }
     }
     if (thispart != currentPart) {
       currentPart = thispart
-      partCallback(part:currentPart)
+      partCallback(currentPart)
     }
     
     //  Compute handholds
@@ -568,57 +572,57 @@ class AnimationView: UIView {
       }
     }
     //  Sort the array to put best scores first
-    hhlist.sortInPlace { $0.score < $1.score }
+    hhlist.sort { $0.score < $1.score }
     //  Apply the handholds in order from best to worst
     //  so that if a dancer has a choice it gets the best handhold
     for hh in hhlist {
       //  Check that the hands aren't already used
-      let incenter = geometry == GeometryType.HEXAGON && hh.inCenter()
+      let incenter = geometry == GeometryType.hexagon && hh.inCenter()
       if (incenter ||
-        (hh.hold1==Hands.RIGHTHAND && hh.dancer1.rightdancer==nil ||
-          hh.hold1==Hands.LEFTHAND && hh.dancer1.leftdancer==nil) &&
-        (hh.hold2==Hands.RIGHTHAND && hh.dancer2.rightdancer==nil ||
-          hh.hold2==Hands.LEFTHAND && hh.dancer2.leftdancer==nil)) {
+        (hh.hold1==Hands.righthand && hh.dancer1.rightdancer==nil ||
+          hh.hold1==Hands.lefthand && hh.dancer1.leftdancer==nil) &&
+        (hh.hold2==Hands.righthand && hh.dancer2.rightdancer==nil ||
+          hh.hold2==Hands.lefthand && hh.dancer2.leftdancer==nil)) {
             //      	Make the handhold visible
             //  Scale should be 1 if distance is 2
             //  float scale = hh.distance/2f;
-            if (hh.hold1==Hands.RIGHTHAND || hh.hold1==Hands.GRIPRIGHT) {
+            if (hh.hold1==Hands.righthand || hh.hold1==Hands.gripright) {
               hh.dancer1.rightHandVisibility = true
               hh.dancer1.rightHandNewVisibility = true
             }
-            if (hh.hold1==Hands.LEFTHAND || hh.hold1==Hands.GRIPLEFT) {
+            if (hh.hold1==Hands.lefthand || hh.hold1==Hands.gripleft) {
               hh.dancer1.leftHandVisibility = true
               hh.dancer1.leftHandNewVisibility = true
             }
-            if (hh.hold2==Hands.RIGHTHAND || hh.hold2==Hands.GRIPRIGHT) {
+            if (hh.hold2==Hands.righthand || hh.hold2==Hands.gripright) {
               hh.dancer2.rightHandVisibility = true
               hh.dancer2.rightHandNewVisibility = true
             }
-            if (hh.hold2==Hands.LEFTHAND || hh.hold2==Hands.GRIPLEFT) {
+            if (hh.hold2==Hands.lefthand || hh.hold2==Hands.gripleft) {
               hh.dancer2.leftHandVisibility = true
               hh.dancer2.leftHandNewVisibility = true
             }
             
             if (!incenter) {
-              if (hh.hold1 == Hands.RIGHTHAND) {
+              if (hh.hold1 == Hands.righthand) {
                 hh.dancer1.rightdancer = hh.dancer2
-                if ((hh.dancer1.hands & Hands.GRIPRIGHT) == Hands.GRIPRIGHT) {
+                if ((hh.dancer1.hands & Hands.gripright) == Hands.gripright) {
                   hh.dancer1.rightgrip = hh.dancer2
                 }
               } else {
                 hh.dancer1.leftdancer = hh.dancer2
-                if ((hh.dancer1.hands & Hands.GRIPLEFT) == Hands.GRIPLEFT) {
+                if ((hh.dancer1.hands & Hands.gripleft) == Hands.gripleft) {
                   hh.dancer1.leftgrip = hh.dancer2
                 }
               }
-              if (hh.hold2 == Hands.RIGHTHAND) {
+              if (hh.hold2 == Hands.righthand) {
                 hh.dancer2.rightdancer = hh.dancer1
-                if ((hh.dancer2.hands & Hands.GRIPRIGHT) == Hands.GRIPRIGHT) {
+                if ((hh.dancer2.hands & Hands.gripright) == Hands.gripright) {
                   hh.dancer2.rightgrip = hh.dancer1
                 }
               } else {
                 hh.dancer2.leftdancer = hh.dancer1
-                if ((hh.dancer2.hands & Hands.GRIPLEFT) == Hands.GRIPLEFT) {
+                if ((hh.dancer2.hands & Hands.gripleft) == Hands.gripleft) {
                   hh.dancer2.leftgrip = hh.dancer1
                 }
               }
@@ -647,7 +651,7 @@ class AnimationView: UIView {
   }
   
   
-  func setAnimation(xtam:JiNode, intdan:Int = -1) {
+  func setAnimation(_ xtam:JiNode, intdan:Int = -1) {
     tam = TamUtils.tamXref(xtam)
     interactiveDancer = intdan
     resetAnimation()
@@ -672,31 +676,31 @@ class AnimationView: UIView {
       
       //  Except for the phantoms, these are the standard colors
       //  used for teaching callers
-      let dancerColor = geometry == .HEXAGON ?
-        [UIColor.redColor(), UIColor.greenColor(), UIColor.magentaColor(),
-         UIColor.blueColor(), UIColor.yellowColor(), UIColor.cyanColor(),
-         UIColor.lightGrayColor(), UIColor.lightGrayColor(), UIColor.lightGrayColor(), UIColor.lightGrayColor()]
+      let dancerColor = geometry == .hexagon ?
+        [UIColor.red, UIColor.green, UIColor.magenta,
+         UIColor.blue, UIColor.yellow, UIColor.cyan,
+         UIColor.lightGray, UIColor.lightGray, UIColor.lightGray, UIColor.lightGray]
       :
-        [UIColor.redColor(), UIColor.greenColor(), UIColor.blueColor(), UIColor.yellowColor(),
-         UIColor.lightGrayColor(), UIColor.lightGrayColor(), UIColor.lightGrayColor(), UIColor.lightGrayColor()]
+        [UIColor.red, UIColor.green, UIColor.blue, UIColor.yellow,
+         UIColor.lightGray, UIColor.lightGray, UIColor.lightGray, UIColor.lightGray]
 
       //  Get numbers for dancers and couples
       //  This fetches any custom numbers that might be defined in
       //  the animation to match a Callerlab or Ceder Chest illustration
-      let numbers = geometry == .HEXAGON ?
+      let numbers = geometry == .hexagon ?
         ["A","E","I",
          "B","F","J",
          "C","G","K",
          "D","H","L",
          "u","v","w","x","y","z"]
-        : geometry == .BIGON ? ["1", "2", "3", "4", "5", "6", "7", "8"]
+        : geometry == .bigon ? ["1", "2", "3", "4", "5", "6", "7", "8"]
         : paths.count == 0 ? [ "1", "2", "3", "4", "5", "6", "7", "8" ]
         : TamUtils.getNumbers(tam!)
-      let couples = geometry == .HEXAGON ?
+      let couples = geometry == .hexagon ?
         ["1", "3", "5", "1", "3", "5",
          "2", "4", "6", "2", "4", "6",
          "7", "8", "7", "8", "7", "8"]
-      : geometry == .BIGON ? [ "1", "2", "3", "4", "5", "6", "7", "8" ]
+      : geometry == .bigon ? [ "1", "2", "3", "4", "5", "6", "7", "8" ]
       : paths.count == 0 ? [ "1", "3", "1", "3", "2", "4", "2", "4" ]
       : TamUtils.getCouples(tam!)
       let geoms = GeometryMaker.makeAll(geometry)
@@ -705,15 +709,15 @@ class AnimationView: UIView {
       var icount = -1
       var im = Matrix()
       if (interactiveDancer > 0) {
-        let selector = interactiveDancer == Gender.BOY.rawValue ? "dancer[@gender='boy']" : "dancer[@gender='girl']"
+        let selector = interactiveDancer == Gender.boy.rawValue ? "dancer[@gender='boy']" : "dancer[@gender='girl']"
         let glist = formation.xPath(selector)
-        icount = (Int)(rand()) % glist.count
+        icount = (Int)(arc4random_uniform((UInt32)(glist.count)))
         //  If the animations starts with "Heads" or "Sides"
         //  then select the first dancer.
         //  Otherwise the formation could rotate 90 degrees
         //  which would be confusing
         let title = tam!["title"]!
-        if (title.containsString("Heads") || title.containsString("Sides")) {
+        if (title.contains("Heads") || title.contains("Sides")) {
           icount = 0
         }
         //  Find the angle the interactive dancer faces at start
@@ -731,15 +735,15 @@ class AnimationView: UIView {
         let y = CGFloat(Double(fd["y"]!)!)
         let angle = CGFloat(Double(fd["angle"]!)!)
         let gender = fd["gender"]
-        let g:Gender = gender=="boy" ? .BOY : gender=="girl" ? .GIRL : .PHANTOM
+        let g:Gender = gender=="boy" ? .boy : gender=="girl" ? .girl : .phantom
         let movelist = paths.count > i ? TamUtils.translatePath(tam!.childrenWithName("path")[i]) : [Movement]()
         //  Each dancer listed in the formation corresponds to
         //  one, two, or three real dancers depending on the geometry
         for geom in geoms {
           let m = Matrix().postRotate(angle.toRadians).postTranslate(x, y: y)
-          let nstr = g == .PHANTOM ? " " : numbers[dnum]
-          let cstr = g == .PHANTOM ? " " : couples[dnum]
-          let cnum = g == .PHANTOM ? UIColor.lightGrayColor() : dancerColor[Int(cstr)!-1]
+          let nstr = g == .phantom ? " " : numbers[dnum]
+          let cstr = g == .phantom ? " " : couples[dnum]
+          let cnum = g == .phantom ? UIColor.lightGray : dancerColor[Int(cstr)!-1]
           //  add one dancer
           if (g.rawValue == interactiveDancer) {
             icount -= 1
@@ -749,7 +753,7 @@ class AnimationView: UIView {
             dancers.append(idancer!)
           } else {
             dancers.append(Dancer(number: nstr, number_couple: cstr, gender: g, fillcolor: cnum, mat: m, geom: geom.clone(), moves: movelist))
-            if (g == .PHANTOM && !showPhantoms) {
+            if (g == .phantom && !showPhantoms) {
               dancers[dnum].hidden = true
             }
           }

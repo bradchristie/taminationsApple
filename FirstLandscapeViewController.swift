@@ -68,22 +68,22 @@ class FirstLandscapeViewController: TamViewController {
 
     view = topview
     title = "Taminations"
-    rightview.bringSubviewToFront(aboutLayout)
+    rightview.bringSubview(toFront: aboutLayout)
     Callouts.LevelButtonAction = { (level:String)->Void in
       levelLayout.unselect()
       self.title = "Taminations"
       switch level {
-        case "About" : rightview.bringSubviewToFront(aboutLayout)
-        case "Settings" : rightview.bringSubviewToFront(settingsLayout)
-        case "Practice" : self.navigationController?.presentViewController(PracticeNavigationController(rootViewController: StartPracticeViewController(self.intent)), animated: true, completion: nil)
+        case "About" : rightview.bringSubview(toFront: aboutLayout)
+        case "Settings" : rightview.bringSubview(toFront: settingsLayout)
+        case "Practice" : self.navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(self.intent)), animated: true, completion: nil)
           case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
         default : self.selectLevel(level)
       }
     }
     selectLevel = { level in
-      self.model.reset(level)
+      self.model.reset(self,level)
       calllistview.reloadData()
-      rightview.bringSubviewToFront(calllistview)
+      rightview.bringSubview(toFront: calllistview)
       levelLayout.selectLevel(level)
       self.title = "Taminations - " + LevelData.find(level)!.name
     }
@@ -100,7 +100,7 @@ class FirstLandscapeViewController: TamViewController {
     }
   }
 
-  override func viewDidAppear(animated: Bool) {
+  override func viewDidAppear(_ animated: Bool) {
     //  If link passed in from URL sent to app, go there immediately
     if firstcall && intent["link"] != nil {
       self.navigationController?.pushViewController(SecondLandscapeViewController(intent), animated: true)

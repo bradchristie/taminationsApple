@@ -22,31 +22,31 @@ import UIKit
 
 class LevelViewController: TamViewController {
 
-  var levelLayout:LevelLayout? = nil
+  var levelLayout:LevelLayoutBase? = nil
   
   override func loadView() {
     levelLayout = LevelLayout(frame: contentFrame)
+    title = "Taminations"
     Callouts.LevelButtonAction = { (level:String)->Void in
       var intent = [String: String]()
       intent["level"] = level
-      self.levelLayout!.selectLevel(level)
+    //  self.levelLayout!.selectLevel(level)
       switch level {
       case "Settings" : self.navigationController?.pushViewController(SettingsViewController(intent), animated: true)
       case "About" : self.navigationController?.pushViewController(AboutViewController(intent), animated: true)
       case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(intent), animated: true)
-      case "Practice" : self.navigationController?.presentViewController(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
+      case "Practice" : self.navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
       default : self.navigationController?.pushViewController(CallListViewController(intent), animated: true)
       }
     }
     view = levelLayout
-    title = "Taminations"
     //  If level passed in from URL sent to app, go there immediately
     if intent["level"] != nil {
       self.navigationController?.pushViewController(CallListViewController(intent), animated: true)
     }
   }
     
-  override func viewDidAppear(animated: Bool) {
+  override func viewDidAppear(_ animated: Bool) {
     levelLayout?.unselect()
   }
   

@@ -22,17 +22,17 @@ class AllemandeLeft : Action {
   
   override var name:String { get { return "Allemande Left" } }
   
-  override func performOne(d:Dancer, _ ctx:CallContext) throws -> Path {
+  override func performOne(_ d:Dancer, _ ctx:CallContext) throws -> Path {
     //  Can only turn thru with another dancer
     //  in front of this dancer
     //  who is also facing this dancer
     if let d2 = ctx.dancerFacing(d) {
       let dist = CallContext.distance(d,d2)
-      return TamUtils.getMove("Extend Right").scale(dist/2,0.5) ++
-             TamUtils.getMove("Swing Left").scale(0.5,0.5) ++
+      return TamUtils.getMove("Extend Right").scale(dist/2,0.5) +
+             TamUtils.getMove("Swing Left").scale(0.5,0.5) +
              TamUtils.getMove("Extend Left").scale(dist/2,0.5)
     } else {
-      throw CallError("Cannot find dancer to turn with \(d.number)")
+      throw CallError("Cannot find dancer to turn with \(d.number)") as Error
     }
   }
   

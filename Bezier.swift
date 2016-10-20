@@ -69,14 +69,14 @@ class Bezier {
   }
   
   //  Return the movement along the curve given "t" between 0 and 1
-  func translate(t:CGFloat) -> Matrix {
+  func translate(_ t:CGFloat) -> Matrix {
     let x = x1 + t*(cx + t*(bx + t*ax))
     let y = y1 + t*(cy + t*(by + t*ay))
     return Matrix.makeTranslation(x,y)
   }
   
   //  Return the angle of the derivative given "t" between 0 and 1
-  func rotate(t:CGFloat) -> Matrix {
+  func rotate(_ t:CGFloat) -> Matrix {
     let x = cx + t*(2.0*bx + t*3.0*ax)
     let y = cy + t*(2.0*by + t*3.0*ay)
     let theta = atan2(y,x)

@@ -22,13 +22,13 @@ class Spread : Action {
   
   override var name:String { get { return "and Spread" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     //  This is for waves only TODO tandem couples, single dancers (C-1)
     let v = Vector3D(x: 0, y: d.data.belle ? 2 : d.data.beau ? -2 : 0)
     let m = d.path.pop()
     let tx = m.rotate()
     let v2 = v.concatenate(tx)
-    d.path.add(m.skew(v2.x,v2.y).useHands(Hands.NOHANDS))
+    d.path.add(m.skew(v2.x,v2.y).useHands(Hands.nohands))
     return Path()   // empty path for return value
   }
 }

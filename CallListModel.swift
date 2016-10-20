@@ -20,17 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate, UISearchBarDelegate {
+class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISearchControllerDelegate, UISearchBarDelegate, UISearchResultsUpdating {
   
   class CallListData {
     let title:String
     let link:String
-    let level:String
     let sublevel:String
-    init(title:String, link:String, level:String, sublevel:String) {
+    init(title:String, link:String, sublevel:String) {
       self.title = title
       self.link = link
-      self.level = level
       self.sublevel = sublevel
     }
     var height:CGFloat = 0
@@ -45,15 +43,16 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   var sectionIndex:[String] = []
   var previndex = -1
   var query = ""
-    
-  func reset(level:String) {
+  var searchController:UISearchController?
+  
+  @nonobjc func reset(_ vc:UIViewController, _ level:String) {
+    searchController = UISearchController(searchResultsController: vc)
+    searchController?.searchResultsUpdater = self
     let mylevel = LevelData.find(level)!
-    //  Load the xml file with the list of calls
-    let menuxml = TamUtils.getXMLAsset(mylevel.selector.containsString("Index") ? "src/callindex.xml" : "src/calls.xml")
     //  Read all the data now so searching is more interactive
-    let xmlpath = "/calls/call[@\(mylevel.selector)]"
-    let nodes = menuxml.xPath(xmlpath)!
-    calllistdata = nodes.map{ node in CallListData(title:node["title"]!,link:node["link"]!,level:node["level"]!,sublevel:node["sublevel"]!) }
+    let xmlpath = mylevel.selector
+    let nodes = mylevel.doc.xPath(xmlpath)!
+    calllistdata = nodes.map{ node in CallListData(title:node["title"]!,link:node["link"]!,sublevel:node["sublevel"]!) }
     buildTable()
   }
   
@@ -63,16 +62,16 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     sectionIndex = []
     previndex = -1
     var work:[CallListData] = []
-    let queryregex = try? NSRegularExpression(pattern: TamUtils.callnameQuery(query), options: NSRegularExpressionOptions.CaseInsensitive)
+    let queryregex = try? NSRegularExpression(pattern: TamUtils.callnameQuery(query), options: NSRegularExpression.Options.caseInsensitive)
     for cld in calllistdata {
       //  filter based on query
       if let q = queryregex {
-        if (q.numberOfMatchesInString(cld.title, options: NSMatchingOptions(), range: NSMakeRange(0,cld.title.length)) == 0) {
+        if (q.numberOfMatches(in: cld.title, options: NSRegularExpression.MatchingOptions(), range: NSMakeRange(0,cld.title.length)) == 0) {
           continue
         }
       }
       //  TODO arrays in Swift are passed by value - this probably could be better
-      let i = max(indexstr.indexOf(cld.title.uppercaseString[0]),0)
+      let i = max(indexstr.indexOf(cld.title.uppercased()[0]),0)
       if (i != previndex) {
         if (work.count > 0) {
           sections.append(work)
@@ -89,15 +88,15 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     reloadTable()
   }
   
-  func callFont(tableView:UITableView) -> UIFont {
-    return UIFont.systemFontOfSize(max(24,tableView.bounds.size.height/40))
+  func callFont(_ tableView:UITableView) -> UIFont {
+    return UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40))
   }
-  func levelFont() -> UIFont { return UIFont.systemFontOfSize(14) }
-  func levelSize(cld:CallListData) -> CGSize { return cld.sublevel.sizeWithAttributes([NSFontAttributeName:levelFont()]) }
+  func levelFont() -> UIFont { return UIFont.systemFont(ofSize: 14) }
+  func levelSize(_ cld:CallListData) -> CGSize { return cld.sublevel.size(attributes: [NSFontAttributeName:levelFont()]) }
   
   //  Calculates wrapping for a row given the strings for the call and the level
-  func wrappedStringForRowAtIndexPath(tableView: UITableView, indexPath:NSIndexPath, toFitWidth:CGFloat) -> String {
-    let cld = sections[indexPath.section][indexPath.row]
+  func wrappedStringForRowAtIndexPath(_ tableView: UITableView, indexPath:IndexPath, toFitWidth:CGFloat) -> String {
+    let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     // iOS seems unable to wrap text into a table cell without clobbering the subtitle
     // So we will do this the hard way
     let words = cld.title.split()
@@ -109,7 +108,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
         continue
       }
       let text = oneline + " " + word
-      let labelSize = text.sizeWithAttributes([NSFontAttributeName:callFont(tableView)])
+      let labelSize = text.size(attributes: [NSFontAttributeName:callFont(tableView)])
       //  Add 50+ for margins, spacing, index on right
       if (labelSize.width > toFitWidth - levelSize(cld).width - 54) {
         labeltext = labeltext + oneline + "\n"
@@ -122,69 +121,73 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   }
   
   //  Required data source methods
-  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("calllisttablecell") ?? UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: "calllisttablecell")
-    let cld = sections[indexPath.section][indexPath.row]
+  @objc func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "calllisttablecell") ?? UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "calllisttablecell")
+    let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     let labeltext = wrappedStringForRowAtIndexPath(tableView, indexPath: indexPath, toFitWidth: tableView.bounds.width)
     cell.textLabel?.text = labeltext
-    cell.textLabel?.font = UIFont.systemFontOfSize(max(24,tableView.bounds.size.height/40))
+    cell.textLabel?.font = UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40))
     cell.textLabel?.numberOfLines = 0
     cell.detailTextLabel?.text = cld.sublevel
     cell.backgroundColor = LevelData.find(cld.sublevel)?.color
     return cell
   }
   
-  @objc func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+  @objc func numberOfSections(in tableView: UITableView) -> Int {
     return sections.count
   }
   
-  @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return sections[section].count
   }
   
-  @objc func sectionIndexTitlesForTableView(tableView: UITableView) -> [String]? {
+  @objc func sectionIndexTitles(for tableView: UITableView) -> [String]? {
     return sectionIndex
   }
   
-  @objc func tableView(tableView: UITableView, sectionForSectionIndexTitle title: String, atIndex index: Int) -> Int {
+  @objc func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
     return index
   }
   
-  @objc func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+  @objc func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     return nil
   }
   
-  @objc func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+  @objc func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
     return nil
   }
   
   
   //  Table view delegate
-  @objc func tableView(tableView:UITableView, heightForRowAtIndexPath indexPath:NSIndexPath) -> CGFloat {
-    let cld = sections[indexPath.section][indexPath.row]
+  @objc func tableView(_ tableView:UITableView, heightForRowAt indexPath:IndexPath) -> CGFloat {
+    let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     if (cld.height == 0) {
       let labeltext = wrappedStringForRowAtIndexPath(tableView, indexPath: indexPath, toFitWidth: tableView.bounds.width)
-      let labelSize = labeltext.sizeWithAttributes([NSFontAttributeName:callFont(tableView)])
+      let labelSize = labeltext.size(attributes: [NSFontAttributeName:callFont(tableView)])
       cld.height = labelSize.height + 10
     }
     return cld.height
   }
   
-  func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let cld = sections[indexPath.section][indexPath.row]
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     selectAction(cld.sublevel,cld.link)
   }
 
-  
+/*
   //  Search display delegate
-  @objc func searchDisplayController(controller: UISearchDisplayController, shouldReloadTableForSearchString searchString: String?) -> Bool {
+  @objc func searchDisplayController(_ controller: UISearchDisplayController, shouldReloadTableForSearch searchString: String?) -> Bool {
     query = searchString ?? ""
     buildTable()
     return true
   }
+ */
+  @objc func updateSearchResults(for searchController: UISearchController) {
+    
+  }
   
   //  Search Bar delegate
-  @objc func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+  @objc func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
     query = ""
     searchBar.resignFirstResponder()  // dismisses keyboard
     searchBar.text = ""
@@ -192,16 +195,16 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     buildTable()
   }
  
-  @objc func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+  @objc func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
     searchBar.showsCancelButton = query.length > 0    
   }
   
-  @objc func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+  @objc func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
     searchBar.showsCancelButton = false
     searchBar.resignFirstResponder()  // dismisses keyboard
   }
   
-  @objc func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+  @objc func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
     query = searchText
     searchBar.showsCancelButton = query.length > 0
     buildTable()

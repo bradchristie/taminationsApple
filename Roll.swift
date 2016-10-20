@@ -22,7 +22,7 @@ class Roll : QuarterTurns {
   
   override var name:String { get { return "and Roll" } }
   
-  override func select(ctx:CallContext, _ d:Dancer) -> String {
+  override func select(_ ctx:CallContext, _ d:Dancer) -> String {
     //  Look at the last curve of the past
     let roll = d.path.movelist.last!.brotate!.rolling
     return roll < -0.1 ? "Quarter Right" : roll > 0.1 ? "Quarter Left" : "Stand"

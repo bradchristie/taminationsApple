@@ -25,9 +25,9 @@ func ^(b1:Bool, b2:Bool) -> Bool {
   return b1 ? !b2 : b2
 }
 
-extension SequenceType {
+extension Sequence {
   
-  func every(f:(Self.Generator.Element) -> Bool) -> Bool {
+  func every(_ f:(Self.Iterator.Element) -> Bool) -> Bool {
     for e in self {
       if (!f(e)) {
         return false
@@ -36,7 +36,7 @@ extension SequenceType {
     return true
   }
 
-  func exists(f:(Self.Generator.Element) -> Bool) -> Bool {
+  func exists(_ f:(Self.Iterator.Element) -> Bool) -> Bool {
     for e in self {
       if (f(e)) {
         return true
@@ -45,9 +45,9 @@ extension SequenceType {
     return false
   }
   
-  var head:Self.Generator.Element { get { return find { _ in true }! } }
+  var head:Self.Iterator.Element { get { return find { _ in true }! } }
   
-  func find(f:(Self.Generator.Element) -> Bool) -> Self.Generator.Element? {
+  func find(_ f:(Self.Iterator.Element) -> Bool) -> Self.Iterator.Element? {
     for e in self {
       if (f(e)) {
         return e
@@ -56,8 +56,8 @@ extension SequenceType {
     return nil
   }
   
-  func partition(f:(Self.Generator.Element) -> Bool) -> [[Self.Generator.Element]] {
-    var retval:[[Self.Generator.Element]] = []
+  func partitionAndSplit(_ f:(Self.Iterator.Element) -> Bool) -> [[Self.Iterator.Element]] {
+    var retval:[[Self.Iterator.Element]] = []
     retval.append([])
     retval.append([])
     for e in self {
@@ -86,29 +86,29 @@ extension String {
   /**
    * Tests whether this string matches the given regularExpression. This method returns
    * true only if the regular expression matches the <i>entire</i> input string. */
-  func matches(query:String) -> Bool {
-    return rangeOfString("^"+query+"$", options: .RegularExpressionSearch) != nil
+  func matches(_ query:String) -> Bool {
+    return range(of: "^"+query+"$", options: .regularExpression) != nil
   }
   
-  func replaceFirst(query:String, _ replacement:String) -> String {
+  func replaceFirst(_ query:String, _ replacement:String) -> String {
     var retval = self
-    if let r = rangeOfString(query, options: .RegularExpressionSearch) {
-      retval.replaceRange(r, with: replacement)
+    if let r = range(of: query, options: .regularExpression) {
+      retval.replaceSubrange(r, with: replacement)
     }
     return retval
   }
   
-  func replaceAll(query: String, _ replacement: String) -> String {
-    return self.stringByReplacingOccurrencesOfString(query, withString: replacement,
-      options: .RegularExpressionSearch, range: nil)
+  func replaceAll(_ query: String, _ replacement: String) -> String {
+    return self.replacingOccurrences(of: query, with: replacement,
+      options: .regularExpression, range: nil)
   }
   
   func trim() -> String {
-    return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+    return self.trimmingCharacters(in: CharacterSet.whitespaces)
   }
   
   subscript (i: Int) -> Character {
-    return self[self.startIndex.advancedBy(i)]
+    return self[self.characters.index(self.startIndex, offsetBy: i)]
   }
   
   subscript (i: Int) -> String {
@@ -116,14 +116,20 @@ extension String {
   }
   
   subscript (r: Range<Int>) -> String {
-    return substringWithRange(startIndex.advancedBy(r.startIndex) ..< startIndex.advancedBy(r.endIndex))
+    return substring(with: characters.index(startIndex, offsetBy: r.lowerBound) ..< characters.index(startIndex, offsetBy: r.upperBound))
   }
   
   func split() -> Array<String> {
-    return componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+    return components(separatedBy: CharacterSet.whitespaces)
   }
-  func split(c:String) -> [String] {
-    return componentsSeparatedByString(c)
+  func split(_ c:String) -> [String] {
+    return components(separatedBy: c)
+  }
+  
+  func substr(_ i:Int, _ j:Int) -> String {
+    let start = self.characters.index(self.startIndex, offsetBy: i)
+    let end = self.characters.index(self.startIndex, offsetBy: j)
+    return self.substring(with: start..<end)
   }
   
   // Returns an array of strings, starting with the entire string,
@@ -132,17 +138,17 @@ extension String {
     var ss = [String]()
     return split().map { (s:String) -> String in
       ss.append(s)
-      return ss.reduce("",combine: { "\($0) \($1)" }).trim()
-      } .reverse()
+      return ss.reduce("",{ "\($0) \($1)" }).trim()
+      } .reversed()
   }
   
   // Return an array of strings, each removing one word from the start
   func diced() -> [String] {
     var ss = [String]()
-    return split().reverse().map { (s:String) -> String in
-      ss.insert(s, atIndex: 0)
-      return ss.reduce("",combine: { "\($0) \($1)" }).trim()
-    } .reverse()
+    return split().reversed().map { (s:String) -> String in
+      ss.insert(s, at: 0)
+      return ss.reduce("",{ "\($0) \($1)" }).trim()
+    } .reversed()
   }
 
   /**
@@ -152,12 +158,12 @@ extension String {
     return chopped().flatMap { (s:String) -> [String] in s.diced() }
   }
   
-  func indexOf(s:String) -> Int {
-    let range = self.rangeOfString(s)
+  func indexOf(_ s:String) -> Int {
+    let range = self.range(of: s)
     if (range == nil) {
       return -1
     } else {
-      return self.startIndex.distanceTo(range!.startIndex)
+      return self.characters.distance(from: self.startIndex, to: range!.lowerBound)
     }
   }
 
@@ -167,19 +173,19 @@ let CG_PI = CGFloat(M_PI)
 
 extension CGFloat {
   
-  func isApprox(y:CGFloat, delta:CGFloat) -> Bool {
+  func isApprox(_ y:CGFloat, delta:CGFloat) -> Bool {
     return abs(self-y) < delta
   }
   
-  func isApprox(y:CGFloat) -> Bool {
+  func isApprox(_ y:CGFloat) -> Bool {
     return isApprox(y, delta: 0.1)
   }
   
-  func angleDiff(a2:CGFloat) -> CGFloat {
-    return ((((self-a2) % (CG_PI*2)) + (CG_PI*3)) % (CG_PI*2)) - CG_PI
+  func angleDiff(_ a2:CGFloat) -> CGFloat {
+    return ((((self-a2).truncatingRemainder(dividingBy:CG_PI*2)) + (CG_PI*3)).truncatingRemainder(dividingBy: (CG_PI*2))) - CG_PI
   }
   
-  func angleEquals(a2:CGFloat) -> Bool {
+  func angleEquals(_ a2:CGFloat) -> Bool {
     return angleDiff(a2).isApprox(0.0)
   }
 
@@ -191,7 +197,7 @@ extension UIColor {
   
   static func ORANGE() -> UIColor { return UIColor(red: 1, green: 0.78, blue: 0, alpha: 1) }
   
-  static func colorFromHex(hex:UInt) -> UIColor {
+  static func colorFromHex(_ hex:UInt) -> UIColor {
     let d:CGFloat = 256
     return UIColor(red: CGFloat((hex&0x00ff0000)>>16)/d,
                    green: CGFloat((hex&0x0000ff00)>>8)/d,
@@ -208,7 +214,7 @@ extension UIColor {
     return UIColor(red: 1-red, green: 1-green, blue: 1-blue, alpha: alpha)
   }
   
-  func darker(f:CGFloat = 0.7) -> UIColor {
+  func darker(_ f:CGFloat = 0.7) -> UIColor {
     var red:CGFloat = 0
     var green:CGFloat = 0
     var blue:CGFloat = 0
@@ -232,38 +238,38 @@ extension UINavigationController {
 
   func customNavBar() {
     let navbar = navigationBar
-    navbar.translucent = false
+    navbar.isTranslucent = false
     let grad = CAGradientLayer()
     grad.frame = navbar.bounds
-    grad.colors = [UIColor(red:0,green:0.75,blue:0,alpha:1).CGColor,UIColor(red:0,green:0.25,blue:0,alpha:1).CGColor]
+    grad.colors = [UIColor(red:0,green:0.75,blue:0,alpha:1).cgColor,UIColor(red:0,green:0.25,blue:0,alpha:1).cgColor]
     UIGraphicsBeginImageContext(grad.frame.size)
-    grad.renderInContext(UIGraphicsGetCurrentContext()!)
+    grad.render(in: UIGraphicsGetCurrentContext()!)
     let bgimage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
-    navbar.setBackgroundImage(bgimage, forBarMetrics: UIBarMetrics.Default)
+    navbar.setBackgroundImage(bgimage, for: UIBarMetrics.default)
   }
   
-  public override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-    return visibleViewController!.supportedInterfaceOrientations()
+  open override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+    return visibleViewController!.supportedInterfaceOrientations
   }
-  public override func shouldAutorotate() -> Bool {
-    return visibleViewController!.shouldAutorotate()
+  open override var shouldAutorotate : Bool {
+    return visibleViewController!.shouldAutorotate
   }
 }
 
 @available(iOS 8.0, *)
 class UIAlertControllerExtension : UIAlertController {
-  override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-    return UIInterfaceOrientationMask.Portrait
+  override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+    return UIInterfaceOrientationMask.portrait
   }
-  override func shouldAutorotate() -> Bool {
+  override var shouldAutorotate : Bool {
     return false
   }
 }
 
 extension UIView {
   
-  func visualConstraints(format:String, fillHorizontal:Bool=false, fillVertical:Bool=false, spacing:Int=(-1)) {
+  func visualConstraints(_ format:String, fillHorizontal:Bool=false, fillVertical:Bool=false, spacing:Int=(-1)) {
     var alpha = ["a","b","c","d","e","f","g","h","i","j"]
     var d = [String:UIView]()
     var myformat = format
@@ -284,7 +290,7 @@ extension UIView {
     }
     for f in myformat.split() {
       if (f.length > 0) {
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(f, options:NSLayoutFormatOptions(rawValue:0), metrics: nil, views:d))
+        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: f, options:NSLayoutFormatOptions(rawValue:0), metrics: nil, views:d))
       }
     }
   }

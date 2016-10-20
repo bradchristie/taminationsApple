@@ -22,11 +22,11 @@ class TouchAQuarter : Action {
   
   override var name:String { get { return "Touch a Quarter" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     if let d2 = ctx.dancerFacing(d) {
-      return TamUtils.getMove("Extend Left").scale(CallContext.distance(d,d2)/2,1) ++ TamUtils.getMove("Hinge Right")
+      return TamUtils.getMove("Extend Left").scale(CallContext.distance(d,d2)/2,1) + TamUtils.getMove("Hinge Right")
     } else {
-      throw CallError("Dancer \(d.number) cannot Touch a Quarter")
+      throw CallError("Dancer \(d.number) cannot Touch a Quarter") as Error
     }
   }
 }

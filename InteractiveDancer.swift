@@ -28,10 +28,10 @@ class InteractiveDancer : Dancer {
   let DIRECTIONTHRESHOLD:CGFloat = 0.01
   
   var onTrack = true
-  var primaryTouch = CGPointZero
-  var primaryMove = CGPointZero
-  var secondaryTouch = CGPointZero
-  var secondaryMove = CGPointZero
+  var primaryTouch = CGPoint.zero
+  var primaryMove = CGPoint.zero
+  var secondaryTouch = CGPoint.zero
+  var secondaryMove = CGPoint.zero
   var primaryDirection = Vector3D(x: 0, y: 0)
   var primaryUITouch:UITouch? = nil
   var secondaryUITouch:UITouch? = nil
@@ -40,7 +40,7 @@ class InteractiveDancer : Dancer {
     super.init(number: number, number_couple: number_couple, gender: gender, fillcolor: fillcolor, mat: mat, geom: geom, moves: moves)
   }
   
-  func computeMatrix(beat:CGFloat)->Matrix {
+  func computeMatrix(_ beat:CGFloat)->Matrix {
     let savetx = Matrix(tx)
     super.animate(beat)
     let computetx = Matrix(tx)
@@ -48,12 +48,12 @@ class InteractiveDancer : Dancer {
     return computetx
   }
   
-  override func animateComputed(beat: CGFloat) {
+  override func animateComputed(_ beat: CGFloat) {
     super.animate(beat)
   }
   
-  override func animate(beat: CGFloat) {
-    fillcolor = beat <= 0 || onTrack ? drawcolor.veryBright() : UIColor.grayColor()
+  override func animate(_ beat: CGFloat) {
+    fillcolor = beat <= 0 || onTrack ? drawcolor.veryBright() : UIColor.gray
     if (beat <= -2.0) {
       tx = Matrix(starttx)
     } else {
@@ -97,15 +97,15 @@ class InteractiveDancer : Dancer {
     
   }
   
-  func doTouch(m:UITouch, inView:UIView) {
+  func doTouch(_ m:UITouch, inView:UIView) {
     let action = m.phase
     let s = 500.0 / inView.bounds.size.height
-    if (action == .Began) {
+    if (action == .began) {
       //  Touch down event
       //  Figure out if touching left or right side, and remember the point
       //  Also need to remember the Touch to correlate future move events
-      let controller = NSUserDefaults.standardUserDefaults().integerForKey("primarycontroller")
-      let xy = m.locationInView(inView)
+      let controller = UserDefaults.standard.integer(forKey: "primarycontroller")
+      let xy = m.location(in: inView)
       //  controller values are 0 for left, 1 for right
       if ((xy.x > inView.bounds.size.width/2.0) ^ (controller == 0)) {
         primaryTouch.x = xy.x * s
@@ -120,7 +120,7 @@ class InteractiveDancer : Dancer {
         secondaryUITouch = m
       }
     }
-    else if (action == .Ended) {
+    else if (action == .ended) {
       //  Touch up event
       //  Stop moving and rotating
       if (m == primaryUITouch) {
@@ -129,9 +129,9 @@ class InteractiveDancer : Dancer {
         secondaryUITouch = nil
       }
     }
-    else if (action == .Moved) {
+    else if (action == .moved) {
       //  Movements
-      let xy = m.locationInView(inView)
+      let xy = m.location(in: inView)
       if (m == primaryUITouch) {
         primaryMove.x = xy.x * s
         primaryMove.y = xy.y * s

@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QuarterTurns : BoxCall {
   
-  func select(ctx:CallContext, _ d:Dancer) -> String { return "" }
+  func select(_ ctx:CallContext, _ d:Dancer) -> String { return "" }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     var offsetX:CGFloat = 0
     var offsetY:CGFloat = 0
     let move = select(ctx,d)

@@ -43,7 +43,7 @@ class PracticeLayout : UIView {
     super.init(frame:frame)
     
     addSubview(animationView)
-    animationView.multipleTouchEnabled = true
+    animationView.isMultipleTouchEnabled = true
     visualConstraints("|[a]| V:|[a]|")
     
     scoreView.font = UIFont(name:"Helvetica", size: 30)!
@@ -53,33 +53,33 @@ class PracticeLayout : UIView {
     addSubview(countdown)
     visualConstraints("|-40-[c] V:[c]-|")
 
-    resultsPanel.backgroundColor = UIColor.whiteColor()
+    resultsPanel.backgroundColor = UIColor.white
     let line1 = UILabel()
     line1.text = "Animation Complete"
-    line1.textAlignment = .Center
+    line1.textAlignment = .center
     resultsPanel.addSubview(line1)
     let line2 = UILabel()
     line2.text = "Your Score"
-    line2.textAlignment = .Center
+    line2.textAlignment = .center
     resultsPanel.addSubview(line2)
     finalScore.text = "40 / 40"
-    finalScore.textAlignment = .Center
+    finalScore.textAlignment = .center
     resultsPanel.addSubview(finalScore)
     congratsView.text = "Excellent!"
-    congratsView.textAlignment = .Center
+    congratsView.textAlignment = .center
     resultsPanel.addSubview(congratsView)
     let buttonPanel = UIView()
-    repeatButton.setTitle("Repeat", forState: .Normal)
+    repeatButton.setTitle("Repeat", for: UIControlState())
     buttonPanel.addSubview(repeatButton)
-    continueButton.setTitle("Continue", forState: .Normal)
+    continueButton.setTitle("Continue", for: UIControlState())
     buttonPanel.addSubview(continueButton)
-    returnButton.setTitle("Return", forState: .Normal)
+    returnButton.setTitle("Return", for: UIControlState())
     buttonPanel.addSubview(returnButton)
     buttonPanel.visualConstraints("|-[a(==b)]-[b]-[c(==b)]-|", fillVertical:true)
     resultsPanel.addSubview(buttonPanel)
     let definitionPanel = UIView()
     definitionPanel.addSubview(UIView())
-    definitionButton.setTitle("Definition", forState: .Normal)
+    definitionButton.setTitle("Definition", for: UIControlState())
     definitionPanel.addSubview(definitionButton)
     definitionPanel.addSubview(UIView())
     definitionPanel.visualConstraints("|-[a(==b)]-[b]-[c(==b)]-|", fillVertical: true)
@@ -88,16 +88,16 @@ class PracticeLayout : UIView {
     addSubview(resultsPanel)
     visualConstraints("|[d] V:|[d]|")
     
-    repeatButton.addTarget(self, action: #selector(PracticeLayout.repeatButtonClick), forControlEvents: .TouchUpInside)
-    continueButton.addTarget(self, action: #selector(PracticeLayout.continueButtonClick), forControlEvents: .TouchUpInside)
-    returnButton.addTarget(self, action: #selector(PracticeLayout.returnButtonClick), forControlEvents: .TouchUpInside)
-    definitionButton.addTarget(self, action: #selector(PracticeLayout.definitionButtonClick), forControlEvents: .TouchUpInside)
+    repeatButton.addTarget(self, action: #selector(PracticeLayout.repeatButtonClick), for: .touchUpInside)
+    continueButton.addTarget(self, action: #selector(PracticeLayout.continueButtonClick), for: .touchUpInside)
+    returnButton.addTarget(self, action: #selector(PracticeLayout.returnButtonClick), for: .touchUpInside)
+    definitionButton.addTarget(self, action: #selector(PracticeLayout.definitionButtonClick), for: .touchUpInside)
   }
   
   func hideExtraStuff() {
-    resultsPanel.hidden = true
-    definitionButton.hidden = true
-    definitionView.hidden = true
+    resultsPanel.isHidden = true
+    definitionButton.isHidden = true
+    definitionView.isHidden = true
   }
   
   @objc func repeatButtonClick() {

@@ -31,7 +31,7 @@ class PracticeViewController : TamViewController {
       self.title = title
     }
     layout.returnButtonAction = {
-      self.navigationController?.popViewControllerAnimated(true)
+      _ = self.navigationController?.popViewController(animated: true)
     }
     layout.definitionButtonAction = {
       var intent = [String: String]()
@@ -42,10 +42,10 @@ class PracticeViewController : TamViewController {
     control.nextAnimation()
   }
   
-  override func shouldAutorotate() -> Bool {
+  override var shouldAutorotate : Bool {
     return false
   }
-  override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+  override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
     //  Don't do anything
   }
 }

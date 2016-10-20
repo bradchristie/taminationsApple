@@ -42,8 +42,8 @@ class AnimationViewController : TamViewController {
     animationControl = AnimationControl()
     panelControl = AnimationPanelControl()
     super.init(intent)
-    downSwiper.direction = .Down
-    upSwiper.direction = .Up
+    downSwiper.direction = .down
+    upSwiper.direction = .up
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -58,8 +58,8 @@ class AnimationViewController : TamViewController {
     panelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
 
     //  Hook up controls
-    animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), forControlEvents: .TouchUpInside)
-    animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), forControlEvents: .TouchUpInside)
+    animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), for: .touchUpInside)
+    animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), for: .touchUpInside)
     definitionAction = {
       self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
     }
@@ -73,7 +73,7 @@ class AnimationViewController : TamViewController {
     
   }
   
-  @objc override func viewDidAppear(animated: Bool) {
+  @objc override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     reloadSettings()
   }
@@ -96,7 +96,7 @@ class AnimationViewController : TamViewController {
       vcs[vcs.count-1] = AnimationViewController(intent)
       navigationController!.setViewControllers(vcs, animated: true)
     } else {
-      navigationController!.popViewControllerAnimated(true)
+      navigationController!.popViewController(animated: true)
     }
   }
   
@@ -111,7 +111,7 @@ class AnimationViewController : TamViewController {
       vcs[vcs.count-1] = AnimationViewController(intent)
       navigationController!.setViewControllers(vcs, animated: true)
     } else {
-      navigationController!.popViewControllerAnimated(true)
+      navigationController!.popViewController(animated: true)
     }
   }
   

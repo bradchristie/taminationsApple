@@ -22,7 +22,7 @@ class Hinge : BoxCall {
   
   override var name:String { get { return "Hinge" } }
   
-  override func performOne(d: Dancer, _ ctx: CallContext) throws -> Path {
+  override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     //  Find the dancer to hinge with
     let d3 = ctx.dancerToRight(d)
     let d4 = ctx.dancerToLeft(d)
@@ -36,7 +36,7 @@ class Hinge : BoxCall {
         return TamUtils.getMove("Hinge Left")
       }
     } else {
-      throw CallError("No dancer to hinge with \(d.number)")
+      throw CallError("No dancer to hinge with \(d.number)") as Error
     }
   }
 }

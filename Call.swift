@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Call {
   
   var name:String { get { return "" } }
-  func performCall(ctx:CallContext, index:Int) throws { }
-  func preProcess(ctx:CallContext, index:Int) { }
-  func postProcess(ctx:CallContext, index:Int) {  }
+  func performCall(_ ctx:CallContext, index:Int) throws { }
+  func preProcess(_ ctx:CallContext, index:Int) { }
+  func postProcess(_ ctx:CallContext, index:Int) {  }
   
 }

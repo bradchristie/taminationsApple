@@ -22,7 +22,7 @@ import UIKit
 
 class PracticeControl {
   
-  var setTitle:(title:String)->Void = { arg in }
+  var setTitle:(_ title:String)->Void = { arg in }
   var nextAnimation:()->Void = { }
   var animationReady:()->Void = { }
   var success:()->Void = { }
@@ -30,13 +30,13 @@ class PracticeControl {
   let calldoc = TamUtils.getXMLAsset("src/calls.xml")
   var link = ""
   
-  func reset(intent:[String:String], practiceLayout:PracticeLayout) {
+  func reset(_ intent:[String:String], practiceLayout:PracticeLayout) {
     let animationView = practiceLayout.animationView
     
     nextAnimation = {
       var tam:JiNode? = nil
       let selector = LevelData.find(intent["level"]!)!.selector
-      let calls = self.calldoc.xPath("/calls/call[@\(selector)]")!
+      let calls = self.calldoc.xPath(selector)!
       while (tam == nil) {
         let e = calls[(Int)(arc4random_uniform((UInt32)(calls.count)))]
         //  Remember link for definition
@@ -47,13 +47,13 @@ class PracticeControl {
           .filter{($0["difficulty"] ?? "") != "3"}
           //  Skip any call with parens in the title - it could be a cross-reference
           //  to a concept call from a higher level
-          .filter{!$0["title"]!.containsString("(")}
+          .filter{!$0["title"]!.contains("(")}
         if (tams.nonEmpty) {
           tam = tams[(Int)(arc4random_uniform((UInt32)(tams.count)))]
-          let settings = NSUserDefaults.standardUserDefaults()
-          animationView.setAnimation(tam!, intdan: settings.integerForKey("practicegender")==1 ? Gender.GIRL.rawValue : Gender.BOY.rawValue)
-          animationView.setSpeed(Speed(rawValue: settings.integerForKey("practicespeed"))!)
-          self.setTitle(title: tam!["title"]!)
+          let settings = UserDefaults.standard
+          animationView.setAnimation(tam!, intdan: settings.integer(forKey: "practicegender")==1 ? Gender.girl.rawValue : Gender.boy.rawValue)
+          animationView.setSpeed(Speed(rawValue: settings.integer(forKey: "practicespeed"))!)
+          self.setTitle(tam!["title"]!)
         }
       }
     }  // end of nextAnimation
@@ -77,8 +77,8 @@ class PracticeControl {
     }
     
     animationView.doneCallback = {
-      practiceLayout.resultsPanel.hidden = false
-      practiceLayout.continueButton.hidden = false
+      practiceLayout.resultsPanel.isHidden = false
+      practiceLayout.continueButton.isHidden = false
       let score = ceil(animationView.getScore())
       let perfect = animationView.movingBeats * 10
       let result = "\(Int(score)) / \(Int(perfect))"
@@ -99,10 +99,10 @@ class PracticeControl {
     //  Since the tutorial should not show the Definitions button
     //  we will turn it on in these routines
     success = {
-      practiceLayout.definitionButton.hidden = false
+      practiceLayout.definitionButton.isHidden = false
     }
     failure = {
-      practiceLayout.definitionButton.hidden = false      
+      practiceLayout.definitionButton.isHidden = false      
     }
     
     practiceLayout.repeatButtonAction = {

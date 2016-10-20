@@ -22,7 +22,7 @@ class FaceOut : QuarterTurns {
   
   override var name:String { get { return "Face Out" } }
   
-  override func select(ctx: CallContext, _ d: Dancer) -> String {
+  override func select(_ ctx: CallContext, _ d: Dancer) -> String {
     return CallContext.angle(d) > 0 ? "Quarter Right" : "Quarter Left"
   }
 }

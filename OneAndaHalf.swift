@@ -22,7 +22,7 @@ class OneAndaHalf : CodedCall {
   
   override var name:String { get { return "Once and a Half" } }
   
-  override func performCall(ctx: CallContext, index: Int) throws {
+  override func performCall(_ ctx: CallContext, index: Int) throws {
     //  At this point the call has already been done once
     //  So just do half of it again
     try ctx.applyCall("half "+ctx.callstack.head.name)

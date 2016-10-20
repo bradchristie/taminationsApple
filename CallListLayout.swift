@@ -25,8 +25,8 @@ class CallListLayout : UITableView {
   var sb: UISearchBar
   
   init(frame: CGRect) {
-    sb = UISearchBar(frame: CGRectMake(0,0,frame.size.width,44))
-    super.init(frame:frame, style:UITableViewStyle.Plain)
+    sb = UISearchBar(frame: CGRect(x: 0,y: 0,width: frame.size.width,height: 44))
+    super.init(frame:frame, style:UITableViewStyle.plain)
     addSubview(sb)
     tableHeaderView = sb
   }

@@ -46,7 +46,7 @@ class TutorialControl : PracticeControl {
     "Use your %secondary% finger to turn in place."
       + "  To U-Turn Left, make a 'C' movement with your %secondary% finger."]
   
-  override func reset(intent:[String:String], practiceLayout:PracticeLayout) {
+  override func reset(_ intent:[String:String], practiceLayout:PracticeLayout) {
     super.reset(intent, practiceLayout: practiceLayout)
 
     nextAnimation = {
@@ -54,20 +54,20 @@ class TutorialControl : PracticeControl {
         self.tutnum = 0
       }
       let tamdoc = TamUtils.getXMLAsset("src/tutorial.xml")
-      let settings = NSUserDefaults.standardUserDefaults()
-      let gender = settings.integerForKey("practicegender")==1 ? Gender.GIRL : Gender.BOY
-      let offset = gender == .BOY ? 0 : 1
+      let settings = UserDefaults.standard
+      let gender = settings.integer(forKey: "practicegender")==1 ? Gender.girl : Gender.boy
+      let offset = gender == .boy ? 0 : 1
       let tamlist = tamdoc.xPath("/tamination/tam")
       let tam = tamlist![self.tutnum*2+offset]
-      self.setTitle(title: tam["title"]!)
+      self.setTitle(tam["title"]!)
       practiceLayout.animationView.setAnimation(tam, intdan: gender.rawValue)
-      practiceLayout.animationView.setSpeed(Speed(rawValue: settings.integerForKey("practicespeed"))!)
+      practiceLayout.animationView.setSpeed(Speed(rawValue: settings.integer(forKey: "practicespeed"))!)
       self.showInstructions()
     }
     
     showInstructions = {
-      let settings = NSUserDefaults.standardUserDefaults()
-      let primaryIsLeft = settings.integerForKey("primarycontroller") == 0
+      let settings = UserDefaults.standard
+      let primaryIsLeft = settings.integer(forKey: "primarycontroller") == 0
       let instructions = self.tutdata[self.tutnum].replaceAll("%primary%", primaryIsLeft ? "Left" : "Right")
                                                   .replaceAll("%secondary%",primaryIsLeft ? "Right" : "Left")
       let title = "Tutorial \(self.tutnum+1) of \(self.tutdata.count)"
@@ -75,12 +75,12 @@ class TutorialControl : PracticeControl {
         practiceLayout.animationView.doPlay()
       }
       if #available(iOS 8, *) {
-        let alert = UIAlertControllerExtension(title: title, message: instructions, preferredStyle: .Alert)
+        let alert = UIAlertControllerExtension(title: title, message: instructions, preferredStyle: .alert)
         let handler:(UIAlertAction)->Void = { arg in self.dismissedInstructions() }
-        let ok = UIAlertAction(title: "OK", style: .Default, handler: handler)
+        let ok = UIAlertAction(title: "OK", style: .default, handler: handler)
         alert.addAction(ok)
-        let nav = UIApplication.sharedApplication().keyWindow!.rootViewController! as! UINavigationController
-        nav.visibleViewController!.presentViewController(alert, animated: true, completion: nil)
+        let nav = UIApplication.shared.keyWindow!.rootViewController! as! UINavigationController
+        nav.visibleViewController!.present(alert, animated: true, completion: nil)
       } else {
         let alert = UIAlertView(title: title, message: instructions, delegate: self, cancelButtonTitle: "OK")
         alert.show()
@@ -105,19 +105,19 @@ class TutorialControl : PracticeControl {
     success = {
       if (self.tutnum+1 >= self.tutdata.count) {
         practiceLayout.congratsView.text = "Tutorial Complete"
-        practiceLayout.continueButton.hidden = false
+        practiceLayout.continueButton.isHidden = false
         self.dismissedInstructions = {
           self.dismissAction()
         }
         let message =  "Congratulations!  You have successfully completed the tutorial." +
         "  Now select the level you would like to practice."
         if #available(iOS 8, *) {
-          let alert = UIAlertControllerExtension(title: "Tutorial Complete", message: message, preferredStyle: .Alert)
+          let alert = UIAlertControllerExtension(title: "Tutorial Complete", message: message, preferredStyle: .alert)
           let handler:(UIAlertAction)->Void = { arg in self.dismissedInstructions() }
-          let ok = UIAlertAction(title: "Return", style: .Default, handler: handler)
+          let ok = UIAlertAction(title: "Return", style: .default, handler: handler)
           alert.addAction(ok)
-          let nav = UIApplication.sharedApplication().keyWindow!.rootViewController! as! UINavigationController
-          nav.visibleViewController!.presentViewController(alert, animated: true, completion: nil)
+          let nav = UIApplication.shared.keyWindow!.rootViewController! as! UINavigationController
+          nav.visibleViewController!.present(alert, animated: true, completion: nil)
         } else {
           let alert = UIAlertView(title: "Tutorial Complete", message: message, delegate: self, cancelButtonTitle: "Return")
           alert.show()
@@ -127,12 +127,12 @@ class TutorialControl : PracticeControl {
     }
     
     failure = {
-      practiceLayout.continueButton.hidden = true
+      practiceLayout.continueButton.isHidden = true
     }
     
   }
   
-  @objc func alertView(alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+  @objc func alertView(_ alertView:UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
     dismissedInstructions()
   }
   

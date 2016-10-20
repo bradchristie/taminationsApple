@@ -22,7 +22,7 @@ class Slip : Action {
   
   override var name:String { get { return "Slip" } }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     try ctx.applyCalls("Centers","Trade")
   }
 }

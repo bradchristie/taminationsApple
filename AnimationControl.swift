@@ -26,10 +26,10 @@ class AnimationControl {
   var from:String = ""
   var group:String = ""
   var animname:String = ""
-  var progressFun:(beat:CGFloat)->Void = { arg in }
-  var optionsFun:(options:String)->Void = { arg in }
+  var progressFun:(_ beat:CGFloat)->Void = { arg in }
+  var optionsFun:(_ options:String)->Void = { arg in }
   
-  func reset(animationLayout:AnimationLayout, _ animationView:AnimationView, link:String, animnum:Int=0) {
+  func reset(_ animationLayout:AnimationLayout, _ animationView:AnimationView, link:String, animnum:Int=0) {
     //self.animationView = animationView
     //  Fetch the XML animation and send it to the animation view
     let tamdoc = TamUtils.getXMLAsset(link)
@@ -62,26 +62,26 @@ class AnimationControl {
   }
   
   //  Read settings and apply them to the animation
-  func readSettings(animationView:AnimationView) {
-    let settings = NSUserDefaults.standardUserDefaults()
-    animationView.setGeometry(GeometryType(rawValue:settings.integerForKey("geometry")) ?? GeometryType.SQUARE)
-    animationView.setGridVisibility(settings.boolForKey("grid"))
-    animationView.setLoop(settings.boolForKey("loop"))
-    animationView.setPathVisibility(settings.boolForKey("path"))
-    animationView.setSpeed(Speed(rawValue:settings.integerForKey("speed")) ?? Speed.NORMAL)
-    animationView.setNumbers(ShowNumbers(rawValue: settings.integerForKey("numbers")) ?? ShowNumbers.NUMBERS_OFF)
+  func readSettings(_ animationView:AnimationView) {
+    let settings = UserDefaults.standard
+    animationView.setGeometry(GeometryType(rawValue:settings.integer(forKey: "geometry")) ?? GeometryType.square)
+    animationView.setGridVisibility(settings.bool(forKey: "grid"))
+    animationView.setLoop(settings.bool(forKey: "loop"))
+    animationView.setPathVisibility(settings.bool(forKey: "path"))
+    animationView.setSpeed(Speed(rawValue:settings.integer(forKey: "speed")) ?? Speed.normal)
+    animationView.setNumbers(ShowNumbers(rawValue: settings.integer(forKey: "numbers")) ?? ShowNumbers.numbers_OFF)
     //  Show Loop and Speed options
     var optionstr = ""
-    if settings.integerForKey("speed") == Speed.SLOW.rawValue {
+    if settings.integer(forKey: "speed") == Speed.slow.rawValue {
       optionstr = " Slow"
     }
-    else if settings.integerForKey("speed") == Speed.FAST.rawValue {
+    else if settings.integer(forKey: "speed") == Speed.fast.rawValue {
       optionstr = " Fast"
     }
-    if settings.boolForKey("loop") {
+    if settings.bool(forKey: "loop") {
       optionstr += " Loop"
     }
-    optionsFun(options: optionstr)
+    optionsFun(optionstr)
   }
   
   

@@ -22,16 +22,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 enum GeometryType:Int {
-  case BIGON = 1
-  case SQUARE = 2
-  case HEXAGON = 3
+  case bigon = 1
+  case square = 2
+  case hexagon = 3
 }
 
 protocol Geometry {
   
-  func startMatrix(mat:Matrix) -> Matrix;
-  func pathMatrix(starttx:Matrix, tx:Matrix, beat:CGFloat) -> Matrix;
-  func drawGrid(ctx:CGContextRef)
+  func startMatrix(_ mat:Matrix) -> Matrix;
+  func pathMatrix(_ starttx:Matrix, tx:Matrix, beat:CGFloat) -> Matrix;
+  func drawGrid(_ ctx:CGContext)
   func geometry() -> GeometryType
   func clone() -> Geometry
   
@@ -39,23 +39,23 @@ protocol Geometry {
 
 class GeometryMaker {
   
-  static func makeAll(type:GeometryType) -> [Geometry] {
+  static func makeAll(_ type:GeometryType) -> [Geometry] {
     switch type {
-      case .BIGON : return [BigonGeometry(0)]
-      case .SQUARE : return [SquareGeometry(0),SquareGeometry(1)]
-      case .HEXAGON : return [HexagonGeometry(0),HexagonGeometry(1),HexagonGeometry(2)]
+      case .bigon : return [BigonGeometry(0)]
+      case .square : return [SquareGeometry(0),SquareGeometry(1)]
+      case .hexagon : return [HexagonGeometry(0),HexagonGeometry(1),HexagonGeometry(2)]
     }
   }
   
-  static func makeOne(g:GeometryType, r:Int=0) -> Geometry {
+  static func makeOne(_ g:GeometryType, r:Int=0) -> Geometry {
     switch g {
-      case .BIGON : return BigonGeometry(r)
-      case .SQUARE : return SquareGeometry(r)
-      case .HEXAGON : return HexagonGeometry(r)
+      case .bigon : return BigonGeometry(r)
+      case .square : return SquareGeometry(r)
+      case .hexagon : return HexagonGeometry(r)
     }
   }
   
-  static func makeOne(gstr:String, r:Int=0) -> Geometry {
+  static func makeOne(_ gstr:String, r:Int=0) -> Geometry {
     switch gstr {
       case "Bigon" : return BigonGeometry(r)
       case "Hexagon" : return HexagonGeometry(r)
@@ -71,10 +71,10 @@ class BigonGeometry : Geometry {
   let rotnum:Int
   var prevangle:CGFloat = 0
   init(_ rotnum:Int) { self.rotnum = rotnum }
-  func geometry() -> GeometryType { return .BIGON }
+  func geometry() -> GeometryType { return .bigon }
   func clone() -> Geometry { return BigonGeometry(rotnum) }
   
-  func startMatrix(mat: Matrix) -> Matrix {
+  func startMatrix(_ mat: Matrix) -> Matrix {
     let x = mat.mat.tx
     let y = mat.mat.ty
     let r = sqrt(x*x+y*y)
@@ -87,7 +87,7 @@ class BigonGeometry : Geometry {
     return Matrix().postRotate(startangle2).postTranslate(x2, y: y2)
   }
 
-  func pathMatrix(starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
+  func pathMatrix(_ starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
     let a0 = atan2(starttx.mat.ty,starttx.mat.tx)
     let a1 = atan2(tx.mat.ty,tx.mat.tx)
     if (beat <= 0) {
@@ -100,24 +100,24 @@ class BigonGeometry : Geometry {
     return Matrix().postRotate(a3)
   }
   
-  func drawGrid(ctx: CGContextRef) {
-    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
-    CGContextSetLineWidth(ctx, 0.01)
+  func drawGrid(_ ctx: CGContext) {
+    ctx.setStrokeColor(UIColor.black.cgColor)
+    ctx.setLineWidth(0.01)
     for xscale:CGFloat in [-1,1] {
-      CGContextSaveGState(ctx)
-      CGContextScaleCTM(ctx, xscale, 1)
-      for x1 in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(0.1)) {
-        CGContextMoveToPoint(ctx, abs(x1), 0)
-        for y1 in CGFloat(0.2).stride(through:CGFloat(7.5), by:CGFloat(0.2)) {
+      ctx.saveGState()
+      ctx.scaleBy(x: xscale, y: 1)
+      for x1 in stride(from: CGFloat(-7.5), through:CGFloat(7.5), by:CGFloat(0.1)) {
+        ctx.move(to: CGPoint(x: abs(x1), y: 0))
+        for y1 in stride(from: CGFloat(0.2), through:CGFloat(7.5), by:CGFloat(0.2)) {
           let a = 2 * atan2(y1,x1)
           let r = sqrt(x1*x1+y1*y1)
           let x = r*cos(a)
           let y = r*sin(a)
-          CGContextAddLineToPoint(ctx, x, y)
+          ctx.addLine(to: CGPoint(x: x, y: y))
         }
       }
-      CGContextStrokePath(ctx)
-      CGContextRestoreGState(ctx)
+      ctx.strokePath()
+      ctx.restoreGState()
     }
   }
   
@@ -126,30 +126,30 @@ class BigonGeometry : Geometry {
 class SquareGeometry : Geometry {
   let rotnum:Int
   init(_ rotnum:Int) { self.rotnum = rotnum }
-  func geometry() -> GeometryType { return .SQUARE }
+  func geometry() -> GeometryType { return .square }
   func clone() -> Geometry { return SquareGeometry(rotnum) }
   
-  func startMatrix(mat:Matrix) -> Matrix {
+  func startMatrix(_ mat:Matrix) -> Matrix {
     return Matrix(mat).postRotate(CGFloat(M_PI*Double(rotnum)))
   }
   
-  func pathMatrix(starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
+  func pathMatrix(_ starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
     //  No transform needed
     return Matrix()
   }
   
-  func drawGrid(ctx: CGContextRef) {
-    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
-    CGContextSetLineWidth(ctx, 0.01)
-    for x in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(1)) {
-      CGContextMoveToPoint(ctx, x, -7.5)
-      CGContextAddLineToPoint(ctx, x, 7.5)
+  func drawGrid(_ ctx: CGContext) {
+    ctx.setStrokeColor(UIColor.black.cgColor)
+    ctx.setLineWidth(0.01)
+    for x in stride(from: CGFloat(-7.5), through:CGFloat(7.5), by:CGFloat(1)) {
+      ctx.move(to: CGPoint(x: x, y: -7.5))
+      ctx.addLine(to: CGPoint(x: x, y: 7.5))
     }
-    for y in CGFloat(-7.5).stride(through:CGFloat(7.5), by:CGFloat(1)) {
-      CGContextMoveToPoint(ctx, -7.5, y)
-      CGContextAddLineToPoint(ctx, 7.5, y)
+    for y in stride(from: CGFloat(-7.5), through:CGFloat(7.5), by:CGFloat(1)) {
+      ctx.move(to: CGPoint(x: -7.5, y: y))
+      ctx.addLine(to: CGPoint(x: 7.5, y: y))
     }
-    CGContextStrokePath(ctx)
+    ctx.strokePath()
   }
   
 }
@@ -158,10 +158,10 @@ class HexagonGeometry : Geometry {
   let rotnum:Int
   var prevangle:CGFloat = 0
   init(_ rotnum:Int) { self.rotnum = rotnum }
-  func geometry() -> GeometryType { return .HEXAGON }
+  func geometry() -> GeometryType { return .hexagon }
   func clone() -> Geometry { return HexagonGeometry(rotnum) }
 
-  func startMatrix(mat: Matrix) -> Matrix {
+  func startMatrix(_ mat: Matrix) -> Matrix {
     let a = (CG_PI*2/3)*CGFloat(rotnum)
     let x = mat.mat.tx
     let y = mat.mat.ty
@@ -175,7 +175,7 @@ class HexagonGeometry : Geometry {
     return Matrix().postRotate(startangle2).postTranslate(x2,y:y2)
   }
   
-  func pathMatrix(starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
+  func pathMatrix(_ starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {
     let a0 = atan2(starttx.mat.ty,starttx.mat.tx)
     let a1 = atan2(tx.mat.ty,tx.mat.tx)
     //  Correct for wrapping around +/- pi
@@ -189,25 +189,25 @@ class HexagonGeometry : Geometry {
     return Matrix().postRotate(a3)
   }
   
-  func drawGrid(ctx: CGContextRef) {
-    CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
-    CGContextSetLineWidth(ctx, 0.01)
-    for a in CGFloat(0).stride(through:CGFloat(6), by:(1)) {
-      for yscale in CGFloat(-1).stride(through:CGFloat(1), by:CGFloat(2)) {
-        for x0 in CGFloat(0).stride(through:CGFloat(8.5), by:CGFloat(1)) {
-          CGContextSaveGState(ctx)
-          CGContextRotateCTM(ctx, (30.0 + a*60.0)*CG_PI/180.0)
-          CGContextScaleCTM(ctx, 1.0, yscale)
-          CGContextMoveToPoint(ctx, 0, x0)
-          for y0 in CGFloat(0.5).stride(through:CGFloat(8.5), by:CGFloat(0.5)) {
+  func drawGrid(_ ctx: CGContext) {
+    ctx.setStrokeColor(UIColor.black.cgColor)
+    ctx.setLineWidth(0.01)
+    for a in stride(from: CGFloat(0), through:CGFloat(6), by:(1)) {
+      for yscale in stride(from: CGFloat(-1), through:CGFloat(1), by:CGFloat(2)) {
+        for x0 in stride(from: CGFloat(0), through:CGFloat(8.5), by:CGFloat(1)) {
+          ctx.saveGState()
+          ctx.rotate(by: (30.0 + a*60.0)*CG_PI/180.0)
+          ctx.scaleBy(x: 1.0, y: yscale)
+          ctx.move(to: CGPoint(x: 0, y: x0))
+          for y0 in stride(from: CGFloat(0.5), through:CGFloat(8.5), by:CGFloat(0.5)) {
             let a:CGFloat = atan2(y0,x0) * 2.0 / 3.0
             let r:CGFloat = sqrt(x0*x0+y0*y0)
             let x:CGFloat = r * sin(a)
             let y:CGFloat = r * cos(a)
-            CGContextAddLineToPoint(ctx, x, y)
+            ctx.addLine(to: CGPoint(x: x, y: y))
           }
-          CGContextStrokePath(ctx)
-          CGContextRestoreGState(ctx)
+          ctx.strokePath()
+          ctx.restoreGState()
         }
       }
     }

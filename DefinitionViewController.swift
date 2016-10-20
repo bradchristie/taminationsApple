@@ -29,7 +29,7 @@ class DefinitionViewController : TamViewController {
   override init(_ intent:[String:String]) {
     super.init(intent)
     link = intent["link"]!
-    level = LevelData.find(link.split("/")[0])!.name
+    level = LevelData.findLevel(link.split("/")[0])
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -41,7 +41,7 @@ class DefinitionViewController : TamViewController {
     view = myview
   }
   
-  override func viewDidAppear(animated: Bool) {
+  override func viewDidAppear(_ animated: Bool) {
     definitionControl.defstyleAction()
   }
   

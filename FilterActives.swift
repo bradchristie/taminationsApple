@@ -31,10 +31,10 @@ class FilterActives : CodedCall {
   * @param ctx CallContext
   * @return true to select dancer
   */
-  func isActive(d:Dancer, _ ctx:CallContext) -> Bool {
+  func isActive(_ d:Dancer, _ ctx:CallContext) -> Bool {
     return isActive(d)
   }
-  func isActive(d:Dancer) -> Bool {
+  func isActive(_ d:Dancer) -> Bool {
     return true
   }
 
@@ -43,7 +43,7 @@ class FilterActives : CodedCall {
   *   defined by the child class
   * @param ctx contains dancers to select
   */
-  override func preProcess(ctx: CallContext, index: Int) {
+  override func preProcess(_ ctx: CallContext, index: Int) {
     ctx.dancers.filter{$0.data.active}.forEach { d in
       d.data.active = isActive(d,ctx)
     }

@@ -69,7 +69,7 @@ class SecondLandscapeViewController: TamViewController {
     
     let animationLayout = AnimationLayout(frame: middleframe)
     animationLayout.layer.borderWidth = 1
-    animationLayout.layer.borderColor = UIColor.blackColor().CGColor
+    animationLayout.layer.borderColor = UIColor.black.cgColor
     topview.addSubview(animationLayout)
     let background1 = BackgroundPanel(frame: middleframe)
     topview.addSubview(background1)
@@ -91,14 +91,14 @@ class SecondLandscapeViewController: TamViewController {
       } )
     }
     
-    animationLayout.settingsButton.addTarget(self, action: #selector(SecondLandscapeViewController.settingsSelector), forControlEvents: .TouchUpInside)
+    animationLayout.settingsButton.addTarget(self, action: #selector(SecondLandscapeViewController.settingsSelector), for: .touchUpInside)
     settingsAction = {
       if rightview != settingsLayout {
         background2.animate(fromView: definitionLayout, toView: settingsLayout, callback: { } )
         rightview = settingsLayout
       }
     }
-    animationLayout.definitionButton.addTarget(self, action: #selector(SecondLandscapeViewController.definitionSelector), forControlEvents: .TouchUpInside)
+    animationLayout.definitionButton.addTarget(self, action: #selector(SecondLandscapeViewController.definitionSelector), for: .touchUpInside)
     definitionAction = {
       if rightview != definitionLayout {
         background2.animate(fromView: settingsLayout, toView: definitionLayout, callback: { } )
@@ -110,7 +110,7 @@ class SecondLandscapeViewController: TamViewController {
     }
     animationControl.reset(animationLayout, animationLayout.animationView, link: link)
     animationLayout.animationView.partCallback = { (part:Int) in
-      self.definitionControl.setPart(part: part)
+      self.definitionControl.setPart(part)
     }
 
     animListControl.reset(link, level: level, call:call)
@@ -120,7 +120,7 @@ class SecondLandscapeViewController: TamViewController {
       self.animationControl.reset(animationLayout, animationLayout.animationView, link:self.link, animnum: item.xmlindex)
       self.title = item.title
       self.animationPanelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
-      self.definitionControl.setTitle(title: self.animListControl.animtitle)  // for definition highlighting
+      self.definitionControl.setTitle(self.animListControl.animtitle)  // for definition highlighting
       self.setShareButton("http://www.tamtwirlers.org/tamination/"+self.link+".html?"+item.fullname)
     }
     if (animListControl.currentrow >= 0) {
@@ -136,7 +136,7 @@ class SecondLandscapeViewController: TamViewController {
     definitionAction()
   }
 
-  override func viewDidAppear(animated: Bool) {
+  override func viewDidAppear(_ animated: Bool) {
     self.definitionControl.defstyleAction()
   }
   

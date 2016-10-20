@@ -31,28 +31,28 @@ class TutorialViewController : TamViewController {
       self.title = title
     }
     layout.returnButtonAction = {
-      self.navigationController?.popViewControllerAnimated(true)
+      _ = self.navigationController?.popViewController(animated: true)
     }
     control.dismissAction = {
-      self.navigationController?.popViewControllerAnimated(true)
+      _ = self.navigationController?.popViewController(animated: true)
     }
     control.reset(intent, practiceLayout: layout)
     control.nextAnimation()
   }
   
-  override func shouldAutorotate() -> Bool {
+  override var shouldAutorotate : Bool {
     return false
   }
-  override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
+  override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
     //  Don't do anything
   }
 
-  override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-    return UIInterfaceOrientationMask.LandscapeLeft
+  override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+    return UIInterfaceOrientationMask.landscapeLeft
   }
   
-  override func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
-    return UIInterfaceOrientation.LandscapeLeft
+  override var preferredInterfaceOrientationForPresentation : UIInterfaceOrientation {
+    return UIInterfaceOrientation.landscapeLeft
   }
   
   

@@ -22,22 +22,22 @@ import UIKit
 
 class ShareButton : UIButton {
   
-  override func drawRect(rect: CGRect) {
-    super.drawRect(rect)
+  override func draw(_ rect: CGRect) {
+    super.draw(rect)
     let scale = 126.0/bounds.height
     let path = UIBezierPath()
-    path.moveToPoint(CGPointMake(46.0/scale,40.0/scale))
-    path.addLineToPoint(CGPointMake(20.0/scale, 40.0/scale))
-    path.addLineToPoint(CGPointMake(20.0/scale, 122.0/scale))
-    path.addLineToPoint(CGPointMake(106.0/scale, 122.0/scale))
-    path.addLineToPoint(CGPointMake(106.0/scale, 40.0/scale))
-    path.addLineToPoint(CGPointMake(80.0/scale, 40.0/scale))
-    path.moveToPoint(CGPointMake(63.0/scale, 75.0/scale))
-    path.addLineToPoint(CGPointMake(63.0/scale, 4.0/scale))
-    path.addLineToPoint(CGPointMake(47.0/scale, 20.0/scale))
-    path.moveToPoint(CGPointMake(63.0/scale, 4.0/scale))
-    path.addLineToPoint(CGPointMake(79.0/scale, 20.0/scale))
-    let white = UIColor.whiteColor()
+    path.move(to: CGPoint(x: 46.0/scale,y: 40.0/scale))
+    path.addLine(to: CGPoint(x: 20.0/scale, y: 40.0/scale))
+    path.addLine(to: CGPoint(x: 20.0/scale, y: 122.0/scale))
+    path.addLine(to: CGPoint(x: 106.0/scale, y: 122.0/scale))
+    path.addLine(to: CGPoint(x: 106.0/scale, y: 40.0/scale))
+    path.addLine(to: CGPoint(x: 80.0/scale, y: 40.0/scale))
+    path.move(to: CGPoint(x: 63.0/scale, y: 75.0/scale))
+    path.addLine(to: CGPoint(x: 63.0/scale, y: 4.0/scale))
+    path.addLine(to: CGPoint(x: 47.0/scale, y: 20.0/scale))
+    path.move(to: CGPoint(x: 63.0/scale, y: 4.0/scale))
+    path.addLine(to: CGPoint(x: 79.0/scale, y: 20.0/scale))
+    let white = UIColor.white
     white.setStroke()
     path.lineWidth = 8.0/scale
     path.stroke()

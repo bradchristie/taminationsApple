@@ -27,29 +27,51 @@ class SequencerLayout: UIView {
   let animationPanel:AnimationPanelLayout
   let formationButton:TamButton
   let instructionsButton:TamButton
+  let copyButton:TamButton
+  let pasteButton:TamButton
   let callList:UITableView
   let speakNow:UIButton
+  let typeNow: UIButton
   let calltext:UILabel
+  let editText:UITextField
   
   override init(frame: CGRect) {
-    let graymike = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("mic-gray", ofType: "png", inDirectory:"files/images")!)
-    let redmike = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("mic-red", ofType: "png", inDirectory:"files/images")!)
+    let graymike = UIImage(contentsOfFile: Bundle.main.path(forResource: "mic-gray", ofType: "png", inDirectory:"files/images")!)
+    let redmike = UIImage(contentsOfFile: Bundle.main.path(forResource: "mic-red", ofType: "png", inDirectory:"files/images")!)
+    let graykbd = UIImage(contentsOfFile: Bundle.main.path(forResource: "kbd_gray", ofType: "png", inDirectory:"files/images")!)
+    let bw = frame.height > frame.width ? frame.width/6 : frame.width/12
     speakNow = UIButton()
-    speakNow.setImage(graymike, forState: .Normal)
-    speakNow.setImage(redmike, forState: .Selected)
+    speakNow.setImage(graymike, for: UIControlState())
+    speakNow.setImage(redmike, for: .selected)
+    typeNow = UIButton()
+    typeNow.setImage(graykbd, for:UIControlState())
     calltext = UILabel()
     calltext.font = UIFont(name:"Helvetica Bold", size: frame.size.height/40)
-    calltext.text = "Tap the microphone to start recording ->"
+    calltext.text = "Tap the keyboard or microphone to begin"
+    calltext.numberOfLines = 0
+    editText = UITextField()
+    editText.borderStyle = UITextBorderStyle.roundedRect
+    editText.font = UIFont(name:"Helvetica", size: frame.size.height/40)
+    editText.autocapitalizationType = UITextAutocapitalizationType.none
     let buttonPanel = UIView()
     formationButton = TamButton()
-    formationButton.setTitle("Starting Formation", forState: UIControlState.Normal)
+    formationButton.setTitle("Reset", for: UIControlState())
     instructionsButton = TamButton()
-    instructionsButton.setTitle("Instructions", forState: UIControlState.Normal)
+    instructionsButton.setTitle("Instructions", for: UIControlState())
+    copyButton = TamButton();
+    copyButton.setTitle("Copy", for: UIControlState())
+    copyButton.isEnabled = false
+    pasteButton = TamButton();
+    pasteButton.setTitle("Paste", for: UIControlState())
+    pasteButton.isEnabled = false
     animationPanel = AnimationPanelLayout()
-    animationView = AnimationView(frame:CGRectMake(0,0,frame.width,frame.height-160))
+    animationView = AnimationView(frame:CGRect(x: 0,y: 0,width: frame.width,height: frame.height-160))
+    animationView.addSubview(typeNow)
     animationView.addSubview(calltext)
     animationView.addSubview(speakNow)
-    animationView.visualConstraints("V:|-6-[a] V:|-6-[b] |-4-[a] [b]-4-|")
+    animationView.addSubview(editText)
+    animationView.visualConstraints("V:|-12-[a] V:|-12-[b] V:|-12-[c] V:|-4-[d] |-12-[a(==\(bw))]-[b]-[c(==\(bw))]-12-| |-[d]-|")
+    editText.isHidden = true
     callList = UITableView()
     super.init(frame:frame)
     addSubview(animationView)
@@ -57,8 +79,10 @@ class SequencerLayout: UIView {
     addSubview(callList)
     buttonPanel.addSubview(formationButton)
     buttonPanel.addSubview(instructionsButton)
+    buttonPanel.addSubview(copyButton)
+    buttonPanel.addSubview(pasteButton)
     addSubview(buttonPanel)
-    buttonPanel.visualConstraints("|-[a(==b)]-[b]-|",fillVertical:true,spacing:2)
+    buttonPanel.visualConstraints("|-[b]-[a(==c)]-[c(==\(bw))]-[d(==c)]-|",fillVertical:true,spacing:2)
     let availableSpace = frame.height - 140
     let tableheight = availableSpace/3
     if (frame.height > frame.width) {

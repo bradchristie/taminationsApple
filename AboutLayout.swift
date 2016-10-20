@@ -25,19 +25,19 @@ class AboutLayout : UIView {
   let webview:UIWebView
   
   override init(frame: CGRect) {
-    let webframe = CGRectMake(frame.origin.x+4,frame.origin.y,frame.width-8,frame.height-4)
+    let webframe = CGRect(x: frame.origin.x+4,y: frame.origin.y,width: frame.width-8,height: frame.height-4)
     webview = UIWebView(frame: webframe)
     super.init(frame:frame)
-    backgroundColor = UIColor.whiteColor()
+    backgroundColor = UIColor.white
     addSubview(webview)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-  func loadPage(link:String) {
+  func loadPage(_ link:String) {
     let path = "files/info"
-    let filePath = NSBundle.mainBundle().pathForResource(link, ofType: "html", inDirectory:path)!
+    let filePath = Bundle.main.path(forResource: link, ofType: "html", inDirectory:path)!
     let htmlfile = try? String(contentsOfFile: filePath)
-    let baseURL = NSURL.fileURLWithPath(filePath)
+    let baseURL = URL(fileURLWithPath: filePath)
     webview.loadHTMLString(htmlfile!, baseURL: baseURL)    
   }
   

@@ -38,7 +38,7 @@ class Matrix {
   var mat:CGAffineTransform
   
   init() {
-    mat = CGAffineTransformMakeTranslation(0.0, 0.0)
+    mat = CGAffineTransform(translationX: 0.0, y: 0.0)
   }
   
   init(_ mat:CGAffineTransform) {
@@ -49,49 +49,49 @@ class Matrix {
     self.mat = mat.mat
   }
   
-  class func makeTransform(mat:CGAffineTransform) -> Matrix {
+  class func makeTransform(_ mat:CGAffineTransform) -> Matrix {
     return Matrix(mat)
   }
   
-  class func makeTranslation(x:CGFloat, _ y:CGFloat) -> Matrix {
-    return Matrix(CGAffineTransformMakeTranslation(x, y))
+  class func makeTranslation(_ x:CGFloat, _ y:CGFloat) -> Matrix {
+    return Matrix(CGAffineTransform(translationX: x, y: y))
   }
   
-  class func makeRotation(angle:CGFloat) -> Matrix {
-    return Matrix(CGAffineTransformMakeRotation(angle))
+  class func makeRotation(_ angle:CGFloat) -> Matrix {
+    return Matrix(CGAffineTransform(rotationAngle: angle))
   }
   
-  class func makeScale(x:CGFloat, y:CGFloat) -> Matrix {
-    return Matrix(CGAffineTransformMakeScale(x,y))
+  class func makeScale(_ x:CGFloat, y:CGFloat) -> Matrix {
+    return Matrix(CGAffineTransform(scaleX: x,y: y))
   }
   
-  func postConcat(aff2:Matrix) -> Matrix {
-    return Matrix(CGAffineTransformConcat(mat, aff2.mat))
+  func postConcat(_ aff2:Matrix) -> Matrix {
+    return Matrix(mat.concatenating(aff2.mat))
   }
   
-  func preConcat(aff2:Matrix) -> Matrix {
-    return Matrix(CGAffineTransformConcat(aff2.mat, mat))
+  func preConcat(_ aff2:Matrix) -> Matrix {
+    return Matrix(aff2.mat.concatenating(mat))
   }
   
-  func postTranslate(x:CGFloat, y:CGFloat) -> Matrix {
+  func postTranslate(_ x:CGFloat, y:CGFloat) -> Matrix {
     return postConcat(Matrix.makeTranslation(x, y))
   }
   
-  func postRotate(angle:CGFloat) -> Matrix {
+  func postRotate(_ angle:CGFloat) -> Matrix {
     return postConcat(Matrix.makeRotation(angle))
   }
   
-  func preTranslate(x:CGFloat, y:CGFloat) -> Matrix {
+  func preTranslate(_ x:CGFloat, y:CGFloat) -> Matrix {
     return preConcat(Matrix.makeTranslation(x, y))
   }
   
-  func preRotate(angle:CGFloat) -> Matrix {
+  func preRotate(_ angle:CGFloat) -> Matrix {
     return preConcat(Matrix.makeRotation(angle))
   }
   
   var location:Vector3D { get {
-    var pt = CGPointMake(0,0)
-    pt = CGPointApplyAffineTransform(pt, mat)
+    var pt = CGPoint(x: 0,y: 0)
+    pt = pt.applying(mat)
     return Vector3D(pt: pt)
     } }
   
@@ -99,8 +99,8 @@ class Matrix {
     let mat2 = Matrix.makeTransform(mat)
     mat2.mat.tx = 0
     mat2.mat.ty = 0
-    var pt = CGPointMake(1, 0)
-    pt = CGPointApplyAffineTransform(pt, mat2.mat)
+    var pt = CGPoint(x: 1, y: 0)
+    pt = pt.applying(mat2.mat)
     return Vector3D(pt:pt)
     } }
   

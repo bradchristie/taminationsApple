@@ -39,13 +39,13 @@ class AnimListViewController : TamViewController {
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
   override func loadView() {
-    let myview = AnimListLayout(frame: CGRectMake(contentFrame.origin.x,contentFrame.origin.y,contentFrame.width,contentFrame.height-40))
+    let myview = AnimListLayout(frame: CGRect(x: contentFrame.origin.x,y: contentFrame.origin.y,width: contentFrame.width,height: contentFrame.height-40))
     myview.table.dataSource = animListControl
     myview.table.delegate = animListControl
-    let definitionButton = TamButton(frame:CGRectMake(0,contentFrame.height-40,contentFrame.width/2,38))
-    definitionButton.setTitle("Definition", forState: UIControlState.Normal)
-    let settingsButton = TamButton(frame:CGRectMake(contentFrame.width/2,contentFrame.height-40,contentFrame.width/2,38))
-    settingsButton.setTitle("Settings", forState: UIControlState.Normal)
+    let definitionButton = TamButton(frame:CGRect(x: 0,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
+    definitionButton.setTitle("Definition", for: UIControlState())
+    let settingsButton = TamButton(frame:CGRect(x: contentFrame.width/2,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
+    settingsButton.setTitle("Settings", for: UIControlState())
     myview.addSubview(definitionButton)
     myview.addSubview(settingsButton)
     view = myview
@@ -54,8 +54,8 @@ class AnimListViewController : TamViewController {
     }
     setLevelButton(level)
     //  Hook up controls
-    settingsButton.addTarget(self, action: #selector(AnimListViewController.settingsSelector), forControlEvents: .TouchUpInside)
-    definitionButton.addTarget(self, action: #selector(AnimListViewController.definitionSelector), forControlEvents: .TouchUpInside)
+    settingsButton.addTarget(self, action: #selector(AnimListViewController.settingsSelector), for: .touchUpInside)
+    definitionButton.addTarget(self, action: #selector(AnimListViewController.definitionSelector), for: .touchUpInside)
     definitionAction = {
       self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
     }

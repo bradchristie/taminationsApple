@@ -26,13 +26,13 @@ class DefinitionLayout: UIView {
   let defstyle = UISegmentedControl()
   
   override init(frame: CGRect) {
-    webview = UIWebView(frame:CGRectMake(0,0,frame.size.width,frame.size.height))
+    webview = UIWebView(frame:CGRect(x: 0,y: 0,width: frame.size.width,height: frame.size.height))
     super.init(frame:frame)
     addSubview(webview)
-    let lang = NSLocale.preferredLanguages()[0].replaceFirst("[-_].*", "")
-    defstyle.backgroundColor = UIColor.whiteColor()
-    defstyle.insertSegmentWithTitle(lang == "ja" ? "省略された" : "Abbreviated", atIndex: 0, animated: false)
-    defstyle.insertSegmentWithTitle(lang == "ja" ? "遺漏なく" : "Full", atIndex: 1, animated: false)
+    let lang = Locale.preferredLanguages[0].replaceFirst("[-_].*", "")
+    defstyle.backgroundColor = UIColor.white
+    defstyle.insertSegment(withTitle: lang == "ja" ? "省略された" : "Abbreviated", at: 0, animated: false)
+    defstyle.insertSegment(withTitle: lang == "ja" ? "遺漏なく" : "Full", at: 1, animated: false)
     addSubview(defstyle)
     visualConstraints("V:|[a][b]|", fillHorizontal: true)
   }

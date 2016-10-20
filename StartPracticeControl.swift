@@ -26,42 +26,42 @@ class StartPracticeControl {
   var primaryAction:()->Void = { }
   var speedAction:()->Void = { }
   
-  func reset(layout:StartPracticeLayout) {
+  func reset(_ layout:StartPracticeLayout) {
     
     //  Set the switches to the current saved values
-    let settings = NSUserDefaults.standardUserDefaults()
-    layout.genderControl.selectedSegmentIndex = settings.integerForKey("practicegender")
-    layout.primaryControl.selectedSegmentIndex = settings.integerForKey("primarycontroller")
-    switch settings.integerForKey("practicespeed") {
-    case Speed.SLOW.rawValue :
+    let settings = UserDefaults.standard
+    layout.genderControl.selectedSegmentIndex = settings.integer(forKey: "practicegender")
+    layout.primaryControl.selectedSegmentIndex = settings.integer(forKey: "primarycontroller")
+    switch settings.integer(forKey: "practicespeed") {
+    case Speed.slow.rawValue :
       layout.speedControl.selectedSegmentIndex = 0
-    case Speed.NORMAL.rawValue :
+    case Speed.normal.rawValue :
       layout.speedControl.selectedSegmentIndex = 2
     default :
       layout.speedControl.selectedSegmentIndex = 1
     }
     
     //  Hook up controllers
-    layout.genderControl.addTarget(self, action: #selector(StartPracticeControl.genderSelector), forControlEvents: .ValueChanged)
-    layout.primaryControl.addTarget(self, action: #selector(StartPracticeControl.primarySelector), forControlEvents: .ValueChanged)
-    layout.speedControl.addTarget(self, action: #selector(StartPracticeControl.speedSelector), forControlEvents: .ValueChanged)
+    layout.genderControl.addTarget(self, action: #selector(StartPracticeControl.genderSelector), for: .valueChanged)
+    layout.primaryControl.addTarget(self, action: #selector(StartPracticeControl.primarySelector), for: .valueChanged)
+    layout.speedControl.addTarget(self, action: #selector(StartPracticeControl.speedSelector), for: .valueChanged)
 
     speedAction = {
       let s:Speed
       switch layout.speedControl.selectedSegmentIndex {
-      case 2 : s = .NORMAL
-      case 0 : s = . SLOW
-      default : s = .MODERATE
+      case 2 : s = .normal
+      case 0 : s = . slow
+      default : s = .moderate
       }
-      NSUserDefaults.standardUserDefaults().setInteger(s.rawValue, forKey: "practicespeed")
+      UserDefaults.standard.set(s.rawValue, forKey: "practicespeed")
     }
     
     genderAction = {
-      NSUserDefaults.standardUserDefaults().setInteger(layout.genderControl.selectedSegmentIndex==1 ? 1 : 0, forKey: "practicegender")
+      UserDefaults.standard.set(layout.genderControl.selectedSegmentIndex==1 ? 1 : 0, forKey: "practicegender")
     }
     
     primaryAction = {
-      NSUserDefaults.standardUserDefaults().setInteger(layout.primaryControl.selectedSegmentIndex, forKey: "primarycontroller")
+      UserDefaults.standard.set(layout.primaryControl.selectedSegmentIndex, forKey: "primarycontroller")
     }
     //  Make sure they have a value
     genderAction()

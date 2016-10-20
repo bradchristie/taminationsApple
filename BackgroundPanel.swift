@@ -36,7 +36,7 @@ class BackgroundPanel : UIView {
     super.init(frame:frame)
     backgroundColor = UIColor(red: 1, green: 0.9375, blue: 0.875, alpha: 1)
     alpha = 0
-    let filePath = NSBundle.mainBundle().pathForResource("tam100", ofType: "png", inDirectory:"files/images")!
+    let filePath = Bundle.main.path(forResource: "tam100", ofType: "png", inDirectory:"files/images")!
     imageview = UIImageView(image: UIImage(contentsOfFile: filePath))
     addSubview(imageview)
     var f = imageview.frame
@@ -46,18 +46,18 @@ class BackgroundPanel : UIView {
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-  func animate(fromView fromView: UIView, toView:UIView, callback:()->Void) {
+  func animate(fromView: UIView, toView:UIView, callback:@escaping ()->Void) {
     alpha = 0  // just to make sure
-    imageview.transform = CGAffineTransformIdentity  // clear previous rotation
-    superview?.bringSubviewToFront(self)
-    UIView.animateWithDuration(1.0, animations: {
-      self.imageview.transform = CGAffineTransformMakeRotation(3.1)
+    imageview.transform = CGAffineTransform.identity  // clear previous rotation
+    superview?.bringSubview(toFront: self)
+    UIView.animate(withDuration: 1.0, animations: {
+      self.imageview.transform = CGAffineTransform(rotationAngle: 3.1)
     })
-    UIView.animateWithDuration(0.4, animations: { self.alpha = 1 }, completion: { finished in
+    UIView.animate(withDuration: 0.4, animations: { self.alpha = 1 }, completion: { finished in
       callback()
-      self.superview?.bringSubviewToFront(toView)
-      self.superview?.bringSubviewToFront(self)
-      UIView.animateWithDuration(0.4, animations: { self.alpha = 0 } )
+      self.superview?.bringSubview(toFront: toView)
+      self.superview?.bringSubview(toFront: self)
+      UIView.animate(withDuration: 0.4, animations: { self.alpha = 0 } )
     } )
   }
   

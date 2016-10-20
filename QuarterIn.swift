@@ -22,7 +22,7 @@ class QuarterIn : QuarterTurns {
   
   override var name:String { get { return "Quarter In" } }
   
-  override func select(ctx: CallContext, _ d: Dancer) -> String {
+  override func select(_ ctx: CallContext, _ d: Dancer) -> String {
     return d.data.beau ? "Quarter Right" : "Quarter Left"
   }
 }

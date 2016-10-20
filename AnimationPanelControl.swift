@@ -27,23 +27,23 @@ class AnimationPanelControl {
   var playFun:()->Void = { arg in }
   var forwardFun:()->Void = { arg in }
   var endFun:()->Void = { arg in }
-  var progressFun:(beat:CGFloat)->Void = { arg in }
+  var progressFun:(_ beat:CGFloat)->Void = { arg in }
   var sliderFun:()->Void = { arg in }
   
   
-  func reset(panel:AnimationPanelLayout, view:AnimationView) {
+  func reset(_ panel:AnimationPanelLayout, view:AnimationView) {
     //  Hook up button actions
-    panel.startButton.addTarget(self, action: #selector(AnimationPanelControl.startAction), forControlEvents: .TouchUpInside)
-    panel.backButton.addTarget(self, action: #selector(AnimationPanelControl.backAction), forControlEvents: .TouchUpInside)
-    panel.playButton.addTarget(self, action: #selector(AnimationPanelControl.playAction), forControlEvents: .TouchUpInside)
-    panel.forwardButton.addTarget(self, action: #selector(AnimationPanelControl.forwardAction), forControlEvents: .TouchUpInside)
-    panel.endButton.addTarget(self, action: #selector(AnimationPanelControl.endAction), forControlEvents: .TouchUpInside)
+    panel.startButton.addTarget(self, action: #selector(AnimationPanelControl.startAction), for: .touchUpInside)
+    panel.backButton.addTarget(self, action: #selector(AnimationPanelControl.backAction), for: .touchUpInside)
+    panel.playButton.addTarget(self, action: #selector(AnimationPanelControl.playAction), for: .touchUpInside)
+    panel.forwardButton.addTarget(self, action: #selector(AnimationPanelControl.forwardAction), for: .touchUpInside)
+    panel.endButton.addTarget(self, action: #selector(AnimationPanelControl.endAction), for: .touchUpInside)
     //  Hook up slider
     //view.progressCallback = progressCallback
     view.doneCallback = {
-      panel.playButton.selected = false
+      panel.playButton.isSelected = false
     }
-    panel.slider.addTarget(self, action: #selector(AnimationPanelControl.sliderAction), forControlEvents: .ValueChanged)
+    panel.slider.addTarget(self, action: #selector(AnimationPanelControl.sliderAction), for: .valueChanged)
     //  Set up tic view
     panel.ticview.setTics(view.totalBeats,partstr: view.getParts(), isParts: view.hasParts)
     //  Hook up button and slider functions
@@ -52,10 +52,10 @@ class AnimationPanelControl {
     playFun = {
       if (view.isRunning) {
         view.doPause()
-        panel.playButton.selected = false
+        panel.playButton.isSelected = false
       } else {
         view.doPlay()
-        panel.playButton.selected = true
+        panel.playButton.isSelected = true
       }
     }
     forwardFun = { view.doForward() }
@@ -80,8 +80,8 @@ class AnimationPanelControl {
     endFun()
   }
   
-  func progressCallback(beat:CGFloat) {
-    progressFun(beat: beat)
+  func progressCallback(_ beat:CGFloat) {
+    progressFun(beat)
   }
   @objc func sliderAction() {
     sliderFun()

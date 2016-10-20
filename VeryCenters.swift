@@ -22,7 +22,7 @@ class VeryCenters : FilterActives {
   
   override var name:String { get { return "Very Centers" } }
   
-  override func isActive(d: Dancer) -> Bool {
+  override func isActive(_ d: Dancer) -> Bool {
     return d.data.verycenter
   }
   

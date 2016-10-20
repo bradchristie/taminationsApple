@@ -22,11 +22,11 @@ class CrossRun : Action {
   
   override var name:String { get { return "Cross Run" } }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     //  Centers and ends cannot both cross run
     if (ctx.dancers.exists { $0.data.active && $0.data.center } &&
         ctx.dancers.exists { $0.data.active && $0.data.center } ) {
-      throw CallError("Centers and ends cannot both Cross Run")
+      throw CallError("Centers and ends cannot both Cross Run") as Error
     }
     //  We need to look at all the dancers, not just actives
     //  because partners of the runners need to dodge
@@ -34,12 +34,12 @@ class CrossRun : Action {
       if (d.data.active) {
         //  Must be in a 4-dancer wave or line
         if (!d.data.center && !d.data.end) {
-          throw CallError("General line required for Cross Run")
+          throw CallError("General line required for Cross Run") as Error
         }
         //  Partner must be inactive
         if let d2 = d.data.partner {
           if (d2.data.active) {
-            throw CallError("Dancer and partner cannot both Cross Run")
+            throw CallError("Dancer and partner cannot both Cross Run") as Error
           }
           //  Center beaus and end belles run left
           let isright = d.data.beau ^ d.data.center
@@ -47,7 +47,7 @@ class CrossRun : Action {
           let m = isright ? "Run Right" : "Run Left"
           d.path = TamUtils.getMove(m).scale(1,2)
         } else {
-          throw CallError("Nobody to Cross Run around")
+          throw CallError("Nobody to Cross Run around") as Error
         }
       } else {
         //  Not an active dancer

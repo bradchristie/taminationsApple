@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 class BoxCall : FourDancerCall {
   
-  override func preferFilter(ctx: CallContext) -> Bool {
+  override func preferFilter(_ ctx: CallContext) -> Bool {
     return ctx.isBox
   }
   

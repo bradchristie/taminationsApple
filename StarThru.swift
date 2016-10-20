@@ -22,7 +22,7 @@ class StarThru : Action {
   
   override var name:String { get { return "Star Thru" } }
   
-  override func perform(ctx: CallContext, index: Int) throws {
+  override func perform(_ ctx: CallContext, index: Int) throws {
     //  TODO check that facing dancers are opposite genders
     try ctx.applyCalls("Slide Thru")
   }
