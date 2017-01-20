@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ class AnimationView: UIView {
   var interactiveDancer:Int = -1
   var speed:SpeedValues = .normalspeed
   var geometry:GeometryType = .square
+  var tamxref: TamXref?
   var tam:JiNode?
   var hasParts = false
   var idancer:InteractiveDancer? = nil
@@ -652,7 +653,8 @@ class AnimationView: UIView {
   
   
   func setAnimation(_ xtam:JiNode, intdan:Int = -1) {
-    tam = TamUtils.tamXref(xtam)
+    tamxref = TamXref(xtam)
+    tam = tamxref!.xref
     interactiveDancer = intdan
     resetAnimation()
   }

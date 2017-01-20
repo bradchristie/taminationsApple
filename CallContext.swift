@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -212,7 +212,29 @@ class CallContext {
     let callquery = TamUtils.callnameQuery(calltext)
     let callfiles = TamUtils.calllistdata.filter { $0.text.matches(callquery) }
     //  Found xml file with call, now look through each animation
-    //  First read and extract all the animations to a list
+    _ = callfiles.exists { (d:CallListDatum) -> Bool in
+      let doc = TamUtils.getXMLAsset(d.link)
+      let tams = doc.xPath("//tam")!
+      found = tams.nonEmpty
+      return tams.exists { (tam:JiNode) -> Bool in
+        if (tam["title"]!.lowercased().replaceAll("\\W", "").matches(callquery)) {
+          let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xPath("formation").first!
+          let sexy = tam["gender-specific"] != nil
+          //  Try to match the formation to the current dancer positions
+          if let mm = self.matchFormations(ctx, CallContext(formation: f), sexy) {
+            matches = true
+            // add XMLCall object to the call stack
+            ctx.callstack.append(XMLCall(doc:doc, xelem: tam, xmlmap: mm, ctx: ctx))
+            self.callname += tam["title"]! + " "
+          }
+        }
+        return matches
+      }
+    }
+    
+    
+    
+    /*
     let tams = callfiles.flatMap { (d:CallListDatum) -> [JiNode] in
       TamUtils.getXMLAsset(d.link).xPath("/tamination/tam")!
     }
@@ -232,6 +254,9 @@ class CallContext {
       }
       return matches   // so exists() exits on 1st match
     }
+    */
+    
+    
     if (found && !matches) {
       //  Found the call but formations did not match
       throw FormationNotFoundError(calltext) as Error

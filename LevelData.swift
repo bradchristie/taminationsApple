@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ struct LevelData {
     return data.filter({ $0.dir.lowercased() == s.lowercased() }).first!.name
   }
   
-  static let data = [LevelData("Basic and Mainstream","bms","level='Basic and Mainstream' and @sublevel!='Styling'",tamdoc,UIColor(red:0.88, green:0.88, blue:1.00, alpha:1.0)),
+  static let data = [LevelData("Basic and Mainstream","bms","/calls/call[@level='Basic and Mainstream' and @sublevel!='Styling']",tamdoc,UIColor(red:0.88, green:0.88, blue:1.00, alpha:1.0)),
     LevelData("Basic 1","b1","/calls/call[@sublevel='Basic 1']",tamdoc,UIColor(red:0.88, green:0.88, blue:1.00, alpha:1.0)),
     LevelData("Basic 2","b2","/calls/call[@sublevel='Basic 2']",tamdoc,UIColor(red:0.88, green:0.88, blue:1.00, alpha:1.0)),
     LevelData("Mainstream","ms","/calls/call[@sublevel='Mainstream']",tamdoc,UIColor(red:0.88, green:0.88, blue:1.00, alpha:1.0)),

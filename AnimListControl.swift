@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   }
   
   class AnimListData {
+    let xref:TamXref?
     let celltype:CellType
     let text:String
     let title:String
@@ -39,7 +40,8 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     let difficulty:Int
     var wasSelected:Bool = false
     
-    init(celltype:CellType, text:String, title:String, group:String, fullname:String, xmlindex:Int, difficulty:Int) {
+    init(xref:TamXref?, celltype:CellType, text:String, title:String, group:String, fullname:String, xmlindex:Int, difficulty:Int) {
+      self.xref = xref
       self.celltype = celltype
       self.text = text
       self.title = title
@@ -81,7 +83,8 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     var xmlindex = 0
     for tam in tams {
       let tamtitle = tam["title"]!
-      var from = TamUtils.tamXref(tam)["from"] ?? ""
+      let xref = TamXref(tam)
+      var from = xref.xref["from"] ?? ""
       var fullname = tamtitle + "from" + from  // for matching search request
       let group = tam["group"] ?? ""
       let difficulty = Int(tam["difficulty"] ?? "0") ?? 0
@@ -95,21 +98,21 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
             //  Blank group, for calls with no commmon starting phrase
             //  Add a separator unless it's the first group
             if (animlistdata.count > 0) {
-              animlistdata.append(AnimListData(celltype:CellType.Separator, text: "", title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
+              animlistdata.append(AnimListData(xref:nil, celltype:CellType.Separator, text: "", title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
             }
           } else {
             //  Named group e.g. "As Couples"
             //  Add a header with the group name, which starts
             //  each call in the group
-            animlistdata.append(AnimListData(celltype: CellType.Header, text: group, title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
+            animlistdata.append(AnimListData(xref:xref, celltype: CellType.Header, text: group, title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
           }
         }
-        from = tamtitle.replaceAll(group, " ").trim()
+        from = tamtitle.replace(group, " ").trim()
       }
       else if (tamtitle != prevtitle) {
         //  Not a group but a different call
         //  Put out a header with this call
-        animlistdata.append(AnimListData(celltype: CellType.Header, text: tamtitle+" from", title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
+        animlistdata.append(AnimListData(xref:xref, celltype: CellType.Header, text: tamtitle+" from", title:"", group: "", fullname: "", xmlindex: -1, difficulty: 0))
       }
       prevtitle = tamtitle
       prevgroup = group
@@ -133,11 +136,11 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
 
       //  Now add an item for this call
       if (group.length > 0 && group.replaceAll(" ", "").length == 0) {
-        animlistdata.append(AnimListData(celltype: CellType.Plain, text: from, title:tamtitle, group: "", fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
+        animlistdata.append(AnimListData(xref:xref, celltype: CellType.Plain, text: from, title:tamtitle, group: "", fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
       } else if (group.length > 0) {
-        animlistdata.append(AnimListData(celltype: CellType.Plain, text: from, title:tamtitle, group: group, fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
+        animlistdata.append(AnimListData(xref:xref, celltype: CellType.Plain, text: from, title:tamtitle, group: group, fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
       } else {
-        animlistdata.append(AnimListData(celltype: CellType.Indented, text: from, title:tamtitle, group: tamtitle+" from", fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
+        animlistdata.append(AnimListData(xref:xref, celltype: CellType.Indented, text: from, title:tamtitle, group: tamtitle+" from", fullname: fullname, xmlindex: xmlindex, difficulty: difficulty))
       }
       
       xmlindex += 1

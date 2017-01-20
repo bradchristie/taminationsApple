@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,31 @@ struct CallListDatum {
   let languages:String
 }
 
+struct TamXref {
+  let doc: Ji
+  let xref: JiNode
+  
+  /**
+   *  Returns animation element, looking up cross-reference if needed.
+   */
+  init(_ tam:JiNode) {
+    if let link = tam["xref-link"] {
+      self.doc = TamUtils.getXMLAsset(link)
+      var s = "//tam"
+      if let title = tam["xref-title"] {
+        s = s + "[@title='" + title + "']"
+      }
+      if let from = tam["xref-from"] {
+        s = s + "[@from='\(from)']"
+      }
+      self.xref = self.doc.xPath(s)![0]
+    } else {
+      self.xref = tam
+      self.doc = TamUtils.fdoc
+    }
+  }
+  
+}
 
 class TamUtils {
   
@@ -78,29 +103,11 @@ class TamUtils {
     return doc.xPath("//tam | //tamxref")!
   }
   
-  /**
-  *  Returns animation element, looking up cross-reference if needed.
-  */
-  class func tamXref(_ tam:JiNode) -> JiNode {
-    var xtam = tam
-    if let link = tam["xref-link"] {
-      let xdoc = TamUtils.getXMLAsset(link)
-      var s = "//tam"
-      if let title = tam["xref-title"] {
-        s = s + "[@title='" + title + "']"
-      }
-      if let from = tam["xref-from"] {
-        s = s + "[@from='\(from)']"
-      }
-      xtam = xdoc.xPath(s)![0]
-    }
-    return xtam
-  }
   
   //  From a tam element, look up any cross-references, then
   //  return all the processed paths
   class func getPaths(_ tam:JiNode) -> [[Movement]] {
-    return tamXref(tam).xPath("path").map(translatePath)
+    return TamXref(tam).xref.xPath("path").map(translatePath)
   }
   
   //  Return the main title from an animation xml doc

@@ -1,7 +1,7 @@
 /*
 
 Taminations Square Dance Animations App for iOS
-Copyright (C) 2016 Brad Christie
+Copyright (C) 2017 Brad Christie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,10 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class XMLCall : Call {
   
+  let doc:Ji
   let xelem:JiNode
   let xmlmap:[Int]
   let ctx2:CallContext
-  init(xelem:JiNode, xmlmap:[Int], ctx:CallContext) {
+  init(doc:Ji, xelem:JiNode, xmlmap:[Int], ctx:CallContext) {
+    self.doc = doc
     self.xelem = xelem
     self.xmlmap = xmlmap
     self.ctx2 = ctx
