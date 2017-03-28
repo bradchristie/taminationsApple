@@ -20,23 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class TutorialViewController : TamViewController {
+class TutorialViewController : TamViewController, ReturnButtonListener, TitleSetter, TutorialFinishedListener {
   
+  var layout:PracticeLayout!
   let control = TutorialControl()
   
   override func loadView() {
-    let layout = PracticeLayout()
+    layout = PracticeLayout()
     view = layout
-    control.setTitle = { (title:String) in
-      self.title = title
-    }
-    layout.returnButtonAction = {
-      _ = self.navigationController?.popViewController(animated: true)
-    }
-    control.dismissAction = {
-      _ = self.navigationController?.popViewController(animated: true)
-    }
-    control.reset(intent, practiceLayout: layout)
+    control.titleSetter = self
+    layout.returnButtonListener = self
+    control.reset(intent, layout: layout)
     control.nextAnimation()
   }
   
@@ -55,5 +49,16 @@ class TutorialViewController : TamViewController {
     return UIInterfaceOrientation.landscapeLeft
   }
   
+  func tutorialFinished() {
+    _ = self.navigationController?.popViewController(animated: true)
+  }
+  
+  func returnAction() {
+    _ = self.navigationController?.popViewController(animated: true)
+  }
+  
+  func setThisTitle(_ title:String) {
+      self.title = title
+    }
   
 }

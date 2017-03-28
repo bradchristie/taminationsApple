@@ -110,7 +110,7 @@ class TamViewController : UIViewController {
       levelButton.sizeToFit()
       items.append(UIBarButtonItem(customView: levelButton))
       //  Hook up action to pop to list of calls for this level
-      levelAction = {
+      levelAction = { [unowned self] in
         for vc in (self.navigationController?.viewControllers)! {
           if let callListViewController = vc as? CallListViewController {
             //  might not be the same level
@@ -144,7 +144,7 @@ class TamViewController : UIViewController {
   func setShareButton(_ share:String) {
     shareText = share
     setRightButtonItems()
-    shareAction = {
+    shareAction = { [unowned self] in
       let controller = UIActivityViewController(activityItems: [self.shareText.matches("http.*") ? URL(string:self.shareText.replaceAll("\\s",""))! as Any : self.shareText as Any], applicationActivities: nil)
       if (UIDevice.current.userInterfaceIdiom == .pad) {
         let pop = UIPopoverController(contentViewController: controller)

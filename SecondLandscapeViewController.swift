@@ -20,20 +20,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class SecondLandscapeViewController: TamViewController {
+class SecondLandscapeViewController: TamViewController,
+                                     AnimListSelectListener, AnimListDifficultyHider, AnimationPartListener,
+                                     SettingsListener {
 
   let level:String
   let link:String
   let call:String?
+  
+  var animListLayout:AnimListLayout!
+  var animationLayout:AnimationLayout!
+  var definitionLayout:DefinitionLayout!
+  var settingsLayout:SettingsLayout!
+  var topview:UIView!
+  var background1:BackgroundPanel!
+  var background2:BackgroundPanel!
+  weak var rightview:UIView!
+  
   let animListControl = AnimListControl()
   let animationControl = AnimationControl()
   let animationPanelControl = AnimationPanelControl()
   let definitionControl = DefinitionControl()
   let settingsControl = SettingsControl()
-  
-  var settingsAction:()->Void = { }
-  var definitionAction:()->Void = { }
-  var selectAnimation:(AnimListControl.AnimListData)->Void = { arg in }
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -55,85 +63,88 @@ class SecondLandscapeViewController: TamViewController {
     let rightframe = f
     
     //  Create the views for all the panels
-    let topview = UIView(frame: contentFrame)
-    let animListLayout = AnimListLayout(frame: leftframe)
+    topview = UIView(frame: contentFrame)
+    animListLayout = AnimListLayout(frame:leftframe)
     animListLayout.table.dataSource = animListControl
     animListLayout.table.delegate = animListControl
-    animListControl.hideDifficulty = {
-      animListLayout.hideDifficulty();
-    }
     topview.addSubview(animListLayout)
     view = topview
     title = animListControl.title
     setLevelButton(level)
     
-    let animationLayout = AnimationLayout(frame: middleframe)
+    animationLayout = AnimationLayout(frame: middleframe)
     animationLayout.layer.borderWidth = 1
     animationLayout.layer.borderColor = UIColor.black.cgColor
     topview.addSubview(animationLayout)
-    let background1 = BackgroundPanel(frame: middleframe)
+    background1 = BackgroundPanel(frame: middleframe)
     topview.addSubview(background1)
     
-    let settingsLayout = SettingsLayout(frame:rightframe)
+    settingsLayout = SettingsLayout(frame:rightframe)
     settingsControl.reset(settingsLayout)
+    settingsControl.settingsListener = self
     topview.addSubview(settingsLayout)
-    let definitionLayout = DefinitionLayout(frame:rightframe)
+    definitionLayout = DefinitionLayout(frame:rightframe)
     topview.addSubview(definitionLayout)
     definitionControl.reset(definitionLayout, link: link)
-    let background2 = BackgroundPanel(frame:rightframe)
+    background2 = BackgroundPanel(frame:rightframe)
     topview.addSubview(background2)
-    var rightview:UIView = definitionLayout
+    rightview = definitionLayout
 
     //  Hook up controls
-    animListControl.selectAction = { (level:String,link:String,item:AnimListControl.AnimListData, animcount:Int)->Void in
-      background1.animate(fromView: animationLayout, toView: animationLayout, callback: {
-        self.selectAnimation(item)
-      } )
-    }
+    animListControl.selectListener = self
     
     animationLayout.settingsButton.addTarget(self, action: #selector(SecondLandscapeViewController.settingsSelector), for: .touchUpInside)
-    settingsAction = {
-      if rightview != settingsLayout {
-        background2.animate(fromView: definitionLayout, toView: settingsLayout, callback: { } )
-        rightview = settingsLayout
-      }
-    }
     animationLayout.definitionButton.addTarget(self, action: #selector(SecondLandscapeViewController.definitionSelector), for: .touchUpInside)
-    definitionAction = {
-      if rightview != definitionLayout {
-        background2.animate(fromView: settingsLayout, toView: definitionLayout, callback: { } )
-        rightview = definitionLayout
-      }
-    }
-    settingsControl.settingsListener = {
-      self.animationControl.readSettings(animationLayout.animationView)
-    }
     animationControl.reset(animationLayout, animationLayout.animationView, link: link)
-    animationLayout.animationView.partCallback = { (part:Int) in
-      self.definitionControl.setPart(part)
-    }
+    animationLayout.animationView.animationPartListener = self
 
     animListControl.reset(link, level: level, call:call)
     title = animListControl.title
 
-    selectAnimation = { item in
-      self.animationControl.reset(animationLayout, animationLayout.animationView, link:self.link, animnum: item.xmlindex)
-      self.title = item.title
-      self.animationPanelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
-      self.definitionControl.setTitle(self.animListControl.animtitle)  // for definition highlighting
-      self.setShareButton("http://www.tamtwirlers.org/tamination/"+self.link+".html?"+item.fullname)
-    }
     if (animListControl.currentrow >= 0) {
-      selectAnimation(animListControl.animlistdata[animListControl.currentrow])
+      selectAnimation(data: animListControl.animlistdata[animListControl.currentrow])
     }
     
   }
   
-  @objc func settingsSelector() {
-    settingsAction()
+  func selectAnimation(data:AnimListControl.AnimListData)->Void {
+    animationControl.reset(animationLayout, animationLayout.animationView, link:self.link, animnum: data.xmlindex)
+    title = data.title
+    animationPanelControl.reset(animationLayout.animationPanel, v: animationLayout.animationView)
+    definitionControl.setTitle(self.animListControl.animtitle)  // for definition highlighting
+    setShareButton("http://www.tamtwirlers.org/tamination/"+link+".html?"+data.fullname)
   }
+  
+  func settingsChanged() {
+    animationControl.readSettings(animationLayout.animationView)
+  }
+  
+  func animationPart(part: Int) {
+    definitionControl.setPart(part)
+  }
+  
+  func hideDifficulty() {
+    animListLayout.hideDifficulty()
+  }
+  
+  func selectAction(level: String, link: String, data: AnimListControl.AnimListData, xmlcount: Int) {
+    self.background1.animate(fromView: self.animationLayout, toView: self.animationLayout, callback: {
+      self.selectAnimation(data: data)
+    } )
+  }
+    
+  @objc func settingsSelector() {
+    if rightview != settingsLayout {
+      background2.animate(fromView: definitionLayout, toView: settingsLayout, callback: { } )
+      rightview = settingsLayout
+    }
+  }
+
   @objc func definitionSelector() {
-    definitionAction()
+    if rightview != definitionLayout {
+      background2.animate(fromView: settingsLayout, toView: definitionLayout, callback: { } )
+      rightview = definitionLayout
+    }
   }
 
   override func viewDidAppear(_ animated: Bool) {

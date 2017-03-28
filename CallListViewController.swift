@@ -20,16 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class CallListViewController : TamViewController {
+class CallListViewController : TamViewController, CallListFollower {
  
   var level:String
   var firstcall = true
   //  Need to keep a pointer to the control so iOS doesn't zap it
   let model = CallListModel()
+  var myreload = { }
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
     super.init(intent)
+    model.follower = self
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented")  }
   
@@ -41,13 +43,18 @@ class CallListViewController : TamViewController {
     myview.sb.delegate = model
     view = myview
     title = LevelData.find(level)!.name
-    model.selectAction = { (level:String,link:String)->Void in
-      var intent = [String: String]()
-      intent["level"] = level
-      intent["link"] = link
-      self.navigationController?.pushViewController(AnimListViewController(intent), animated: true)
-    }
-    model.reloadTable = { myview.reloadData() }
+    myreload = { myview.reloadData() }
+  }
+  
+  func selectAction(level: String, link: String) {
+    var intent = [String: String]()
+    intent["level"] = level
+    intent["link"] = link
+    self.navigationController?.pushViewController(AnimListViewController(intent), animated: true)
+  }
+  
+  func tableLoaded() {
+    myreload()
   }
   
   override func viewDidAppear(_ animated: Bool) {

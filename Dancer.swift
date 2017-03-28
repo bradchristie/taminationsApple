@@ -41,7 +41,7 @@ struct DancerData {
   var center = false
   var verycenter = false
   var end = false
-  var partner:Dancer? = nil
+  weak var partner:Dancer? = nil
 }
 
 class Dancer {
@@ -63,10 +63,10 @@ class Dancer {
   var showNumber:ShowNumbers = .numbers_OFF
   
   //  vars for computing handholds
-  var leftdancer:Dancer?
-  var rightdancer:Dancer?
-  var leftgrip:Dancer?
-  var rightgrip:Dancer?
+  weak var leftdancer:Dancer?
+  weak var rightdancer:Dancer?
+  weak var leftgrip:Dancer?
+  weak var rightgrip:Dancer?
   var rightHandVisibility = false
   var leftHandVisibility = false
   var rightHandNewVisibility = false
@@ -74,7 +74,7 @@ class Dancer {
   
   //  for sequencer
   var data = DancerData()
-  var clonedFrom:Dancer?
+  weak var clonedFrom:Dancer?
   
   init(number:String, number_couple:String, gender:Gender, fillcolor:UIColor, mat:Matrix, geom:Geometry, moves:[Movement]) {
     self.number = number

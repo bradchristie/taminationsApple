@@ -18,27 +18,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-class QuarterTurns : BoxCall {
+class QuarterTurns : Action {
   
   func select(_ ctx:CallContext, _ d:Dancer) -> String { return "" }
   
   override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     var offsetX:CGFloat = 0
-    var offsetY:CGFloat = 0
     let move = select(ctx,d)
-    if (move != "Stand" && !d.location.x.isApprox(0) && !d.location.y.isApprox(0)) {
-      if (CallContext.isFacingIn(d)) {
-        offsetX = 1
-      } else if (CallContext.isFacingOut(d)) {
-        offsetX = -1
+    //  If leader or trailer, make sure to adjust quarter turn
+    //  so handhold is possible
+    if (move != "Stand") {
+      if (d.data.leader) {
+        let d2 = ctx.dancerInBack(d)!
+        let dist = CallContext.distance(d,d2)
+        if (dist > 2) {
+          offsetX = -(dist-2)/2
+        }
       }
-      if (d.data.beau) {
-        offsetY = 1
-      } else if (d.data.belle) {
-        offsetY = -1
+      if (d.data.trailer) {
+        let d2 = ctx.dancerInFront(d)!
+        let dist = CallContext.distance(d,d2)
+        if (dist > 2) {
+          offsetX = (dist-2)/2
+        }
       }
     }
-    return TamUtils.getMove(move).skew(offsetX, offsetY)
+    return TamUtils.getMove(move).skew(offsetX, 0.0)
   }
   
 }

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-class BoxCounterRotate : BoxCall {
+class BoxCounterRotate : Action {
   
   override var name:String { get { return "Box Counter Rotate" } }
   

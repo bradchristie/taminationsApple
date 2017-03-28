@@ -21,13 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 class StartPracticeControl {
- 
-  var genderAction:()->Void = { }
-  var primaryAction:()->Void = { }
-  var speedAction:()->Void = { }
+   
+  weak var layout:StartPracticeLayout!
   
-  func reset(_ layout:StartPracticeLayout) {
-    
+  func reset(_ lay:StartPracticeLayout) {
+    layout = lay
     //  Set the switches to the current saved values
     let settings = UserDefaults.standard
     layout.genderControl.selectedSegmentIndex = settings.integer(forKey: "practicegender")
@@ -46,7 +44,20 @@ class StartPracticeControl {
     layout.primaryControl.addTarget(self, action: #selector(StartPracticeControl.primarySelector), for: .valueChanged)
     layout.speedControl.addTarget(self, action: #selector(StartPracticeControl.speedSelector), for: .valueChanged)
 
-    speedAction = {
+    //  Make sure they have a value
+    genderSelector()
+    primarySelector()
+    speedSelector()
+    
+  }
+  
+  @objc func genderSelector() {
+    UserDefaults.standard.set(layout.genderControl.selectedSegmentIndex==1 ? 1 : 0, forKey: "practicegender")
+  }
+  @objc func primarySelector() {
+    UserDefaults.standard.set(layout.primaryControl.selectedSegmentIndex, forKey: "primarycontroller")
+  }
+  @objc func speedSelector() {
       let s:Speed
       switch layout.speedControl.selectedSegmentIndex {
       case 2 : s = .normal
@@ -54,24 +65,6 @@ class StartPracticeControl {
       default : s = .moderate
       }
       UserDefaults.standard.set(s.rawValue, forKey: "practicespeed")
-    }
-    
-    genderAction = {
-      UserDefaults.standard.set(layout.genderControl.selectedSegmentIndex==1 ? 1 : 0, forKey: "practicegender")
-    }
-    
-    primaryAction = {
-      UserDefaults.standard.set(layout.primaryControl.selectedSegmentIndex, forKey: "primarycontroller")
-    }
-    //  Make sure they have a value
-    genderAction()
-    primaryAction()
-    speedAction()
-    
   }
-  
-  @objc func genderSelector() { genderAction() }
-  @objc func primarySelector() { primaryAction() }
-  @objc func speedSelector() { speedAction() }
 
 }

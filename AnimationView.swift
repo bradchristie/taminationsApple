@@ -34,6 +34,18 @@ enum SpeedValues:CGFloat {
   case fastspeed = 200
 }
 
+protocol AnimationReadyListener : NSObjectProtocol {
+  func animationReady() -> Void
+}
+protocol AnimationProgressListener : NSObjectProtocol {
+  func animationProgress(beat:CGFloat) -> Void
+}
+protocol AnimationPartListener : NSObjectProtocol {
+  func animationPart(part:Int) -> Void
+}
+protocol AnimationDoneListener : NSObjectProtocol {
+  func animationDone() -> Void
+}
 
 class AnimationView: UIView {
   
@@ -62,10 +74,10 @@ class AnimationView: UIView {
   var idancer:InteractiveDancer? = nil
   
   //  callbacks
-  var readyCallback:()->() = { }
-  var progressCallback:(_ beat:CGFloat)->() = { arg in }
-  var partCallback:(_ part:Int)->() = { arg in }
-  var doneCallback:()->() = { }
+  weak var animationReadyListener : AnimationReadyListener?
+  weak var animationProgressListener : AnimationProgressListener?
+  weak var animationPartListener : AnimationPartListener?
+  weak var animationDoneListener : AnimationDoneListener?
   
   
   override init(frame: CGRect) {
@@ -416,10 +428,10 @@ class AnimationView: UIView {
           beat = -leadin
         } else {
           isRunning = false
-          doneCallback()
+          animationDoneListener?.animationDone()
         }
       }
-      progressCallback(beat+leadin)
+      animationProgressListener?.animationProgress(beat: beat+leadin)
       //  Continually epeat by telling the system to re-draw
       if (isRunning) {
         //  setNeedsDispay needs to be called after current processing is done
@@ -548,7 +560,7 @@ class AnimationView: UIView {
     }
     if (thispart != currentPart) {
       currentPart = thispart
-      partCallback(currentPart)
+      animationPartListener?.animationPart(part: currentPart)
     }
     
     //  Compute handholds
@@ -664,7 +676,7 @@ class AnimationView: UIView {
       leadin = interactiveDancer < 0 ? 2 : 3
       leadout = interactiveDancer < 0 ? 2 : 1
       if (isRunning) {
-        doneCallback()
+        animationDoneListener?.animationDone()
       }
       isRunning = false
       beats = 0
@@ -772,7 +784,7 @@ class AnimationView: UIView {
       beat = -leadin
       prevbeat = -leadin
       setNeedsDisplay()
-      readyCallback()
+      animationReadyListener?.animationReady()
       
     }  // yes we have a tam xml to work with
   }

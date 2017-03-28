@@ -106,8 +106,8 @@ class TamUtils {
   
   //  From a tam element, look up any cross-references, then
   //  return all the processed paths
-  class func getPaths(_ tam:JiNode) -> [[Movement]] {
-    return TamXref(tam).xref.xPath("path").map(translatePath)
+  class func getPaths(_ tam:JiNode) -> [Path] {
+    return TamXref(tam).xref.xPath("path").map { Path(translatePath($0)) }
   }
   
   //  Return the main title from an animation xml doc

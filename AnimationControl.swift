@@ -53,7 +53,7 @@ class AnimationControl {
       let a = max((2.0-beat)/2.01,0.0)
       animationLayout.tamsays.alpha = a
     }
-    animationView.progressCallback = progressFun
+  //  animationView.progressCallback = progressFun
     readSettings(animationView)
     
     optionsFun = { (options:String)->Void in
@@ -66,6 +66,7 @@ class AnimationControl {
     let settings = UserDefaults.standard
     animationView.setGeometry(GeometryType(rawValue:settings.integer(forKey: "geometry")) ?? GeometryType.square)
     animationView.setGridVisibility(settings.bool(forKey: "grid"))
+    animationView.setPhantomVisibility(settings.bool(forKey:"phantoms"))
     animationView.setLoop(settings.bool(forKey: "loop"))
     animationView.setPathVisibility(settings.bool(forKey: "path"))
     animationView.setSpeed(Speed(rawValue:settings.integer(forKey: "speed")) ?? Speed.normal)

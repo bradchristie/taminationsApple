@@ -20,26 +20,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class PracticeViewController : TamViewController {
+class PracticeViewController : TamViewController, ReturnButtonListener, DefinitionButtonListener, TitleSetter {
   
+  var layout:PracticeLayout!
   let control = PracticeControl()
   
   override func loadView() {
-    let layout = PracticeLayout()
+    layout = PracticeLayout()
     view = layout
-    control.setTitle = { (title:String) in
-      self.title = title
-    }
-    layout.returnButtonAction = {
-      _ = self.navigationController?.popViewController(animated: true)
-    }
-    layout.definitionButtonAction = {
-      var intent = [String: String]()
-      intent["link"] = self.control.link;
-      self.navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
-    }
-    control.reset(intent, practiceLayout: layout)
+    control.titleSetter = self
+    layout.returnButtonListener = self
+    layout.definitionButtonListener = self
+    control.reset(intent, layout: layout)
     control.nextAnimation()
+  }
+  
+  func setThisTitle(_ newTitle: String) {
+    title = newTitle
+  }
+  
+  func returnAction() {
+    _ = navigationController?.popViewController(animated: true)
+  }
+  func definitionAction() {
+    var intent = [String: String]()
+    intent["link"] = self.control.link;
+    navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
   }
   
   override var shouldAutorotate : Bool {

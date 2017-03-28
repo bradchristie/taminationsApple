@@ -194,7 +194,26 @@ extension CGFloat {
   }
 
   var toRadians:CGFloat { get { return self * CG_PI / 180 } }
+  var d:Double { get { return Double(self) } }
     
+}
+
+extension Double {
+  
+  var cg:CGFloat { get { return CGFloat(self) } }
+  
+}
+
+extension Array {
+  
+  func sumByCGFloat(f:(Element) -> CGFloat) -> CGFloat {
+    var s:CGFloat = 0
+    for e in self {
+      s += f(e)
+    }
+    return s
+  }
+  
 }
 
 extension UIColor {
@@ -272,7 +291,7 @@ class UIAlertControllerExtension : UIAlertController {
 }
 
 extension UIView {
-  
+  //  Convenience method to set several constraints at once
   func visualConstraints(_ format:String, fillHorizontal:Bool=false, fillVertical:Bool=false, spacing:Int=(-1)) {
     var alpha = ["a","b","c","d","e","f","g","h","i","j"]
     var d = [String:UIView]()

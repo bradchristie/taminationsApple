@@ -31,8 +31,7 @@ class AnimationViewController : TamViewController {
   let downSwiper = UISwipeGestureRecognizer()
   let upSwiper = UISwipeGestureRecognizer()
   
-  var definitionAction:()->Void = { }
-  var reloadSettings:()->Void = { }
+  var animationLayout:AnimationLayout!
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -49,40 +48,34 @@ class AnimationViewController : TamViewController {
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
   override func loadView() {
-    let animationLayout = AnimationLayout(frame: contentFrame)
+    animationLayout = AnimationLayout(frame: contentFrame)
     view = animationLayout
     animationControl.reset(animationLayout, animationLayout.animationView, link: link, animnum: animnum)
     title = animationControl.title
     setLevelButton(level)
     setShareButton("http://www.tamtwirlers.org/tamination/\(link).html?\(animationControl.animname)")
-    panelControl.reset(animationLayout.animationPanel, view: animationLayout.animationView)
+    panelControl.reset(animationLayout.animationPanel, v: animationLayout.animationView)
 
     //  Hook up controls
     animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), for: .touchUpInside)
     animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), for: .touchUpInside)
-    definitionAction = {
-      self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
-    }
     downSwiper.addTarget(self, action: #selector(AnimationViewController.downSwipeAction))
     upSwiper.addTarget(self, action: #selector(AnimationViewController.upSwipeAction))
     animationLayout.addGestureRecognizer(downSwiper)
     animationLayout.addGestureRecognizer(upSwiper)
-    
-    //  On resume, re-read settings in case they have changed
-    reloadSettings = { self.animationControl.readSettings(animationLayout.animationView) }
-    
   }
   
   @objc override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    reloadSettings()
+    //  On resume, re-read settings in case they have changed
+    animationControl.readSettings(animationLayout.animationView)
   }
   
   @objc func settingsSelector() {
     navigationController?.pushViewController(SettingsViewController(intent), animated: true)
   }
   @objc func definitionSelector() {
-    definitionAction()
+    navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
   }
   
   @objc func upSwipeAction() {

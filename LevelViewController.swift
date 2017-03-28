@@ -20,34 +20,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class LevelViewController: TamViewController {
+class LevelViewController: TamViewController, LevelSelectionListener {
 
-  var levelLayout:LevelLayoutBase? = nil
+  var levelLayout:LevelLayoutBase!
   
   override func loadView() {
     levelLayout = LevelLayout(frame: contentFrame)
     title = "Taminations"
-    Callouts.LevelButtonAction = { (level:String)->Void in
-      var intent = [String: String]()
-      intent["level"] = level
-    //  self.levelLayout!.selectLevel(level)
-      switch level {
-      case "Settings" : self.navigationController?.pushViewController(SettingsViewController(intent), animated: true)
-      case "About" : self.navigationController?.pushViewController(AboutViewController(intent), animated: true)
-      case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(intent), animated: true)
-      case "Practice" : self.navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
-      default : self.navigationController?.pushViewController(CallListViewController(intent), animated: true)
-      }
-    }
+    levelLayout.levelSelectionListener = self
     view = levelLayout
     //  If level passed in from URL sent to app, go there immediately
     if intent["level"] != nil {
       self.navigationController?.pushViewController(CallListViewController(intent), animated: true)
     }
   }
-    
+  
+  func levelSelected(_ level: String) {
+    var intent = [String: String]()
+    intent["level"] = level
+    //  self.levelLayout!.selectLevel(level)
+    switch level {
+    case "Settings" : navigationController?.pushViewController(SettingsViewController(intent), animated: true)
+    case "About" : navigationController?.pushViewController(AboutViewController(intent), animated: true)
+    case "Sequencer" : navigationController?.pushViewController(SequencerViewController(intent), animated: true)
+    case "Practice" : navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
+    default : navigationController?.pushViewController(CallListViewController(intent), animated: true)
+    }
+  }
+  
   override func viewDidAppear(_ animated: Bool) {
-    levelLayout?.unselect()
+    levelLayout.unselect()
   }
   
 }

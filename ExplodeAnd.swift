@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-class ExplodeAnd : LineCall {
+class ExplodeAnd : Action {
   
   override var name:String { get { return "Explode and" } }
   

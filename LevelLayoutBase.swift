@@ -20,6 +20,10 @@
 
 import UIKit
 
+protocol LevelSelectionListener : NSObjectProtocol {
+  func levelSelected(_ level:String) -> Void
+}
+
 class LevelLayoutBase : UIView {
 
   var labelheight:CGFloat = 0
@@ -27,6 +31,8 @@ class LevelLayoutBase : UIView {
   var leftmargin:CGFloat = 0
   var selectedLabel:LevelView? = nil
   var top:CGFloat = 0
+  
+  weak var levelSelectionListener:LevelSelectionListener?
 
   class LevelView : UIView {
     
@@ -55,7 +61,7 @@ class LevelLayoutBase : UIView {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {  }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {  }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-      Callouts.LevelButtonAction(label.text ?? "")
+      layout.levelSelectionListener?.levelSelected(label.text ?? "")
     }
     func select() {
       backgroundColor = UIColor.blue

@@ -193,6 +193,7 @@ class CallContext {
     var found = false
     var matches = false
     var ctx = self
+    let ctx0 = self
     
     //  If there are precursors, run them first so the result
     //  will be used to match formations
@@ -219,44 +220,19 @@ class CallContext {
       return tams.exists { (tam:JiNode) -> Bool in
         if (tam["title"]!.lowercased().replaceAll("\\W", "").matches(callquery)) {
           let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xPath("formation").first!
+          let ctx2 = CallContext(formation: f)
           let sexy = tam["gender-specific"] != nil
           //  Try to match the formation to the current dancer positions
-          if let mm = self.matchFormations(ctx, CallContext(formation: f), sexy) {
+          if let mm = self.matchFormations(ctx, ctx2, sexy) {
             matches = true
             // add XMLCall object to the call stack
-            ctx.callstack.append(XMLCall(doc:doc, xelem: tam, xmlmap: mm, ctx: ctx))
-            self.callname += tam["title"]! + " "
+            ctx0.callstack.append(XMLCall(doc:doc, xelem: tam, xmlmap: mm, ctx: ctx2))
+            ctx0.callname += tam["title"]! + " "
           }
         }
         return matches
       }
     }
-    
-    
-    
-    /*
-    let tams = callfiles.flatMap { (d:CallListDatum) -> [JiNode] in
-      TamUtils.getXMLAsset(d.link).xPath("/tamination/tam")!
-    }
-    found = tams.nonEmpty
-    //  Now find the animations that match the name and formation
-    _ = tams.filter { (tam:JiNode) -> Bool in
-      tam["title"]!.lowercased().replaceAll("\\W", "").matches(callquery)
-    }.exists { (tam:JiNode) -> Bool in
-      let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xPath("formation").first!
-      let sexy = tam["gender-specific"] != nil
-      //  Try to match the formation to the current dancer positions
-      if let mm = self.matchFormations(ctx, CallContext(formation: f), sexy) {
-        matches = true
-        // add XMLCall object to the call stack
-        ctx.callstack.append(XMLCall(xelem: tam, xmlmap: mm, ctx: ctx))
-        self.callname += tam["title"]! + " "
-      }
-      return matches   // so exists() exits on 1st match
-    }
-    */
-    
-    
     if (found && !matches) {
       //  Found the call but formations did not match
       throw FormationNotFoundError(calltext) as Error
@@ -382,37 +358,6 @@ class CallContext {
     try callstack.enumerated().forEach { (i,c) in try c.performCall(self, index: i) }
     callstack.enumerated().forEach { (i,c) in c.postProcess(self, index: i) }
   }
-  
-  //  This is used to match XML calls
-  func matchShapes(_ ctx2:CallContext) -> [Int]? {
-    let ctx1 = self
-    if (ctx1.dancers.count != ctx2.dancers.count) {
-      return nil
-    }
-    var mapping = [Int](repeating: 0, count: ctx1.dancers.count)
-    var reversemap = [Int](repeating: 0, count: ctx1.dancers.count)
-    ctx1.dancers.enumerated().forEach { (i,d1) in
-      var bestd2 = -1
-      var bestdistance:CGFloat = 100
-      let v1 = d1.location
-      ctx2.dancers.enumerated().forEach { (j,d2) in
-        let d = (v1 - d2.location).length
-        if (d.isApprox(bestdistance)) {
-          bestd2 = -1
-        } else if (d < bestdistance) {
-          bestdistance = d
-          bestd2 = j
-        }
-      }
-      if (bestd2 >= 0) {
-        mapping[i] = bestd2
-        reversemap[bestd2] = i
-      }
-    }
-    //  Make sure we have a 1:1 mapping
-    return mapping.every { $0 >= 0 } && reversemap.every { $0 >= 0 } ? mapping : nil
-  }
-
 
   //  Re-center dancers
   func center() {
@@ -495,6 +440,16 @@ class CallContext {
     if let d2 = d.data.partner {
       return CallContext.angle(d,d2).angleEquals(CallContext.angle(d2,d))
     } else {
+      return false
+    }
+  }
+  
+  //  Return true if this dancer is part of a couple facing same direction
+  func isInCouple(_ d:Dancer) -> Bool {
+    if let d2 = d.data.partner {
+      return d.tx.angle.angleEquals(d2.tx.angle)
+    }
+    else {
       return false
     }
   }

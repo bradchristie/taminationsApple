@@ -20,6 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
+protocol AnimListSelectListener : NSObjectProtocol {
+  func selectAction(level:String,link:String,data:AnimListControl.AnimListData,xmlcount:Int)->Void
+}
+
+protocol AnimListDifficultyHider : NSObjectProtocol {
+  func hideDifficulty() -> Void
+}
+
 class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   
   enum CellType:String {
@@ -56,8 +64,8 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   var title = ""
   var animtitle = ""
   var animlistdata:[AnimListData] = []
-  var selectAction:(String,String,AnimListData,Int)->Void = { arg in }
-  var hideDifficulty:()->Void = { }
+  weak var selectListener: AnimListSelectListener?
+  weak var difficultyHider: AnimListDifficultyHider?
   var link:String = ""
   var level:String = ""
   var xmlcount = 0
@@ -148,14 +156,14 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
    
     //  Show or hide difficulty legend
     if (diffsum == 0) {
-      hideDifficulty()
+      difficultyHider?.hideDifficulty()
     }
     
     //  Go to a requested animation
     if (selectanim >= 0) {
       firstanim = selectanim
       animtitle = animlistdata[selectanim].title
-      selectAction(level,link,animlistdata[selectanim],xmlcount)
+      selectListener?.selectAction(level:level,link:link,data:animlistdata[selectanim],xmlcount:xmlcount)
     }
     else if (currentrow >= 0) {
       animtitle = animlistdata[currentrow].title
@@ -195,6 +203,8 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
       cell.textLabel?.font = cellFont(tableView)
       cell.textLabel?.lineBreakMode = NSLineBreakMode.byWordWrapping
       cell.textLabel?.numberOfLines = 0
+    } else {
+      cell.textLabel?.text = ""
     }
     if (data.celltype == CellType.Indented || data.celltype == CellType.Plain) {
       let bgColorView = UIView()
@@ -247,7 +257,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let data = animlistdata[(indexPath as NSIndexPath).row]
     animtitle = data.title
-    selectAction(level,link,data,xmlcount)
+    selectListener?.selectAction(level:level,link:link,data:data,xmlcount:xmlcount)
   }
   
   

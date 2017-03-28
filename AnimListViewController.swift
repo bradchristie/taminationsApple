@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class AnimListViewController : TamViewController {
+class AnimListViewController : TamViewController, AnimListSelectListener, AnimListDifficultyHider {
 
   let level:String
   let link:String
   let call:String?
   //  Need to keep a pointer to the control so iOS doesn't zap it
   let animListControl = AnimListControl()
-  var definitionAction:()->Void = { }
+  var animlist:AnimListLayout!
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -39,44 +39,51 @@ class AnimListViewController : TamViewController {
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
   override func loadView() {
-    let myview = AnimListLayout(frame: CGRect(x: contentFrame.origin.x,y: contentFrame.origin.y,width: contentFrame.width,height: contentFrame.height-40))
-    myview.table.dataSource = animListControl
-    myview.table.delegate = animListControl
-    let definitionButton = TamButton(frame:CGRect(x: 0,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
+    animlist = AnimListLayout(frame:CGRect(x:0,y:0,width:contentFrame.width,height:contentFrame.height-40))
+    animlist.table.dataSource = animListControl
+    animlist.table.delegate = animListControl
+    let definitionButton = TamButton()
     definitionButton.setTitle("Definition", for: UIControlState())
-    let settingsButton = TamButton(frame:CGRect(x: contentFrame.width/2,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
+    let settingsButton = TamButton() //frame:CGRect(x: contentFrame.width/2,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
     settingsButton.setTitle("Settings", for: UIControlState())
-    myview.addSubview(definitionButton)
-    myview.addSubview(settingsButton)
-    view = myview
-    animListControl.hideDifficulty = {
-      myview.hideDifficulty();
-    }
+    let buttonpanel = UIView(frame:CGRect(x: 0,y: contentFrame.height-40,width: contentFrame.width,height: 38))
+    buttonpanel.addSubview(definitionButton)
+    buttonpanel.addSubview(settingsButton)
+    view = UIView(frame:contentFrame)
+    view.addSubview(animlist)
+    view.addSubview(buttonpanel)
+    buttonpanel.visualConstraints("|[a][b(==a)]|",fillVertical:true)
+    view.visualConstraints("V:|[a][b(==40)]|",fillHorizontal: true)
     setLevelButton(level)
+
     //  Hook up controls
     settingsButton.addTarget(self, action: #selector(AnimListViewController.settingsSelector), for: .touchUpInside)
     definitionButton.addTarget(self, action: #selector(AnimListViewController.definitionSelector), for: .touchUpInside)
-    definitionAction = {
-      self.navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
-    }
-    animListControl.selectAction = { (level:String,link:String,item:AnimListControl.AnimListData,animcount:Int)->Void in
-      var intent = [String: String]()
-      intent["level"] = level
-      intent["link"] = link
-      intent["animnum"] = "\(item.xmlindex)"
-      intent["animcount"] = "\(animcount)"
-      self.navigationController?.pushViewController(AnimationViewController(intent), animated: true)
-    }
+    animListControl.selectListener = self
+    animListControl.difficultyHider = self
     animListControl.reset(link, level: level, call: call)
     title = animListControl.title
     setShareButton("http://www.tamtwirlers.org/tamination/"+link+".html")
   }
  
+  func selectAction(level: String, link: String, data: AnimListControl.AnimListData, xmlcount: Int) {
+    var intent = [String: String]()
+    intent["level"] = level
+    intent["link"] = link
+    intent["animnum"] = "\(data.xmlindex)"
+    intent["animcount"] = "\(xmlcount)"
+    navigationController?.pushViewController(AnimationViewController(intent), animated: true)
+  }
+  
+  func hideDifficulty() {
+    animlist.hideDifficulty();
+  }
+  
   @objc func settingsSelector() {
     navigationController?.pushViewController(SettingsViewController(intent), animated: true)
   }
   @objc func definitionSelector() {
-    definitionAction()
+    navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)
   }
   
 }

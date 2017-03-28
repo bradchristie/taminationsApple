@@ -20,84 +20,96 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class FirstLandscapeViewController: TamViewController {
+class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSelectionListener {
 
   var settingsControl:SettingsControl
   var model:CallListModel
   var firstcall = true
-  var selectLevel:(String)->Void = { arg in }
-  var unselect:()->Void = { }
 
+  var topview:UIView!
+  var rightview:UIView!
+  var levelLayout:LevelLayout!
+  var aboutLayout:AboutLayout!
+  var settingsLayout:SettingsLayout!
+  var calllistLayout:CallListLayout!
+  
   override init(_ intent:[String:String]) {
     model = CallListModel()
     settingsControl = SettingsControl()
     super.init(intent)
+    model.follower = self
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
   override func loadView() {
     //  Create frames for left and right sides
-    let topview = UIView(frame: contentFrame)
+    topview = UIView(frame: contentFrame)
     var leftframe = contentFrame
     leftframe.size.width = contentFrame.width/3
     var rightframe = contentFrame
     rightframe.size.width = contentFrame.width*2/3
     let rightbounds = rightframe
     rightframe.origin.x = contentFrame.width/3
-    let rightview = UIView(frame: rightframe)
+    rightview = UIView(frame: rightframe)
     topview.addSubview(rightview)
     
     //  Create views for the frames
-    let levelLayout = LevelLayout(frame: leftframe)
+    levelLayout = LevelLayout(frame: leftframe)
     topview.addSubview(levelLayout)
 
-    let aboutLayout = AboutLayout(frame:rightbounds)
+    aboutLayout = AboutLayout(frame:rightbounds)
     rightview.addSubview(aboutLayout)
     aboutLayout.loadPage("about")
 
-    let settingsLayout = SettingsLayout(frame:rightbounds)
+    settingsLayout = SettingsLayout(frame:rightbounds)
     settingsControl.reset(settingsLayout)
     rightview.addSubview(settingsLayout)
 
-    let calllistview = CallListLayout(frame: rightbounds)
-    calllistview.dataSource = model
-    calllistview.delegate = model
-    calllistview.sb.delegate = model
-    model.reloadTable = { calllistview.reloadData() }
-    rightview.addSubview(calllistview)
+    calllistLayout = CallListLayout(frame: rightbounds)
+    calllistLayout.dataSource = model
+    calllistLayout.delegate = model
+    calllistLayout.sb.delegate = model
+    rightview.addSubview(calllistLayout)
 
     view = topview
     title = "Taminations"
     rightview.bringSubview(toFront: aboutLayout)
-    Callouts.LevelButtonAction = { (level:String)->Void in
-      levelLayout.unselect()
-      self.title = "Taminations"
-      switch level {
-        case "About" : rightview.bringSubview(toFront: aboutLayout)
-        case "Settings" : rightview.bringSubview(toFront: settingsLayout)
-        case "Practice" : self.navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(self.intent)), animated: true, completion: nil)
-          case "Sequencer" : self.navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
-        default : self.selectLevel(level)
-      }
-    }
-    selectLevel = { level in
-      self.model.reset(self,level)
-      calllistview.reloadData()
-      rightview.bringSubview(toFront: calllistview)
-      levelLayout.selectLevel(level)
-      self.title = "Taminations - " + LevelData.find(level)!.name
-    }
-    unselect = { levelLayout.unselect(isLandscape: true) }
-    model.selectAction = { (level:String,link:String)->Void in
-      var intent = [String: String]()
-      intent["level"] = level
-      intent["link"] = link
-      self.navigationController?.pushViewController(SecondLandscapeViewController(intent), animated: true)
-    }
+    levelLayout.levelSelectionListener = self
     //  If level passed in from URL sent to app, go there immediately
     if firstcall && intent["level"] != nil {
-      Callouts.LevelButtonAction(intent["level"]!)
+      selectLevel(intent["level"]!)
     }
+  }
+  
+  func levelSelected(_ level: String) {
+    levelLayout.unselect()
+    title = "Taminations"
+    switch level {
+    case "About" : rightview.bringSubview(toFront: aboutLayout)
+    case "Settings" : rightview.bringSubview(toFront: settingsLayout)
+    case "Practice" : navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
+    case "Sequencer" : navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
+    default : selectLevel(level)
+    }
+  }
+  
+  func selectLevel(_ level:String) -> Void {
+    self.model.reset(self,level)
+    calllistLayout.reloadData()
+    rightview.bringSubview(toFront: calllistLayout)
+    levelLayout.selectLevel(level)
+    title = "Taminations - " + LevelData.find(level)!.name
+  }
+  
+  func selectAction(level: String, link: String) {
+    var intent = [String: String]()
+    intent["level"] = level
+    intent["link"] = link
+    self.navigationController?.pushViewController(SecondLandscapeViewController(intent), animated: true)
+  }
+  
+  func tableLoaded() {
+    calllistLayout.reloadData()
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -106,7 +118,7 @@ class FirstLandscapeViewController: TamViewController {
       self.navigationController?.pushViewController(SecondLandscapeViewController(intent), animated: true)
     }
     firstcall = false
-    unselect()
+    levelLayout.unselect(isLandscape: true)
   }
 
 }

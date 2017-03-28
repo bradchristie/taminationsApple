@@ -20,23 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
+protocol SettingsListener : NSObjectProtocol {
+  func settingsChanged() -> Void
+}
+
 class SettingsControl : NSObject {
 
-  var settingsListener:()->Void = { }
-  var speedAction:()->Void = { }
-  var loopAction:()->Void = { }
-  var gridAction:()->Void = { }
-  var pathAction:()->Void = { }
-  var numbersAction:()->Void = { }
-  var phantomsAction:()->Void = { }
-  var geometryAction:()->Void = { }
+  weak var settingsListener:SettingsListener?
   
-  func reset(_ layout:SettingsLayout) {
+  weak var layout:SettingsLayout!
+  
+  func reset(_ lay:SettingsLayout) {
+    layout = lay
     //  Set the switches to the current saved values
     let settings = UserDefaults.standard
     layout.loopControl.isOn = settings.bool(forKey: "loop")
     layout.gridControl.isOn = settings.bool(forKey: "grid")
     layout.pathControl.isOn = settings.bool(forKey: "path")
+    layout.phantomsControl.isOn = settings.bool(forKey: "phantoms")
     switch settings.integer(forKey: "speed") {
     case 2 :
       layout.speedControl.selectedSegmentIndex = 2
@@ -76,76 +77,55 @@ class SettingsControl : NSObject {
     layout.numbersControl.addTarget(self, action: #selector(SettingsControl.numbersSelector), for: .valueChanged)
     layout.phantomsControl.addTarget(self, action: #selector(SettingsControl.phantomsSelector), for: .valueChanged)
     layout.geometryControl.addTarget(self, action: #selector(SettingsControl.geometrySelector), for: .valueChanged)
-    speedAction = {
-      let s:Speed
-      switch layout.speedControl.selectedSegmentIndex {
-      case 2 : s = .fast; layout.speedHint.text = "Dancers move at a Fast pace"
-      case 0 : s = . slow; layout.speedHint.text = "Dancers move at a Slow pace"
-      default : s = .normal; layout.speedHint.text = "Dancers move at a Normal pace"
-      }
-      UserDefaults.standard.set(s.rawValue, forKey: "speed")      
-      self.settingsListener()
-    }
-    loopAction = {
-      UserDefaults.standard.set(layout.loopControl.isOn, forKey: "loop")
-      self.settingsListener()
-    }
-    gridAction = {
-      UserDefaults.standard.set(layout.gridControl.isOn, forKey: "grid")
-      self.settingsListener()
-    }
-    pathAction = {
-      UserDefaults.standard.set(layout.pathControl.isOn, forKey: "path")
-      self.settingsListener()
-    }
-    numbersAction = {
-      UserDefaults.standard.set(layout.numbersControl.selectedSegmentIndex, forKey: "numbers")
-      switch layout.numbersControl.selectedSegmentIndex {
-      case 1: layout.numbersHint.text = "Number dancers 1-8"
-      case 2: layout.numbersHint.text = "Number couples 1-4"
-      default: layout.numbersHint.text = "Dancers not numbered"
-      }
-      self.settingsListener()
-    }
-    phantomsAction = {
-      UserDefaults.standard.set(layout.phantomsControl.isOn, forKey: "phantoms")
-      self.settingsListener()
-    }
-    geometryAction = {
-      let g:GeometryType
-      switch layout.geometryControl.selectedSegmentIndex {
-      case 2 : g = .bigon
-      case 1 : g = .hexagon
-      default : g = .square
-      }
-      UserDefaults.standard.set(g.rawValue, forKey: "geometry")
-      self.settingsListener()
-    }
     
   }
   
   
 
   @objc func speedSelector() {
-    speedAction()
+    let s:Speed
+    switch layout.speedControl.selectedSegmentIndex {
+    case 2 : s = .fast; layout.speedHint.text = "Dancers move at a Fast pace"
+    case 0 : s = . slow; layout.speedHint.text = "Dancers move at a Slow pace"
+    default : s = .normal; layout.speedHint.text = "Dancers move at a Normal pace"
+    }
+    UserDefaults.standard.set(s.rawValue, forKey: "speed")
+    settingsListener?.settingsChanged()
   }
   @objc func loopSelector() {
-    loopAction()
+    UserDefaults.standard.set(layout.loopControl.isOn, forKey: "loop")
+    settingsListener?.settingsChanged()
   }
   @objc func gridSelector() {
-    gridAction()
+    UserDefaults.standard.set(layout.gridControl.isOn, forKey: "grid")
+    settingsListener?.settingsChanged()
   }
   @objc func pathSelector() {
-    pathAction()
+    UserDefaults.standard.set(layout.pathControl.isOn, forKey: "path")
+    settingsListener?.settingsChanged()
   }
   @objc func numbersSelector() {
-    numbersAction()
+    UserDefaults.standard.set(layout.numbersControl.selectedSegmentIndex, forKey: "numbers")
+    switch layout.numbersControl.selectedSegmentIndex {
+    case 1: layout.numbersHint.text = "Number dancers 1-8"
+    case 2: layout.numbersHint.text = "Number couples 1-4"
+    default: layout.numbersHint.text = "Dancers not numbered"
+    }
+    settingsListener?.settingsChanged()
   }
   @objc func phantomsSelector() {
-    phantomsAction()
+    UserDefaults.standard.set(layout.phantomsControl.isOn, forKey: "phantoms")
+    settingsListener?.settingsChanged()
   }
   @objc func geometrySelector() {
-    geometryAction()
+    let g:GeometryType
+    switch layout.geometryControl.selectedSegmentIndex {
+    case 2 : g = .bigon
+    case 1 : g = .hexagon
+    default : g = .square
+    }
+    UserDefaults.standard.set(g.rawValue, forKey: "geometry")
+    settingsListener?.settingsChanged()
   }
   
 

@@ -20,6 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
+protocol RepeatButtonListener : NSObjectProtocol {
+  func repeatAction()->Void
+}
+protocol ContinueButtonListener : NSObjectProtocol {
+  func continueAction()->Void
+}
+protocol ReturnButtonListener : NSObjectProtocol {
+  func returnAction()->Void
+}
+protocol DefinitionButtonListener : NSObjectProtocol {
+  func definitionAction()->Void
+}
+
 class PracticeLayout : UIView {
   
   let animationView:AnimationView = AnimationView(frame:CGRect())
@@ -34,11 +47,11 @@ class PracticeLayout : UIView {
   let definitionView = UIWebView()
   let resultsPanel = UIView()
   
-  var repeatButtonAction:()->Void = { }
-  var continueButtonAction:()->Void = { }
-  var returnButtonAction:()->Void = { }
-  var definitionButtonAction:()->Void = { }
-
+  weak var repeatButtonListener:RepeatButtonListener!
+  weak var continueButtonListener:ContinueButtonListener!
+  weak var returnButtonListener:ReturnButtonListener!
+  weak var definitionButtonListener:DefinitionButtonListener!
+  
   override init(frame: CGRect) {
     super.init(frame:frame)
     
@@ -101,19 +114,19 @@ class PracticeLayout : UIView {
   }
   
   @objc func repeatButtonClick() {
-    repeatButtonAction()
+    repeatButtonListener?.repeatAction()
   }
   
   @objc func continueButtonClick() {
-    continueButtonAction()
+    continueButtonListener?.continueAction()
   }
   
   @objc func returnButtonClick() {
-    returnButtonAction()
+    returnButtonListener?.returnAction()
   }
   
   @objc func definitionButtonClick() {
-    definitionButtonAction()
+    definitionButtonListener?.definitionAction()
   }
   
   

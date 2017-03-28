@@ -20,16 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, OEEventsObserverDelegate, UITextFieldDelegate {
+protocol CallNamesListener : NSObjectProtocol {
+  func callNamesChanged()->Void
+}
+
+class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, OEEventsObserverDelegate, UITextFieldDelegate,
+                         AnimationPartListener, AnimationProgressListener {
 
   var callNames = [String]()
   var callBeats = [CGFloat]()
   let observer = OEEventsObserver()
-  var layout:SequencerLayout? = nil
+  weak var layout:SequencerLayout!
   var formation="Static Square"
   var listening = false
   let panelControl:AnimationPanelControl
-  var callNamesChanged:()->Void = { }
+  weak var callNamesListener:CallNamesListener!
   var selectedRow = 0
   var errorLine = -1
   var selectedBeat:CGFloat = 0
@@ -49,16 +54,12 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     layout.typeNow.addTarget(self, action: #selector(SequencerControl.typeAction), for: .touchUpInside)
     layout.copyButton.addTarget(self, action: #selector(SequencerControl.copyAction), for: .touchUpInside)
     layout.pasteButton.addTarget(self, action: #selector(SequencerControl.pasteAction), for: .touchUpInside)
-    layout.animationView.partCallback = partCallback
+    layout.animationView.animationPartListener = self
     layout.editText.delegate = self
-    panelControl.reset(layout.animationPanel, view: layout.animationView)
+    panelControl.reset(layout.animationPanel, v: layout.animationView)
     callNames = [""]
     startSequence()
-    let progressFun = { (beat:CGFloat) -> Void in
-      layout.animationPanel.slider.value = Float(beat / layout.animationView.totalBeats)
-
-    }
-    layout.animationView.progressCallback = progressFun
+    layout.animationView.animationProgressListener = self
     //  See if there's useable data in the clipboard
     let pb = UIPasteboard(name:.general,create:false)!
     if (pb.string != nil) {
@@ -208,7 +209,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
           if (line <= selectedRow) {
             newSelectedBeat = newbeats
           }
-          callNamesChanged()
+          callNamesListener?.callNamesChanged()
         }
         
       } catch let err as CallError {
@@ -245,8 +246,12 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   func startSequence() {
     layout!.animationView.setAnimation(TamUtils.getFormation(formation))
   }
+
+  func animationProgress(beat:CGFloat) -> Void {
+    layout.animationPanel.slider.value = Float(beat / layout.animationView.totalBeats)
+  }
   
-  func partCallback(_ part:Int) {
+  func animationPart(part:Int) {
     if (part > 0) {
       layout!.calltext.text = callNames[part-1]
       selectedRow = part-1

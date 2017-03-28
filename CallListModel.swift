@@ -20,6 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
+protocol CallListFollower : NSObjectProtocol {
+  func selectAction(level:String,link:String) -> Void
+  func tableLoaded() -> Void
+}
+
+
 class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISearchControllerDelegate, UISearchBarDelegate, UISearchResultsUpdating {
   
   class CallListData {
@@ -34,9 +40,8 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     var height:CGFloat = 0
   }
   
-  var selectAction:(String,String)->Void = { arg in }
-  var reloadTable:()->Void = { }
-
+  weak var follower:CallListFollower?
+  
   let indexstr = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   var calllistdata:[CallListData] = []
   var sections:[[CallListData]] = []
@@ -46,7 +51,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   var searchController:UISearchController?
   
   @nonobjc func reset(_ vc:UIViewController, _ level:String) {
-    searchController = UISearchController(searchResultsController: vc)
+    searchController = UISearchController(searchResultsController: nil)
     searchController?.searchResultsUpdater = self
     let mylevel = LevelData.find(level)!
     //  Read all the data now so searching is more interactive
@@ -85,7 +90,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     if (work.count > 0) {
       sections.append(work)
     }
-    reloadTable()
+    follower?.tableLoaded()
   }
   
   func callFont(_ tableView:UITableView) -> UIFont {
@@ -130,6 +135,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     cell.textLabel?.numberOfLines = 0
     cell.detailTextLabel?.text = cld.sublevel
     cell.backgroundColor = LevelData.find(cld.sublevel)?.color
+    cell.accessibilityIdentifier = labeltext    // for testing
     return cell
   }
   
@@ -171,7 +177,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
-    selectAction(cld.sublevel,cld.link)
+    follower?.selectAction(level: cld.sublevel, link: cld.link)
   }
 
 /*

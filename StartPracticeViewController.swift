@@ -22,12 +22,12 @@ import UIKit
 
 class StartPracticeViewController : TamViewController {
   
+  var layout:StartPracticeLayout!
   var startPracticeControl = StartPracticeControl()
-  var unselectAction:()->Void = { }
   
   override func loadView() {
     navigationController!.customNavBar()
-    let layout = StartPracticeLayout(frame:contentFrame)
+    layout = StartPracticeLayout(frame:contentFrame)
     view = layout
     title = "Practice"
     startPracticeControl.reset(layout)
@@ -40,11 +40,10 @@ class StartPracticeViewController : TamViewController {
         self.navigationController?.pushViewController(PracticeViewController(intent), animated: true)
       }
     }
-    unselectAction = layout.unselect
   }
 
   override func viewDidAppear(_ animated: Bool) {
-    unselectAction()
+    layout.unselect()
   }
   
   override var shouldAutorotate : Bool {

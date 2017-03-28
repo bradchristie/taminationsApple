@@ -112,6 +112,14 @@ class Path {
     return self
   }
   
+  @discardableResult func skewFirst(_ x:CGFloat, _ y:CGFloat) -> Path {
+    if (!movelist.isEmpty) {
+      movelist = [movelist.first!.skew(x,y)]  +  movelist.dropFirst()
+      recalculate()
+    }
+    return self
+  }
+  
   /**
   * Return a transform for a specific point of time
   */

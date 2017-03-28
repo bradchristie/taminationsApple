@@ -33,48 +33,34 @@ class XMLCall : Call {
 
   override func performCall(_ ctx: CallContext, index: Int) {
     let allp = TamUtils.getPaths(xelem)
-    let xfactor:CGFloat = 0
-    let yfactor:CGFloat = 0
-     /*
     //  If moving just some of the dancers,
     //  see if we can keep them in the same shape
     if (ctx.actives.count < ctx.dancers.count) {
       //  No animations have been done on ctx2,
       //  so dancers are still at the start points
-      let ctx3 = CallContext(source: ctx2)
+      let ctx3 = CallContext(source:ctx2)
       //  So ctx3 is a copy of the start point
-      let bounds1 = ctx3.bounds()
       //  Now add the paths
       ctx3.dancers.enumerated().forEach { (i,d) in
-        d.path.add(Path(allp[i>>1]))
+        d.path.add(allp[i >> 1])
       }
       //  And move it to the end point
+      ctx3.levelBeats()
       ctx3.analyze()
-      let bounds2 = ctx3.bounds()
-      //  And see if the shape has changed
-      //if let shapemap = ctx2.matchShapes(ctx3) {
-      if (ctx2.matchShapes(ctx3) != nil) {
-        //  TODO see if mapping is 90 degrees off
-        let bounds0 = CallContext(source: ctx.actives).bounds()
-        xfactor = (2*bounds0.x)/(bounds1.x + bounds2.x)
-        yfactor = (2*bounds0.y)/(bounds1.y + bounds2.y)
-      }
     }
-    */
-  //  let vdif = computeFormationOffsets(ctx,ctx2)
+    
+    let vdif = computeFormationOffsets(ctx,ctx2)
     xmlmap.enumerated().forEach { (i3,m) in
       let p = Path(allp[m>>1])
+      if (p.movelist.isEmpty) {
+        p.add(TamUtils.getMove("Stand"))
+      }
       //  Scale active dancers to fit the space they are in
-      if (xfactor > 0 && yfactor > 0) {
-        let vs = Vector3D(x: xfactor, y: yfactor).rotate(Matrix(ctx2.dancers[m].tx).angle)
-        p.scale(abs(vs.x),abs(vs.y))
-      } else {
-        //  Compute difference between current formation and XML formation
-  //      let vd = vdif[i3].rotate(-Matrix(ctx.actives[i3].tx).angle)
-  //      //  Apply formation difference to first movement of XML path
-  //      if (vd.length > 0.1) {
-  //        p.movelist[0] = p.movelist[0].skew(-vd.x, -vd.y)
-  //      }
+      //  Compute difference between current formation and XML formation
+      let vd = vdif[i3].rotate(-ctx.actives[i3].tx.angle)
+      //  Apply formation difference to first movement of XML path
+      if (vd.length > 0.1) {
+        p.skewFirst(-vd.x,-vd.y)
       }
       //  Add XML path to dancer
       ctx.actives[i3].path.add(p)
@@ -94,21 +80,31 @@ class XMLCall : Call {
     var dvbest = [Vector3D]()
     var dtotbest:CGFloat = -1
     //  We don't know how the XML formation needs to be turned to overlap
-    //  the current formation.  So try all 4 angles and use the best.
-    [CGFloat(0),CG_PI/2,CG_PI,CG_PI*3/2].forEach { angle in
-      var dv = [Vector3D](repeating: Vector3D(x:0,y:0), count: ctx1.dancers.count)
-      var dtot:CGFloat = 0.0
-      ctx1.actives.enumerated().forEach { (i,d1) in
-        let v1 = d1.location
-        let v2 = ctx2.dancers[xmlmap[i]].location.rotate(angle)
-        dv[i] = v1 - v2
-        dtot += dv[i].length
-      }
-      if (dtotbest < 0 || dtotbest > dtot) {
-        dvbest = dv
-        dtotbest = dtot
-      }
+    //  the current formation.  So do an RMS fit to find the best match.
+    var bxa:Array<Array<CGFloat>> = [[0,0,0],[0,0,0],[0,0,0]]
+    ctx1.actives.enumerated().forEach { (i,d1) in
+      let v1 = d1.location
+      let v2 = ctx2.dancers[xmlmap[i]].location
+      bxa[0][0] += v1.x * v2.x
+      bxa[0][1] += v1.y * v2.x
+      bxa[1][0] += v1.x * v2.y
+      bxa[1][1] += v1.y * v2.y
     }
+    let (ua,_,va) = Matrix.SVD(&bxa)
+    let ut = Matrix()
+    ut.putArray(Matrix.transpose(ua))
+    let v = Matrix()
+    v.putArray(va)
+    let rotmat = v.preConcat(ut)
+    //  Now rotate the formation and compute any remaining
+    //  differences in position
+    ctx1.actives.enumerated().forEach { (j,d2) in
+      let v1 = d2.location
+      let v2 = ctx2.dancers[xmlmap[j]].location.concatenate(rotmat)
+      dvbest += [v1 - v2]
+      dtotbest += dvbest[j].length
+    }
+    
     return dvbest
   }
   

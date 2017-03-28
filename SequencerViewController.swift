@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class SequencerViewController : TamViewController {
+class SequencerViewController : TamViewController, CallNamesListener {
 
   let sequencerControl = SequencerControl()
   
@@ -36,9 +36,11 @@ class SequencerViewController : TamViewController {
     sequencerControl.reset(layout)
     layout.instructionsButton.addTarget(self, action: #selector(SequencerViewController.instructionsSelector), for: .touchUpInside)
     layout.formationButton.addTarget(self,action:#selector(SequencerViewController.formationSelector), for: .touchUpInside)
-    sequencerControl.callNamesChanged = {
-      self.setShareButton(self.sequencerControl.callNames.joined(separator: "\n"))
-    }
+    sequencerControl.callNamesListener = self
+  }
+  
+  func callNamesChanged() {
+    setShareButton(sequencerControl.callNames.joined(separator: "\n"))
   }
   
   override func viewWillDisappear(_ animated: Bool) {

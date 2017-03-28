@@ -24,6 +24,7 @@ class PlayButton : TamButton {
 
   override func draw(_ rect: CGRect) {
     super.draw(rect)
+    self.accessibilityIdentifier = "Play"  // for testing
     
     //  This controls the size
     let h = bounds.height/2
