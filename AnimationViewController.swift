@@ -28,8 +28,8 @@ class AnimationViewController : TamViewController {
   let animcount:Int
   let animationControl:AnimationControl
   let panelControl:AnimationPanelControl
-  let downSwiper = UISwipeGestureRecognizer()
-  let upSwiper = UISwipeGestureRecognizer()
+  let rightSwiper = UISwipeGestureRecognizer()
+  let leftSwiper = UISwipeGestureRecognizer()
   
   var animationLayout:AnimationLayout!
   
@@ -41,8 +41,8 @@ class AnimationViewController : TamViewController {
     animationControl = AnimationControl()
     panelControl = AnimationPanelControl()
     super.init(intent)
-    downSwiper.direction = .down
-    upSwiper.direction = .up
+    rightSwiper.direction = .right
+    leftSwiper.direction = .left
   }
   
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -55,14 +55,15 @@ class AnimationViewController : TamViewController {
     setLevelButton(level)
     setShareButton("http://www.tamtwirlers.org/tamination/\(link).html?\(animationControl.animname)")
     panelControl.reset(animationLayout.animationPanel, v: animationLayout.animationView)
+    animationLayout.itemText.text = "\(animnum+1) of \(animcount)"
 
     //  Hook up controls
     animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), for: .touchUpInside)
     animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), for: .touchUpInside)
-    downSwiper.addTarget(self, action: #selector(AnimationViewController.downSwipeAction))
-    upSwiper.addTarget(self, action: #selector(AnimationViewController.upSwipeAction))
-    animationLayout.addGestureRecognizer(downSwiper)
-    animationLayout.addGestureRecognizer(upSwiper)
+    rightSwiper.addTarget(self, action: #selector(AnimationViewController.rightSwipeAction))
+    leftSwiper.addTarget(self, action: #selector(AnimationViewController.leftSwipeAction))
+    animationLayout.addGestureRecognizer(rightSwiper)
+    animationLayout.addGestureRecognizer(leftSwiper)
   }
   
   @objc override func viewDidAppear(_ animated: Bool) {
@@ -78,7 +79,7 @@ class AnimationViewController : TamViewController {
     navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
   }
   
-  @objc func upSwipeAction() {
+  @objc func leftSwipeAction() {
     if (animnum+1 < animcount) {
       var vcs = navigationController!.viewControllers
       var intent = [String: String]()
@@ -87,13 +88,14 @@ class AnimationViewController : TamViewController {
       intent["animcount"] = "\(animcount)"
       intent["animnum"] = "\(animnum+1)"
       vcs[vcs.count-1] = AnimationViewController(intent)
+      //  Default iOS presentation is scroll in from the right
       navigationController!.setViewControllers(vcs, animated: true)
     } else {
       navigationController!.popViewController(animated: true)
     }
   }
   
-  @objc func downSwipeAction() {
+  @objc func rightSwipeAction() {
     if (animnum > 0) {
       var vcs = navigationController!.viewControllers
       var intent = [String: String]()
@@ -102,7 +104,14 @@ class AnimationViewController : TamViewController {
       intent["animcount"] = "\(animcount)"
       intent["animnum"] = "\(animnum-1)"
       vcs[vcs.count-1] = AnimationViewController(intent)
-      navigationController!.setViewControllers(vcs, animated: true)
+      //  Default iOS presentation is scroll in from the right
+      //  Trick iOS into scrolling from the left
+      //  by making it think it is popping a VC
+      if let nav = navigationController {
+        nav.setViewControllers(vcs, animated: false)
+        nav.pushViewController(self,animated:false)
+        nav.popViewController(animated: true)
+      }
     } else {
       navigationController!.popViewController(animated: true)
     }

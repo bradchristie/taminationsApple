@@ -130,7 +130,7 @@ class SquareGeometry : Geometry {
   func clone() -> Geometry { return SquareGeometry(rotnum) }
   
   func startMatrix(_ mat:Matrix) -> Matrix {
-    return Matrix(mat).postRotate(CGFloat(M_PI*Double(rotnum)))
+    return Matrix(mat).postRotate(CGFloat(.pi*Double(rotnum)))
   }
   
   func pathMatrix(_ starttx: Matrix, tx: Matrix, beat: CGFloat) -> Matrix {

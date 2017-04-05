@@ -28,6 +28,7 @@ class AnimationLayout: UIView {
   let settingsButton:TamButton
   let tamsays:UILabel
   let optionsText:UILabel
+  let itemText:UILabel
   
   override init(frame: CGRect) {
     let buttonPanel = UIView()
@@ -39,6 +40,7 @@ class AnimationLayout: UIView {
     animationView = AnimationView(frame:CGRect(x: 0,y: 0,width: frame.width,height: frame.height-160))
     tamsays = UILabel()
     optionsText = UILabel()
+    itemText = UILabel()
     super.init(frame:frame)
     addSubview(animationView)
     addSubview(animationPanel)
@@ -57,6 +59,9 @@ class AnimationLayout: UIView {
     optionsText.font = UIFont.systemFont(ofSize: frame.height/20)
     addSubview(optionsText)
     visualConstraints("V:[e]-142-|",fillHorizontal: true)
+    itemText.font = UIFont.systemFont(ofSize: frame.height/20)
+    addSubview(itemText)
+    visualConstraints("V:[f]-142-| [f]-|")
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 

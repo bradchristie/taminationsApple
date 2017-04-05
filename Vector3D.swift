@@ -82,7 +82,7 @@ class Vector3D {
   }
   
   class func angleDiff(_ a1:CGFloat, a2:CGFloat) -> CGFloat {
-    return ((a1-a2 + CGFloat(M_PI)*3.0).truncatingRemainder(dividingBy: (CGFloat(M_PI)*2.0))) - CGFloat(M_PI);
+    return ((a1-a2 + CG_PI*3.0).truncatingRemainder(dividingBy: CG_PI*2.0)) - CG_PI
   }
   
 }

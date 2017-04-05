@@ -173,7 +173,7 @@ extension String {
 
 }
 
-let CG_PI = CGFloat(M_PI)
+let CG_PI = CGFloat(Double.pi)
 
 extension CGFloat {
   

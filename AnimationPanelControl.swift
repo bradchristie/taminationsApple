@@ -22,8 +22,6 @@ import UIKit
 
 class AnimationPanelControl : NSObject, AnimationProgressListener, AnimationDoneListener {
   
-  var sliderFun:()->Void = { arg in }
-  
   weak var panel:AnimationPanelLayout!
   weak var view:AnimationView!
   
@@ -37,6 +35,7 @@ class AnimationPanelControl : NSObject, AnimationProgressListener, AnimationDone
     panel.playButton.addTarget(self, action: #selector(AnimationPanelControl.playAction), for: .touchUpInside)
     panel.forwardButton.addTarget(self, action: #selector(AnimationPanelControl.forwardAction), for: .touchUpInside)
     panel.endButton.addTarget(self, action: #selector(AnimationPanelControl.endAction), for: .touchUpInside)
+    panel.slider.addTarget(self, action: #selector(AnimationPanelControl.sliderAction), for: .valueChanged)
     //  Hook up animation callbacks
     view.animationProgressListener = self
     view.animationDoneListener = self
