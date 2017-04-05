@@ -90,8 +90,6 @@ class AnimationViewController : TamViewController {
       vcs[vcs.count-1] = AnimationViewController(intent)
       //  Default iOS presentation is scroll in from the right
       navigationController!.setViewControllers(vcs, animated: true)
-    } else {
-      navigationController!.popViewController(animated: true)
     }
   }
   
@@ -112,8 +110,6 @@ class AnimationViewController : TamViewController {
         nav.pushViewController(self,animated:false)
         nav.popViewController(animated: true)
       }
-    } else {
-      navigationController!.popViewController(animated: true)
     }
   }
   
