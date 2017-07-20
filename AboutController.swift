@@ -20,25 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class AboutLayout : UIView {
-  
-  let webview:UIWebView
-  
-  override init(frame: CGRect) {
-    let webframe = CGRect(x: frame.origin.x+4,y: frame.origin.y,width: frame.width-8,height: frame.height-4)
-    webview = UIWebView(frame: webframe)
-    super.init(frame:frame)
-    backgroundColor = UIColor.white
-    addSubview(webview)
+class AboutController : TamViewController {
+
+  override init(_ intent:[String:String]) {
+    super.init(intent)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
-  func loadPage(_ link:String) {
-    let path = "files/info"
-    let filePath = Bundle.main.path(forResource: link, ofType: "html", inDirectory:path)!
-    let htmlfile = try? String(contentsOfFile: filePath)
-    let baseURL = URL(fileURLWithPath: filePath)
-    webview.loadHTMLString(htmlfile!, baseURL: baseURL)    
+  
+  override func loadView() {
+    title = "About Taminations"
+    let aboutView = AboutView(frame: contentFrame)
+    view = aboutView
+    aboutView.loadPage("about")
   }
   
 }

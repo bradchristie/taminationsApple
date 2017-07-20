@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import UIKit
+
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -39,6 +40,9 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   }
 }
 
+protocol TamViewControllerObserver : NSObjectProtocol  {
+  func viewAppeared() -> Void
+}
 
 class TamViewController : UIViewController {
 
@@ -49,6 +53,7 @@ class TamViewController : UIViewController {
   var shareText = ""
   var levelAction:()->Void = { }
   var shareAction:()->Void = { }
+  weak var observer:TamViewControllerObserver? = nil
   
   init(_ intent:[String:String]) {
     self.intent = intent
@@ -162,6 +167,11 @@ class TamViewController : UIViewController {
     shareAction()
   }
 
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    observer?.viewAppeared()
+  }
+  
   override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
     let isTablet = UIDevice.current.userInterfaceIdiom == .pad
     if (isTablet && (fromInterfaceOrientation == .portrait || fromInterfaceOrientation == .portraitUpsideDown)) {

@@ -40,9 +40,9 @@ class LevelViewController: TamViewController, LevelSelectionListener {
     intent["level"] = level
     //  self.levelLayout!.selectLevel(level)
     switch level {
-    case "Settings" : navigationController?.pushViewController(SettingsViewController(intent), animated: true)
-    case "About" : navigationController?.pushViewController(AboutViewController(intent), animated: true)
-    case "Sequencer" : navigationController?.pushViewController(SequencerViewController(intent), animated: true)
+    case "Settings" : navigationController?.pushViewController(SettingsController(intent), animated: true)
+    case "About" : navigationController?.pushViewController(AboutController(intent), animated: true)
+    case "Sequencer" : navigationController?.pushViewController(SequencerController(intent), animated: true)
     case "Practice" : navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
     default : navigationController?.pushViewController(CallListViewController(intent), animated: true)
     }

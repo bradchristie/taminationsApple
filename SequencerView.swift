@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 
-class SequencerLayout: UIView {
+class SequencerView: UIView {
 
   let animationView:AnimationView
   let animationPanel:AnimationPanelLayout
@@ -51,6 +51,8 @@ class SequencerLayout: UIView {
     calltext.numberOfLines = 0
     editText = UITextField()
     editText.borderStyle = UITextBorderStyle.roundedRect
+    editText.layer.borderWidth = 2
+    editText.layer.borderColor = UIColor.yellow.cgColor
     editText.font = UIFont(name:"Helvetica", size: frame.size.height/40)
     editText.autocapitalizationType = UITextAutocapitalizationType.none
     let buttonPanel = UIView()
@@ -69,8 +71,7 @@ class SequencerLayout: UIView {
     animationView.addSubview(typeNow)
     animationView.addSubview(calltext)
     animationView.addSubview(speakNow)
-    animationView.addSubview(editText)
-    animationView.visualConstraints("V:|-12-[a] V:|-12-[b] V:|-12-[c] V:|-4-[d] |-12-[a(==\(bw))]-[b]-[c(==\(bw))]-12-| |-[d]-|")
+    animationView.visualConstraints("V:|-12-[a] V:|-12-[b] V:|-12-[c] |-12-[a(==\(bw))]-[b]-[c(==\(bw))]-12-|")
     editText.isHidden = true
     callList = UITableView()
     super.init(frame:frame)
@@ -81,14 +82,15 @@ class SequencerLayout: UIView {
     buttonPanel.addSubview(instructionsButton)
     buttonPanel.addSubview(copyButton)
     buttonPanel.addSubview(pasteButton)
+    addSubview(editText)
     addSubview(buttonPanel)
     buttonPanel.visualConstraints("|-[b]-[a(==c)]-[c(==\(bw))]-[d(==c)]-|",fillVertical:true,spacing:2)
     let availableSpace = frame.height - 140
     let tableheight = availableSpace/3
     if (frame.height > frame.width) {
-      visualConstraints("V:|[a][b(==100)]-[c(==\(tableheight))]-[d(==40)]|",fillHorizontal:true,spacing:2)
+      visualConstraints("V:|[a][b(==100)]-[c(==\(tableheight))]-[d]-[e(==40)]|",fillHorizontal:true,spacing:2)
     } else {
-      visualConstraints("|[c]-[a(==c)]| [b(==a)]| [d(==a)]| V:|[c]| V:|[a][b(==100)]-[d(==40)]|",spacing:2)
+      visualConstraints("|[c]-[a(==c)]| [b(==a)]| |[d(==c)] [e(==a)]| V:|[c]-[d]| V:|[a][b(==100)]-[e(==40)]|",spacing:2)
     }
   }
 

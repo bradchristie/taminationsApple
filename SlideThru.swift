@@ -26,7 +26,8 @@ class SlideThru : Action {
     if let d2 = ctx.dancerFacing(d) {
       let dist = CallContext.distance(d,d2)
       return TamUtils.getMove("Extend Left").scale(dist/2,0.5) +
-        (d.gender == .boy ? TamUtils.getMove("Lead Right").scale(dist/2,0.5) : TamUtils.getMove("Quarter Left").scale(dist/2,-0.5))
+        (d.gender == .boy ? TamUtils.getMove("Lead Right").scale(dist/2,0.5)
+                          : TamUtils.getMove("Quarter Left").skew(dist/2,-0.5))
     } else {
       throw CallError("Dancer \(d.number) has nobody to Slide Thru with") as Error
     }

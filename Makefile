@@ -4,11 +4,13 @@
 #  On Windows, use Cygwin
 
 #  These are the files to copy from Taminations to the app
-TAMDIRS = b1 b2 ms plus a1 a2 c1 c2 c3a c3b src
-TAMTYPES = xml html png css dtd
+TAMDIRS = b1 b2 ms plus a1 a2 c1 c2 c3a c3b src sequences
+TAMTYPES = xml html png css dtd py txt
 SRC = $(foreach dir,$(TAMDIRS),\
       $(foreach type,$(TAMTYPES),\
       $(wildcard $(TAMINATIONS)/$(dir)/*.$(type))))
+CALLINDEX = files/src/callindex.xml
+PYTHON = python3
 
 #  Generate destinations filename from source filenames
 SRCNAMES = $(subst $(TAMINATIONS),,$(SRC))
@@ -18,7 +20,7 @@ PREVOBJ = $(filter-out files/info/about.html files/info/sequencer.html,$(wildcar
 
 #  Dependencies
 .PHONY: git all clean
-all : git $(OBJ)
+all : git $(OBJ) $(CALLINDEX)
 
 git :
 	cd $(TAMINATIONS) && git pull
@@ -32,6 +34,9 @@ files/%.html : $(TAMINATIONS)/%.html
 files/% : $(TAMINATIONS)/%
 	cp $< $@
 
+#  Generate index used by sequencer
+$(CALLINDEX) : $(OBJ)
+	cd files/src/ && $(PYTHON) indexcalls.py >callindex.xml
 
 clean :
 	-rm $(PREVOBJ)

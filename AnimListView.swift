@@ -27,7 +27,7 @@ enum DifficultyColor:UInt {
   case `default` = 0xffffffff
 }
 
-class AnimListLayout : UIView {
+class AnimListView : UIView {
 
   let table:UITableView
   

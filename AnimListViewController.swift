@@ -26,8 +26,8 @@ class AnimListViewController : TamViewController, AnimListSelectListener, AnimLi
   let link:String
   let call:String?
   //  Need to keep a pointer to the control so iOS doesn't zap it
-  let animListControl = AnimListControl()
-  var animlist:AnimListLayout!
+  let animListModel = AnimListModel()
+  var animlist:AnimListView!
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -39,12 +39,12 @@ class AnimListViewController : TamViewController, AnimListSelectListener, AnimLi
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
   override func loadView() {
-    animlist = AnimListLayout(frame:CGRect(x:0,y:0,width:contentFrame.width,height:contentFrame.height-40))
-    animlist.table.dataSource = animListControl
-    animlist.table.delegate = animListControl
+    animlist = AnimListView(frame:CGRect(x:0,y:0,width:contentFrame.width,height:contentFrame.height-40))
+    animlist.table.dataSource = animListModel
+    animlist.table.delegate = animListModel
     let definitionButton = TamButton()
     definitionButton.setTitle("Definition", for: UIControlState())
-    let settingsButton = TamButton() //frame:CGRect(x: contentFrame.width/2,y: contentFrame.height-40,width: contentFrame.width/2,height: 38))
+    let settingsButton = TamButton()
     settingsButton.setTitle("Settings", for: UIControlState())
     let buttonpanel = UIView(frame:CGRect(x: 0,y: contentFrame.height-40,width: contentFrame.width,height: 38))
     buttonpanel.addSubview(definitionButton)
@@ -59,20 +59,20 @@ class AnimListViewController : TamViewController, AnimListSelectListener, AnimLi
     //  Hook up controls
     settingsButton.addTarget(self, action: #selector(AnimListViewController.settingsSelector), for: .touchUpInside)
     definitionButton.addTarget(self, action: #selector(AnimListViewController.definitionSelector), for: .touchUpInside)
-    animListControl.selectListener = self
-    animListControl.difficultyHider = self
-    animListControl.reset(link, level: level, call: call)
-    title = animListControl.title
+    animListModel.selectListener = self
+    animListModel.difficultyHider = self
+    animListModel.reset(link, level: level, call: call)
+    title = animListModel.title
     setShareButton("http://www.tamtwirlers.org/tamination/"+link+".html")
   }
  
-  func selectAction(level: String, link: String, data: AnimListControl.AnimListData, xmlcount: Int) {
+  func selectAction(level: String, link: String, data: AnimListModel.AnimListData, xmlcount: Int) {
     var intent = [String: String]()
     intent["level"] = level
     intent["link"] = link
     intent["animnum"] = "\(data.xmlindex)"
     intent["animcount"] = "\(xmlcount)"
-    navigationController?.pushViewController(AnimationViewController(intent), animated: true)
+    navigationController?.pushViewController(AnimationController(intent), animated: true)
   }
   
   func hideDifficulty() {
@@ -80,7 +80,7 @@ class AnimListViewController : TamViewController, AnimListSelectListener, AnimLi
   }
   
   @objc func settingsSelector() {
-    navigationController?.pushViewController(SettingsViewController(intent), animated: true)
+    navigationController?.pushViewController(SettingsController(intent), animated: true)
   }
   @objc func definitionSelector() {
     navigationController?.pushViewController(DefinitionViewController(self.intent), animated: true)

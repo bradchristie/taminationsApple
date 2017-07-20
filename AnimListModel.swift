@@ -21,14 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 protocol AnimListSelectListener : NSObjectProtocol {
-  func selectAction(level:String,link:String,data:AnimListControl.AnimListData,xmlcount:Int)->Void
+  func selectAction(level:String,link:String,data:AnimListModel.AnimListData,xmlcount:Int)->Void
 }
 
 protocol AnimListDifficultyHider : NSObjectProtocol {
   func hideDifficulty() -> Void
 }
 
-class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
+class AnimListModel : NSObject, UITableViewDataSource, UITableViewDelegate {
   
   enum CellType:String {
     case Header = "Header"
@@ -61,6 +61,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
   }
   
   var currentrow = -1
+  var selectanim = -1
   var title = ""
   var animtitle = ""
   var animlistdata:[AnimListData] = []
@@ -87,7 +88,6 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     var prevtitle = ""
     var prevgroup = ""
     var diffsum = 0
-    var selectanim = -1
     var xmlindex = 0
     for tam in tams {
       let tamtitle = tam["title"]!
@@ -161,6 +161,7 @@ class AnimListControl : NSObject, UITableViewDataSource, UITableViewDelegate {
     
     //  Go to a requested animation
     if (selectanim >= 0) {
+      
       firstanim = selectanim
       animtitle = animlistdata[selectanim].title
       selectListener?.selectAction(level:level,link:link,data:animlistdata[selectanim],xmlcount:xmlcount)

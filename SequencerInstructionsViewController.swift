@@ -29,7 +29,7 @@ class SequencerInstructionsViewController : TamViewController {
   
   override func loadView() {
     title = "Sequencer Instructions"
-    let instructionsView = AboutLayout(frame: contentFrame)
+    let instructionsView = AboutView(frame: contentFrame)
     instructionsView.loadPage("sequencer")
     view = instructionsView
   }

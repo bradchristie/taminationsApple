@@ -26,7 +26,7 @@ class CallListViewController : TamViewController, CallListFollower {
   var firstcall = true
   //  Need to keep a pointer to the control so iOS doesn't zap it
   let model = CallListModel()
-  var myreload = { }
+  var callListView:CallListLayout!
   
   override init(_ intent:[String:String]) {
     level = intent["level"]!
@@ -36,14 +36,13 @@ class CallListViewController : TamViewController, CallListFollower {
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented")  }
   
   override func loadView() {
-    let myview = CallListLayout(frame: contentFrame)
-    myview.dataSource = model
-    myview.delegate = model
+    callListView = CallListLayout(frame: contentFrame)
+    callListView.dataSource = model
+    callListView.delegate = model
     model.reset(self,level)
-    myview.sb.delegate = model
-    view = myview
+    callListView.sb.delegate = model
+    view = callListView
     title = LevelData.find(level)!.name
-    myreload = { myview.reloadData() }
   }
   
   func selectAction(level: String, link: String) {
@@ -54,10 +53,11 @@ class CallListViewController : TamViewController, CallListFollower {
   }
   
   func tableLoaded() {
-    myreload()
+    callListView.reloadData()
   }
   
   override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
     //  If link passed in from URL sent to app, go there immediately
     if firstcall && intent["link"] != nil {
       self.navigationController?.pushViewController(AnimListViewController(intent), animated: true)

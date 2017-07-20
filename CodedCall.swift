@@ -21,7 +21,7 @@
 class CodedCall : Call {
   
   static func getCodedCall(_ callname:String) -> CodedCall? {
-    switch callname {
+    switch callname.lowercased() {
     case "allemande left" : return AllemandeLeft()
     case "and roll" : return Roll()
     case "and spread" : return Spread()
@@ -31,6 +31,7 @@ class CodedCall : Call {
     case "box the gnat" : return BoxtheGnat()
     case "boys" : return Boys()
     case "centers" : return Centers()
+    case "circulate" : return Circulate()
     case "cross run" : return CrossRun()
     case "ends" : return Ends()
     case "explode and" : return ExplodeAnd()

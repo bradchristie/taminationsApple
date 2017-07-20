@@ -488,6 +488,17 @@ class CallContext {
     }
   }
   
+  //  Return true if 8 dancers are in 2 general lines of 4 dancers each
+  func isLines() -> Bool {
+    return dancers.every { d in dancersToRight(d).count + dancersToLeft(d).count == 3 }
+  }
+  
+  //  Return true if 8 dancers are in 2 general columns of 4 dancers each
+  func isColumns() -> Bool {
+    return dancers.every { d in dancersInFront(d).count + dancersInBack(d).count == 3 }
+  }
+  
+  
   //  Find the range of the dancers current position
   //  For now we assume the dancers are centered
   //  and return a vector to the max 1st quadrant rectangle point

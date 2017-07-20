@@ -22,20 +22,20 @@ import UIKit
 
 class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSelectionListener {
 
-  var settingsControl:SettingsControl
+  var settingsModel:SettingsModel
   var model:CallListModel
   var firstcall = true
 
   var topview:UIView!
   var rightview:UIView!
   var levelLayout:LevelLayout!
-  var aboutLayout:AboutLayout!
-  var settingsLayout:SettingsLayout!
+  var aboutLayout:AboutView!
+  var settingsLayout:SettingsView!
   var calllistLayout:CallListLayout!
   
   override init(_ intent:[String:String]) {
     model = CallListModel()
-    settingsControl = SettingsControl()
+    settingsModel = SettingsModel()
     super.init(intent)
     model.follower = self
   }
@@ -57,12 +57,12 @@ class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSe
     levelLayout = LevelLayout(frame: leftframe)
     topview.addSubview(levelLayout)
 
-    aboutLayout = AboutLayout(frame:rightbounds)
+    aboutLayout = AboutView(frame:rightbounds)
     rightview.addSubview(aboutLayout)
     aboutLayout.loadPage("about")
 
-    settingsLayout = SettingsLayout(frame:rightbounds)
-    settingsControl.reset(settingsLayout)
+    settingsLayout = SettingsView(frame:rightbounds)
+    settingsModel.reset(settingsLayout)
     rightview.addSubview(settingsLayout)
 
     calllistLayout = CallListLayout(frame: rightbounds)
@@ -88,7 +88,7 @@ class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSe
     case "About" : rightview.bringSubview(toFront: aboutLayout)
     case "Settings" : rightview.bringSubview(toFront: settingsLayout)
     case "Practice" : navigationController?.present(PracticeNavigationController(rootViewController: StartPracticeViewController(intent)), animated: true, completion: nil)
-    case "Sequencer" : navigationController?.pushViewController(SequencerViewController(self.intent), animated: true)
+    case "Sequencer" : navigationController?.pushViewController(SequencerController(self.intent), animated: true)
     default : selectLevel(level)
     }
   }

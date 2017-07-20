@@ -230,7 +230,7 @@ class TamUtils {
   *   to match the call index or other lists of calls
   */
   class func callnameQuery(_ query:String) -> String {
-    return query.lowercased()
+    return query.lowercased().replaceAll("[^a-zA-Z0-9 ]","")
       //  Use upper case and dup numbers while building regex
       //  so expressions don't get compounded
       //  Through => Thru
@@ -262,7 +262,10 @@ class TamUtils {
       //  Accept optional "dancers" e.g. "head dancers" == "heads"
       .replaceAll("\\bdancers?\\b","(DANCERS?)?")
       //  Misc other variations
-      .replaceAll("\\bswap(\\s+around)?\\b","SWAP (AROUND)?").lowercased().replaceAll("([0-9])\\1", "$1").replaceAll("\\s+","")
+      .replaceAll("\\bswap(\\s+around)?\\b","SWAP (AROUND)?")
+      //  Finally repair the upper case and dup numbers
+      //  and make spaces optional
+      .lowercased().replaceAll("([0-9])\\1", "$1").replaceAll("\\s+","\\\\s*")
     
   }
   

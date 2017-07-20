@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
-class AnimationViewController : TamViewController {
+class AnimationController : TamViewController {
 
   let level:String
   let link:String
@@ -58,10 +58,10 @@ class AnimationViewController : TamViewController {
     animationLayout.itemText.text = "\(animnum+1) of \(animcount)"
 
     //  Hook up controls
-    animationLayout.settingsButton.addTarget(self, action: #selector(AnimationViewController.settingsSelector), for: .touchUpInside)
-    animationLayout.definitionButton.addTarget(self, action: #selector(AnimationViewController.definitionSelector), for: .touchUpInside)
-    rightSwiper.addTarget(self, action: #selector(AnimationViewController.rightSwipeAction))
-    leftSwiper.addTarget(self, action: #selector(AnimationViewController.leftSwipeAction))
+    animationLayout.settingsButton.addTarget(self, action: #selector(AnimationController.settingsSelector), for: .touchUpInside)
+    animationLayout.definitionButton.addTarget(self, action: #selector(AnimationController.definitionSelector), for: .touchUpInside)
+    rightSwiper.addTarget(self, action: #selector(AnimationController.rightSwipeAction))
+    leftSwiper.addTarget(self, action: #selector(AnimationController.leftSwipeAction))
     animationLayout.addGestureRecognizer(rightSwiper)
     animationLayout.addGestureRecognizer(leftSwiper)
   }
@@ -73,7 +73,7 @@ class AnimationViewController : TamViewController {
   }
   
   @objc func settingsSelector() {
-    navigationController?.pushViewController(SettingsViewController(intent), animated: true)
+    navigationController?.pushViewController(SettingsController(intent), animated: true)
   }
   @objc func definitionSelector() {
     navigationController?.pushViewController(DefinitionViewController(intent), animated: true)
@@ -87,7 +87,7 @@ class AnimationViewController : TamViewController {
       intent["link"] = link
       intent["animcount"] = "\(animcount)"
       intent["animnum"] = "\(animnum+1)"
-      vcs[vcs.count-1] = AnimationViewController(intent)
+      vcs[vcs.count-1] = AnimationController(intent)
       //  Default iOS presentation is scroll in from the right
       navigationController!.setViewControllers(vcs, animated: true)
     }
@@ -101,7 +101,7 @@ class AnimationViewController : TamViewController {
       intent["link"] = link
       intent["animcount"] = "\(animcount)"
       intent["animnum"] = "\(animnum-1)"
-      vcs[vcs.count-1] = AnimationViewController(intent)
+      vcs[vcs.count-1] = AnimationController(intent)
       //  Default iOS presentation is scroll in from the right
       //  Trick iOS into scrolling from the left
       //  by making it think it is popping a VC

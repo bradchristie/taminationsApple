@@ -27,16 +27,20 @@ class Half : Action {
   override var name:String { get { return "One Half" } }
   
   override func perform(_ ctx: CallContext, index: Int) throws {
-    //  Steal the next call off the stack
-    call = ctx.callstack[index+1]
-    //  For XML calls there should be an explicit number of parts
-    if let xcall = call as? XMLCall {
-      //  Figure out how many beats are in half the call
-      let parts = xcall.xelem["parts"]!
-      let partnums = parts.split(";")
-      halfbeats = partnums[0..<partnums.count/2].reduce(0, { (n,s) in n + CGFloat(Double(s)!) } )
+
+    if (index+1 < ctx.callstack.count) {
+      //  Steal the next call off the stack
+      call = ctx.callstack[index+1]
+      //  For XML calls there should be an explicit number of parts
+      if let xcall = call as? XMLCall {
+        //  Figure out how many beats are in half the call
+        if let parts = xcall.xelem["parts"] {
+          let partnums = parts.split(";")
+          halfbeats = partnums[0..<partnums.count/2].reduce(0, { (n,s) in n + CGFloat(Double(s)!) } )
+        }
+      }
+      prevbeats = ctx.maxBeats
     }
-    prevbeats = ctx.maxBeats
   }
   
   //  Call is performed between these two methods
@@ -44,7 +48,7 @@ class Half : Action {
   override func postProcess(_ ctx: CallContext, index: Int) {
     //  Coded calls so far do not have explicit parts
     //  so just divide them in two
-    if let _ = call as? CodedCall {
+    if (call is CodedCall || halfbeats == 0.0) {
       halfbeats = (ctx.maxBeats - prevbeats) / 2
     }
     //  Chop off the excess half

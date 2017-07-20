@@ -139,7 +139,7 @@ class Movement {
    */
   func translate(_ t:CGFloat=CGFloat.greatestFiniteMagnitude) -> Matrix {
     let tt = min(max(0,t), beats)
-    return btranslate!.translate(tt/beats)
+    return btranslate!.translate(tt/fullbeats)
   }
   
   /**
@@ -149,7 +149,7 @@ class Movement {
    */
   func rotate(_ t:CGFloat=CGFloat.greatestFiniteMagnitude) -> Matrix {
     let tt = min(max(0,t),beats)
-    return brotate!.rotate(tt/beats)
+    return brotate!.rotate(tt/fullbeats)
   }
   
   /**

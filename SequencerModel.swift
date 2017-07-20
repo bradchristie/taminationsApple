@@ -24,20 +24,21 @@ protocol CallNamesListener : NSObjectProtocol {
   func callNamesChanged()->Void
 }
 
-class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, OEEventsObserverDelegate, UITextFieldDelegate,
+class SequencerModel : NSObject, UITableViewDataSource, UITableViewDelegate, OEEventsObserverDelegate, UITextFieldDelegate,
                          AnimationPartListener, AnimationProgressListener {
 
   var callNames = [String]()
   var callBeats = [CGFloat]()
   let observer = OEEventsObserver()
-  weak var layout:SequencerLayout!
+  weak var layout:SequencerView!
   var formation="Static Square"
   var listening = false
   let panelControl:AnimationPanelControl
   weak var callNamesListener:CallNamesListener!
   var selectedRow = 0
+  var insertRow = 0
   var errorLine = -1
-  var selectedBeat:CGFloat = 0
+  var errorFound = false
   
   override init() {
     panelControl = AnimationPanelControl()
@@ -46,18 +47,18 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     OEPocketsphinxController.sharedInstance().requestMicPermission()
   }
   
-  func reset(_ layout:SequencerLayout) {
+  func reset(_ layout:SequencerView) {
     self.layout = layout
     layout.callList.delegate = self
     layout.callList.dataSource = self
-    layout.speakNow.addTarget(self, action: #selector(SequencerControl.mikeAction), for: .touchUpInside)
-    layout.typeNow.addTarget(self, action: #selector(SequencerControl.typeAction), for: .touchUpInside)
-    layout.copyButton.addTarget(self, action: #selector(SequencerControl.copyAction), for: .touchUpInside)
-    layout.pasteButton.addTarget(self, action: #selector(SequencerControl.pasteAction), for: .touchUpInside)
+    layout.speakNow.addTarget(self, action: #selector(SequencerModel.mikeAction), for: .touchUpInside)
+    layout.typeNow.addTarget(self, action: #selector(SequencerModel.typeAction), for: .touchUpInside)
+    layout.copyButton.addTarget(self, action: #selector(SequencerModel.copyAction), for: .touchUpInside)
+    layout.pasteButton.addTarget(self, action: #selector(SequencerModel.pasteAction), for: .touchUpInside)
     layout.animationView.animationPartListener = self
     layout.editText.delegate = self
     panelControl.reset(layout.animationPanel, v: layout.animationView)
-    callNames = [""]
+    callNames = []
     startSequence()
     layout.animationView.animationProgressListener = self
     //  See if there's useable data in the clipboard
@@ -69,10 +70,12 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
 
   func startingFormation(_ f:String) {
     formation = f
-    callNames = [""]
-    callBeats = [0]
+    callNames = []
+    callBeats = []
+    insertRow = 0
     selectedRow = 0
     errorLine = -1
+    errorFound = false
     layout!.callList.reloadData()
     startSequence()
     layout!.animationPanel.ticview.setTics(layout!.animationView.totalBeats, partstr: "", isCalls: true)
@@ -117,12 +120,10 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     let pb = UIPasteboard(name:.general,create:false)!
     if (pb.string != nil) {
       let s = pb.string!
-      callNames = (s.split("\n").filter({ (s:String) -> Bool in
+      callNames = []
+      insertCalls(s.split("\n").filter({ (s:String) -> Bool in
         return s.matches(".*\\w.*")
       }))
-      callNames.append("")
-      selectedRow = 0
-      interpretCall()
     }
   }
   
@@ -130,7 +131,10 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   @objc func deleteAction() {
     callNames.remove(at: selectedRow)
     layout!.callList.deselectRow(at: IndexPath(row:selectedRow,section:0), animated: true)
+    layout!.callList.deleteRows(at: [IndexPath(row: selectedRow, section: 0)], with: UITableViewRowAnimation.none)
+    selectedRow = -1
     interpretCall()
+    updateParts()
   }
   
   //  This is called when the user presses the return key
@@ -167,76 +171,91 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
     insertCalls([calltext])
   }
   
+  func setInsert(_ i:Int) {
+    insertRow = i
+  }
+  
   func insertCalls(_ calls:[String]) {
-    //  Insert new calls above the selected row
-    //  Unless animation is running, in that case insert new call at the end
-    let offset = layout!.animationView.isRunning ? callNames.count-1 : selectedRow
+    ////  For now, always insert at the end
     for i in 0..<calls.count {
-      callNames.insert(calls[i], at:i+offset)
-      layout!.callList.insertRows(at: [IndexPath(row: i+offset, section: 0)], with: .none)
+      callNames.insert(calls[i], at:i+insertRow)
+      layout!.callList.insertRows(at: [IndexPath(row: i+insertRow, section: 0)], with: .none)
     }
     if (layout!.animationView.isRunning) {
       selectedRow += calls.count
     }
-    interpretCall()
+    let appendingOne = calls.count == 1 && insertRow+1 == callNames.count
+    if (appendingOne ? interpretOneCall(insertRow,calls[0]) : interpretCall()) {
+      updateParts()
+      setInsert(insertRow+calls.count)
+      layout!.callList.reloadData()
+      layout!.animationView.goToPart(insertRow)
+      layout!.animationView.doPlay()
+      layout!.copyButton.isEnabled = true
+      //  See if there's useable data in the clipboard
+      let pb = UIPasteboard(name:.general,create:false)!
+      if (pb.string != nil) {
+        layout!.pasteButton.isEnabled = true
+      }
+    } else if (calls.count == 1) {
+      //  Call failed. If just one call (not a paste), then it's probably
+      //  a typo or mis-speak.  So just remove it.
+      callNames.remove(at: insertRow)
+      layout!.callList.deleteRows(at: [IndexPath(row: insertRow, section: 0)], with: UITableViewRowAnimation.none)
+    }
   }
   
-  func interpretCall() {
+  func interpretOneCall(_ line:Int, _ calltext:String) -> Bool {
+    //  Add call as entered, in case parsing fails
+    callNames[line] = calltext
+    let avdancers = layout!.animationView.dancers
+    let cctx = CallContext(source: avdancers)
+    do {
+      let prevbeats = layout!.animationView.movingBeats
+      try cctx.interpretCall(calltext)
+      try cctx.performCall()
+      for i in 0..<avdancers.count {
+        avdancers[i].path.add(cctx.getDancer(i).path)
+      }
+      layout!.animationView.recalculate()
+      let newbeats = layout!.animationView.movingBeats
+      if (newbeats > prevbeats) {
+        //  Call worked, add it to the list
+        callNames[line] = cctx.callname
+        callBeats.append(newbeats - prevbeats)
+        callNamesListener?.callNamesChanged()
+      }
+    } catch let err as CallError {
+      let toast = UIAlertView(title: err.msg, message: "", delegate: nil, cancelButtonTitle: nil)
+      toast.show()
+      TamUtils.runAfterDelay(2.0) {
+        toast.dismiss(withClickedButtonIndex: 0, animated: true)
+      }
+      errorFound = true
+      return false
+    } catch _ {
+      //  This callback cannot throw so any exception needs to be handled here
+    }
+    return true
+  }
+  
+  @discardableResult func interpretCall() -> Bool {
     startSequence()
     errorLine = -1
     callBeats = []
-    var newSelectedBeat:CGFloat = 0
-    for line in 0..<(callNames.count-1) {
-      let avdancers = layout!.animationView.dancers
-      let cctx = CallContext(source: avdancers)
-      let calltext = callNames[line]
-      do {
-        let prevbeats = layout!.animationView.movingBeats
-        try cctx.interpretCall(calltext)
-        try cctx.performCall()
-        for i in 0..<avdancers.count {
-          avdancers[i].path.add(cctx.getDancer(i).path)
-        }
-        if (layout!.animationView.beat > layout!.animationView.movingBeats) {
-          layout!.animationView.beat = layout!.animationView.movingBeats
-        }
-        layout!.animationView.recalculate()
-        let newbeats = layout!.animationView.movingBeats
-        if (newbeats > prevbeats) {
-          //  Call worked, add it to the list
-          callNames[line] = cctx.callname
-          callBeats.append(newbeats - prevbeats)
-          if (line <= selectedRow) {
-            newSelectedBeat = newbeats
-          }
-          callNamesListener?.callNamesChanged()
-        }
-        
-      } catch let err as CallError {
-        errorLine = line
-        let toast = UIAlertView(title: err.msg, message: "", delegate: nil, cancelButtonTitle: nil)
-        toast.show()
-        TamUtils.runAfterDelay(4.0) {
-          toast.dismiss(withClickedButtonIndex: 0, animated: true)
-        }
-      } catch _ {
-        //  This callback cannot throw so any exception needs to be handled here
+    for line in 0..<callNames.count {
+      if (!interpretOneCall(line,callNames[line])) {
+        return false
       }
     }
-    callBeats.removeLast()
-    let partstr = callBeats.nonEmpty ? callBeats.map { "\($0)" } .joined(separator: ";") : ""
-    layout!.animationPanel.ticview.setTics(layout!.animationView.totalBeats, partstr: partstr, isCalls: true)
+    return true
+  }
+  
+  //  Update parts and tics on animation panel
+  func updateParts() {
+    let partstr = callBeats.count > 1 ? callBeats.dropLast().map { "\($0)" } .joined(separator: ";") : ""
     layout!.animationView.setParts(partstr)
-    layout!.callList.reloadData()
-    layout!.animationView.beat = selectedBeat
-    layout!.animationView.doPlay()
-    selectedBeat = newSelectedBeat
-    layout!.copyButton.isEnabled = true
-    //  See if there's useable data in the clipboard
-    let pb = UIPasteboard(name:.general,create:false)!
-    if (pb.string != nil) {
-      layout!.pasteButton.isEnabled = true
-    }
+    layout!.animationPanel.ticview.setTics(layout!.animationView.totalBeats, partstr: partstr, isCalls: true)
   }
   
   func stopListening() {
@@ -252,7 +271,7 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   }
   
   func animationPart(part:Int) {
-    if (part > 0) {
+    if (part > 0 && part <= callNames.count) {
       layout!.calltext.text = callNames[part-1]
       selectedRow = part-1
     } else {
@@ -268,9 +287,10 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
   //  Required data source methods
   @objc func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "sequencertablecell") ?? UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "sequencertablecell")
-    let callnum =  (indexPath.row+1 >= callNames.count) ? "" :  "\(indexPath.row+1)"
+    let callnum = "\(indexPath.row+1)"
     cell.textLabel?.text = callnum + " " + callNames[indexPath.row]
     cell.textLabel?.font = callFont(tableView)
+    cell.textLabel?.textColor = UIColor.black
     cell.textLabel?.numberOfLines = 0
     cell.backgroundColor = UIColor.white
     cell.selectionStyle = .blue
@@ -280,10 +300,10 @@ class SequencerControl : NSObject, UITableViewDataSource, UITableViewDelegate, O
       cell.backgroundColor = UIColor.yellow
       if (indexPath.row+1 < callNames.count) {
         let x = UIButton()
-        x.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        x.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         x.backgroundColor = UIColor.red
         x.setTitle("X", for: .normal)
-        x.addTarget(self, action: #selector(SequencerControl.deleteAction), for: .touchUpInside)
+        x.addTarget(self, action: #selector(SequencerModel.deleteAction), for: .touchUpInside)
         cell.accessoryType = .disclosureIndicator
         cell.accessoryView = x
       }

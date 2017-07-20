@@ -55,10 +55,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func performStartup(_ intent:[String:String]) {
     let mybounds = UIScreen.main.bounds
+    var myintent = intent
     mywindow = UIWindow.init(frame: mybounds)
     let istablet = UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad
     let islandscape = mybounds.width > mybounds .height
-    let myroot = istablet && islandscape ? FirstLandscapeViewController(intent) : LevelViewController(intent)
+    if (intent["call"] != nil && intent["call"]!.length > 0) {
+      let tamxml = TamUtils.getXMLAsset(intent["link"]!)
+      let tams = TamUtils.tamList(tamxml)
+      var anim = 0
+      for tam in tams.filter({$0["display"] != "none"}) {
+        let tamtitle = tam["title"]!
+        let from = TamXref(tam).xref["from"] ?? ""
+        let group = tam["group"] ?? ""
+        let t = group.length == 0 ? tamtitle + "from" + from : tamtitle
+        if (t.lowercased().replaceAll("\\W","") == intent["call"]!.lowercased()) {
+          myintent["animnum"] = "\(anim)"
+        }
+        anim += 1
+      }
+      myintent["animcount"] = "\(anim)"
+    }
+    let myroot:UIViewController
+    if (istablet && islandscape) {
+      if (myintent["link"] != nil) {
+        myroot = SecondLandscapeViewController(myintent)
+      } else {
+        myroot = FirstLandscapeViewController(myintent)
+      }
+    } else {
+      if (myintent["animnum"] != nil) {
+        myroot = AnimationController(myintent)
+      } else if (myintent["link"] != nil && myintent["link"]!.length > 0) {
+        myroot = AnimListViewController(myintent)
+      } else {
+        myroot = LevelViewController(myintent)
+      }
+    }
     let nav = istablet ? UINavigationController.init(rootViewController: myroot)
                        : PortraitNavigationController.init(rootViewController:myroot)
     nav.customNavBar()

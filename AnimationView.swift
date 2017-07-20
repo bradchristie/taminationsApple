@@ -144,19 +144,16 @@ class AnimationView: UIView {
    */
   func partsValues() -> Array<CGFloat> {
     if (parts.length == 0) {
-      return [-2,0,beats-2,beats]
+      return [-2,0]
     } else {
       var b:CGFloat = 0
       let t = parts.split(";")
       var retval = [CGFloat]()
-      for i in -2 ..< t.count+2 {
-        switch i {
-        case -2 : retval.append(-leadin)
-        case -1 : retval.append((0))
-        case t.count : retval.append(beats-2.0)
-        case t.count+1 : retval.append(beats)
-        default : b = b + CGFloat(Double(t[i])!); retval.append(b)
-        }
+      retval.append(-leadin)
+      retval.append((0))
+      for i in 0 ..< t.count {
+        b = b + CGFloat(Double(t[i])!)
+        retval.append(b)
       }
       return retval
     }
@@ -180,6 +177,16 @@ class AnimationView: UIView {
       beat = partsValues().reversed().filter({$0 >= beat})[0]
       setNeedsDisplay()
     }
+  }
+
+  /**
+   *   Go to a specific part.
+   *   The first part is 0.
+   */
+  func goToPart(_ i:Int) {
+    let pv = partsValues()
+    beat = pv[min(i+1,pv.count-1)] + 0.01  // skip leadin
+    setNeedsDisplay()
   }
   
   /**
