@@ -90,7 +90,7 @@ class XMLCall : Call {
       bxa[1][0] += v1.x * v2.y
       bxa[1][1] += v1.y * v2.y
     }
-    let (ua,_,va) = Matrix.SVD(&bxa)
+    let (ua,_,va) = Matrix.svd22(bxa)
     let ut = Matrix()
     ut.putArray(Matrix.transpose(ua))
     let v = Matrix()

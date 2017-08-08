@@ -132,6 +132,7 @@ class SequencerModel : NSObject, UITableViewDataSource, UITableViewDelegate, OEE
     callNames.remove(at: selectedRow)
     layout!.callList.deselectRow(at: IndexPath(row:selectedRow,section:0), animated: true)
     layout!.callList.deleteRows(at: [IndexPath(row: selectedRow, section: 0)], with: UITableViewRowAnimation.none)
+    setInsert(selectedRow)
     selectedRow = -1
     interpretCall()
     updateParts()
@@ -298,7 +299,7 @@ class SequencerModel : NSObject, UITableViewDataSource, UITableViewDelegate, OEE
     cell.accessoryView = nil
     if (indexPath.row == selectedRow) {
       cell.backgroundColor = UIColor.yellow
-      if (indexPath.row+1 < callNames.count) {
+      if (indexPath.row < callNames.count) {
         let x = UIButton()
         x.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         x.backgroundColor = UIColor.red

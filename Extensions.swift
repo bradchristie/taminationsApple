@@ -178,7 +178,7 @@ let CG_PI = CGFloat(Double.pi)
 extension CGFloat {
   
   func isApprox(_ y:CGFloat, delta:CGFloat) -> Bool {
-    return abs(self-y) < delta
+    return (self-y).Abs < delta
   }
   
   func isApprox(_ y:CGFloat) -> Bool {
@@ -193,9 +193,19 @@ extension CGFloat {
     return angleDiff(a2).isApprox(0.0)
   }
 
+  var Sign:CGFloat { get { return self < 0.0 ? -1.0 : self > 0.0 ? 1.0 : 0.0 } }
+  var Floor:CGFloat { get { return self.rounded(.down) } }
+  var Ceil:CGFloat { get { return self.rounded(.up) } }
+  var Round:CGFloat { get { return self.rounded(.toNearestOrAwayFromZero) } }
+  var Abs:CGFloat { get { return self < 0 ? -self : self } }
+  var Sin:CGFloat { get { return sin(self) } }
+  var Cos:CGFloat { get { return cos(self) } }
+  var Sqrt:CGFloat { get { return sqrt(self) } }
+  var Sq:CGFloat { get { return self * self } }
   var toRadians:CGFloat { get { return self * CG_PI / 180 } }
+  var toDegrees:CGFloat { get { return self * 180 / CG_PI } }
   var d:Double { get { return Double(self) } }
-    
+  
 }
 
 extension Double {

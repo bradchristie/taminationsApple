@@ -155,8 +155,16 @@ class Matrix {
   }
   
   func putArray(_ a:Array<Array<CGFloat>>) {
-    for i in 0...5 {
-      self[i] = a[i/3][i%3]
+    if (a.count == 2) {
+      //  Handle 2x2 array returned by svd22
+      self[0] = a[0][0]
+      self[1] = a[0][1]
+      self[3] = a[1][0]
+      self[4] = a[1][1]
+    } else if (a.count == 3) {
+      for i in 0...5 {
+        self[i] = a[i/3][i%3]
+      }
     }
   }
   
@@ -165,293 +173,63 @@ class Matrix {
   }
   
   class func transpose(_ a:Array<Array<CGFloat>>) -> Array<Array<CGFloat>> {
-    return (0...2).map { [a[0][$0],a[1][$0],a[2][$0]] }
+    return (0..<a.count).map { (i:Int) -> Array<CGFloat> in return (0..<a.count).map { (j:Int) -> CGFloat in a[j][i] } }
   }
   
-  class func SVD(_ u: inout Array<Array<CGFloat>>) -> (Array<Array<CGFloat>>,Array<CGFloat>,Array<Array<CGFloat>>) {
-    //  Compute the thin SVD from G. H. Golub and C. Reinsch, Numer. Math. 14, 403-420 (1970)
-    let epsilon:CGFloat = 2.220446049250313e-16
-    var prec:CGFloat = epsilon //Math.pow(2,-52) // assumes double prec
-    let tolerance:CGFloat = (1.0e-64)/prec
-    let itmax = 50
-    var c:CGFloat
-    var l=0
-    
-    let m = 3  // this is fixed for 3x3 arrays
-    let n = 3
-    
-    var e:[CGFloat] = [0,0,0]
-    var q:[CGFloat] = [0,0,0]
-    var v:Array<Array<CGFloat>> = [[0,0,0],[0,0,0],[0,0,0]]
-    
-    func pythag(_ aa:CGFloat, _ bb:CGFloat) -> CGFloat {
-      let a = abs(aa)
-      let b = abs(bb)
-      if (a > b) {
-        return a*sqrt(1.0+(b*b/a/a))
-      }
-      else if (b == 0.0) {
-        return a
-      }
-      return b*sqrt(1.0+(a*a/b/b))
-    }
-    
-    //  Householder's reduction to bidiagonal form
-    var f:CGFloat
-    var g:CGFloat = 0.0
-    var h:CGFloat
-    var x:CGFloat = 0.0
-    var y:CGFloat
-    var z:CGFloat
-    var s:CGFloat
-
-    for i in 0..<n {
-      e[i] = g
-      l = i+1
-      s = u.sumByCGFloat { $0[i]*$0[i] }
-      if (s <= tolerance) {
-        g = 0.0
-      }
-      else
-      {
-        f = u[i][i]
-        g = sqrt(s)
-        if (f >= 0.0) {
-          g = -g
-        }
-        h = f*g-s
-        u[i][i] = f-g
-        for j in l..<n {
-          s = u[i..<m].map{$0}.sumByCGFloat { $0[i]*$0[j] }
-          f = s/h
-          for k in i..<m {
-            u[k][j] += f*u[k][i]
-          }
-        }
-      }
-      q[i] = g
-      s = (l..<m).map{$0}.sumByCGFloat { j in u[i][j]*u[i][j] }
-      if (s <= tolerance) {
-        g = 0.0
-      }
-      else
-      {
-        f = u[i][i+1]
-        g = sqrt(s)
-        if (f >= 0.0) {
-          g = -g
-        }
-        h = f*g - s
-        u[i][i+1] = f-g
-        for j in l..<n {
-          e[j] = u[i][j]/h
-        }
-        for j in l..<m {
-          s = (l..<n).map{$0}.sumByCGFloat { k in u[j][k]*u[i][k] }
-          for k in l..<n {
-            u[j][k] += s*e[k]
-          }
-        }
-      }
-      y = abs(q[i]) + abs(e[i])
-      if (y > x) {
-        x = y
+  class func svd22(_ A:Array<Array<CGFloat>>) -> (Array<Array<CGFloat>>,Array<CGFloat>,Array<Array<CGFloat>>) {
+    let a = A[0][0]
+    let b = A[0][1]
+    let c = A[1][0]
+    let d = A[1][1]
+    //  Check for trivial case
+    let epsilon:CGFloat = 0.0001
+    if (b.Abs < epsilon && c.Abs < epsilon) {
+      let V:Array<Array<CGFloat>> = [[ (a < 0.0) ? -1.0 : 1.0, 0.0],
+               [0.0, (d < 0.0) ? -1.0 : 1.0]]
+      let Sigma = [a.Abs,d.Abs]
+      let U:Array<Array<CGFloat>> = [[1.0,0.0],[0.0,1.0]]
+      return (U,Sigma,V)
+    } else {
+      let j = a.Sq + b.Sq
+      let k = c.Sq + d.Sq
+      let vc = a*c + b*d
+      //  Check to see if A^T*A is diagonal
+      if (vc.Abs < epsilon) {
+        let s1 = j.Sqrt
+        let s2 = ((j-k).Abs < epsilon) ? s1 : k.Sqrt
+        let Sigma = [s1,s2]
+        let V:Array<Array<CGFloat>> = [[1.0,0.0],[0.0,1.0]]
+        let U = [[a/s1,b/s1],[c/s2,d/s2]]
+        return (U,Sigma,V)
+      } else {   //  Otherwise, solve quadratic for eigenvalues
+        let atanarg1 = 2 * a * c + 2 * b * d
+        let atanarg2 = a * a + b * b - c * c - d * d
+        let Theta = 0.5 * atan2(atanarg1,atanarg2)
+        let U = [[Theta.Cos, -Theta.Sin],
+                 [Theta.Sin, Theta.Cos]]
+        
+        let Phi = 0.5 * atan2(2 * a * b + 2 * c * d, a.Sq - b.Sq + c.Sq - d.Sq)
+        let s11 = (a * Theta.Cos + c * Theta.Sin) * Phi.Cos +
+          (b * Theta.Cos + d * Theta.Sin) * Phi.Sin
+        let s22 = (a * Theta.Sin - c * Theta.Cos) * Phi.Sin +
+          (-b * Theta.Sin + d * Theta.Cos) * Phi.Cos
+        
+        let S1 = a.Sq + b.Sq + c.Sq + d.Sq;
+        let S2 = ((a.Sq + b.Sq - c.Sq - d.Sq).Sq + 4 * (a * c + b * d).Sq).Sqrt
+        let Sigma = [(S1 + S2).Sqrt / 2, (S1 - S2).Sqrt / 2]
+        
+        let V = [[s11.Sign * Phi.Cos, -s22.Sign * Phi.Sin],
+                 [s11.Sign * Phi.Sin, s22.Sign * Phi.Cos]]
+        return (U,Sigma,V)
       }
     }
-
-    // accumulation of right hand transformations
-//  for i in n-1 downTo 0 {
-    for i in (0..<n).reversed() {
-      if (g != 0.0) {
-        h = g*u[i][i+1]
-        for j in l..<n {
-          v[j][i]=u[i][j]/h
-        }
-        for j in l..<n {
-          s = (l..<n).map{$0}.sumByCGFloat {k in u[i][k]*v[k][j] }
-          for k in l..<n {
-            v[k][j] += (s*v[k][i])
-          }
-        }
-      }
-      for j in l..<n {
-        v[i][j] = 0.0
-        v[j][i] = 0.0
-      }
-      v[i][i] = 1.0
-      g = e[i]
-      l = i
-    }
-
-    // accumulation of left hand transformations
-    for i in (0..<n).reversed() {
-      l = i+1
-      g = q[i]
-      for j in l..<n {
-        u[i][j] = 0.0
-      }
-      if (g != 0.0) {
-        h = u[i][i]*g
-        for j in l..<n {
-          s = u[l..<m].map{$0}.sumByCGFloat { $0[i]*$0[j] }
-          f = s/h
-          for k in i..<m {
-            u[k][j]+=f*u[k][i]
-          }
-        }
-        for j in i..<m {
-          u[j][i] = u[j][i]/g
-        }
-      }
-      else {
-        for j in i..<m {
-          u[j][i] = 0.0
-        }
-      }
-      u[i][i] += 1.0
-    }
-    
-    // diagonalization of the bidiagonal form
-    prec *= x
-    for k in (0..<n).reversed() {
-      for iteration in 0..<itmax {
-        // test f splitting
-        var test_convergence = false
-        var el = k
-        for ella in (0...k).reversed() {
-          el = ella
-          if (abs(e[ella]) <= prec) {
-            test_convergence = true
-            break
-          }
-          if (abs(q[ella-1]) <= prec) {
-            break
-          }
-        }
-        if (!test_convergence) {
-          // cancellation of e[l] if l>0
-          c = 0.0
-          s = 1.0
-          let l1 = el-1
-          for i in el..<(k+1) {
-            f = s*e[i]
-            e[i] = c*e[i]
-            if (abs(f) <= prec) {
-              break
-            }
-            g = q[i]
-            h = pythag(f,g)
-            q[i] = h
-            c = g/h
-            s = -f/h
-            for j in 0..<m {
-              y = u[j][l1]
-              z = u[j][i]
-              u[j][l1] =  y*c+(z*s)
-              u[j][i] = -y*s+(z*c)
-            }
-          }
-        }
-        // test f convergence
-        z = q[k]
-        if (el == k) {
-          //convergence
-          if (z < 0.0) {
-            //q[k] is made non-negative
-            q[k] = -z
-            for j in 0 ..< n {
-              v[j][k] = -v[j][k]
-            }
-          }
-          break  //break out of iteration loop and move on to next k value
-        }
-        if (iteration >= itmax-1) {
-          fatalError("Error: no convergence.")
-        }
-        // shift from bottom 2x2 minor
-        x = q[el]
-        y = q[k-1]
-        g = e[k-1]
-        h = e[k]
-        f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y)
-        g = pythag(f,1.0)
-        if (f < 0.0) {
-          f = ((x-z)*(x+z)+h*(y/(f-g)-h))/x
-        } else {
-          f = ((x-z)*(x+z)+h*(y/(f+g)-h))/x
-        }
-        // next QR transformation
-        c = 1.0
-        s = 1.0
-        for i in (el+1) ..< (k+1) {
-          g = e[i]
-          y = q[i]
-          h = s*g
-          g *= c
-          z = pythag(f,h)
-          e[i-1] = z
-          c = f/z
-          s = h/z
-          f = x*c+g*s
-          g = -x*s+g*c
-          h = y*s
-          y *= c
-          for j in 0..<n {
-            x = v[j][i-1]
-            z = v[j][i]
-            v[j][i-1] = x*c+z*s
-            v[j][i] = -x*s+z*c
-          }
-          z = pythag(f,h)
-          q[i-1] = z
-          c = f/z
-          s = h/z
-          f = c*g + s*y
-          x = -s*g + c*y
-          for j in 0..<m {
-            y = u[j][i-1]
-            z = u[j][i]
-            u[j][i-1] = y*c+z*s
-            u[j][i] = -y*s+z*c
-          }
-        }
-        e[el] = 0.0
-        e[k] = f
-        q[k] = x
-      }
-    }
-
-    //vt= transpose(v)
-    //return (u,q,vt)
-    q = q.map { ($0 < prec) ? 0.0 : $0 }
-    
-    //sort eigenvalues
-    var i = 1
-    while (i < n) {
-      //writeln(q)
-      for j in 0..<i {
-        if (q[j] < q[i]) {
-          //  writeln(i,'-',j)
-          c = q[j]
-          q[j] = q[i]
-          q[i] = c
-          for k in 0...1 {
-            let temp = u[k][i]; u[k][i] = u[k][j]; u[k][j] = temp
-          }
-          for k in 0...1 {
-            let temp = v[k][i]; v[k][i] = v[k][j]; v[k][j] = temp
-          }
-          //     u.swapCols(i,j)
-          //     v.swapCols(i,j)
-          i = j
-        }
-      }
-      i += 1
-    }
-    
-    return (u,q,v)
+  
+  
   }
   
+
+
+
 }
 
 
