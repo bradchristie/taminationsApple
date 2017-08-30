@@ -106,9 +106,9 @@ class BigonGeometry : Geometry {
     for xscale:CGFloat in [-1,1] {
       ctx.saveGState()
       ctx.scaleBy(x: xscale, y: 1)
-      for x1 in stride(from: CGFloat(-7.5), through:CGFloat(7.5), by:CGFloat(0.1)) {
-        ctx.move(to: CGPoint(x: abs(x1), y: 0))
-        for y1 in stride(from: CGFloat(0.2), through:CGFloat(7.5), by:CGFloat(0.2)) {
+      for x1 in stride(from: -7.5.cg, through:7.5.cg, by:1.0.cg) {
+        ctx.move(to: CGPoint(x: x1.Abs, y: 0))
+        for y1 in stride(from: 0.2.cg, through:7.5.cg, by:0.2.cg) {
           let a = 2 * atan2(y1,x1)
           let r = sqrt(x1*x1+y1*y1)
           let x = r*cos(a)

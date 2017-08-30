@@ -173,6 +173,11 @@ extension String {
 
 }
 
+
+extension Int {
+  var Abs:Int { get { return self < 0 ? -self : self } }
+}
+
 let CG_PI = CGFloat(Double.pi)
 
 extension CGFloat {

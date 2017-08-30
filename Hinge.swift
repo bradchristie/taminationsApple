@@ -30,10 +30,11 @@ class Hinge : Action {
              : d3 != nil && d3!.data.active ? d3
              : d4 != nil && d4!.data.active ? d4 : nil
     if let d1 = d2 {
+      let scalefactor = CallContext.distance(d,d1)/2.0
       if (CallContext.isRight(d)(d1)) {
-        return TamUtils.getMove("Hinge Right")
+        return TamUtils.getMove("Hinge Right").scale(scalefactor,scalefactor)
       } else {
-        return TamUtils.getMove("Hinge Left")
+        return TamUtils.getMove("Hinge Left").scale(scalefactor,scalefactor)
       }
     } else {
       throw CallError("No dancer to hinge with \(d.number)") as Error

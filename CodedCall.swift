@@ -67,4 +67,9 @@ class CodedCall : Call {
     }
   }
   
+  override func postProcess(_ ctx: CallContext, index: Int) {
+    super.postProcess(ctx, index: index)
+    ctx.matchStandardFormation()
+  }
+  
 }

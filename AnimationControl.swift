@@ -26,24 +26,26 @@ class AnimationControl {
   var from:String = ""
   var group:String = ""
   var animname:String = ""
+  var tamdoc:Ji?  //  Need to hang onto tamdoc and tam ptrs
+  var tam:JiNode?  // so they don't get yanked out from under animation
   var progressFun:(_ beat:CGFloat)->Void = { arg in }
   var optionsFun:(_ options:String)->Void = { arg in }
   
   func reset(_ animationLayout:AnimationLayout, _ animationView:AnimationView, link:String, animnum:Int=0) {
     //self.animationView = animationView
     //  Fetch the XML animation and send it to the animation view
-    let tamdoc = TamUtils.getXMLAsset(link)
-    let tam = TamUtils.tamList(tamdoc).filter{$0["display"] != "none"}[animnum]
-    animationView.setAnimation(tam)
+    tamdoc = TamUtils.getXMLAsset(link)
+    tam = TamUtils.tamList(tamdoc!).filter{$0["display"] != "none"}[animnum]
+    animationView.setAnimation(tam!)
     
     //  Calculate name for sharing
-    title = tam["title"]!
-    from = tam["from"] ?? ""
-    group = tam["group"] ?? ""
+    title = tam!["title"]!
+    from = tam!["from"] ?? ""
+    group = tam!["group"] ?? ""
     animname = (group.length > 1 ? title : title+"from"+from).replaceAll("\\W", "")
     
     //  Show any Taminator text
-    let saychild = tam.childrenWithName("taminator")
+    let saychild = tam!.childrenWithName("taminator")
     animationLayout.tamsays.text = saychild.count > 0 ? saychild[0].content!.trim().replaceAll("\\s+", " ") : ""
     
     progressFun = { (beat:CGFloat) -> Void in

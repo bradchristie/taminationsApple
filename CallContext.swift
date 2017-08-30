@@ -223,7 +223,7 @@ class CallContext {
           let ctx2 = CallContext(formation: f)
           let sexy = tam["gender-specific"] != nil
           //  Try to match the formation to the current dancer positions
-          if let mm = self.matchFormations(ctx, ctx2, sexy) {
+          if let mm = self.matchFormations(ctx, ctx2, sexy: sexy) {
             matches = true
             // add XMLCall object to the call stack
             ctx0.callstack.append(XMLCall(doc:doc, xelem: tam, xmlmap: mm, ctx: ctx2))
@@ -238,6 +238,40 @@ class CallContext {
       throw FormationNotFoundError(calltext) as Error
     }
     return matches
+  }
+  
+  //  Once a mapping of the current formation to an XML call is found,
+  //  we need to compute the difference between the two,
+  //  and that difference will be added as an offset to the first movement
+  func computeFormationOffsets(_ ctx2:CallContext, _ mapping:[Int]) -> [Vector3D] {
+    var dvbest = [Vector3D]()
+    var dtotbest:CGFloat = -1
+    //  We don't know how the XML formation needs to be turned to overlap
+    //  the current formation.  So do an RMS fit to find the best match.
+    var bxa:Array<Array<CGFloat>> = [[0,0],[0,0]]
+    actives.enumerated().forEach { (i,d1) in
+      let v1 = d1.location
+      let v2 = ctx2.dancers[mapping[i]].location
+      bxa[0][0] += v1.x * v2.x
+      bxa[0][1] += v1.y * v2.x
+      bxa[1][0] += v1.x * v2.y
+      bxa[1][1] += v1.y * v2.y
+    }
+    let (ua,_,va) = Matrix.svd22(bxa)
+    let ut = Matrix()
+    ut.putArray(Matrix.transpose(ua))
+    let v = Matrix()
+    v.putArray(va)
+    let rotmat = v.preConcat(ut)
+    //  Now rotate the formation and compute any remaining
+    //  differences in position
+    actives.enumerated().forEach { (j,d2) in
+      let v1 = d2.location
+      let v2 = ctx2.dancers[mapping[j]].location.concatenate(rotmat)
+      dvbest += [v1 - v2]
+      dtotbest += dvbest[j].length
+    }
+    return dvbest
   }
   
   /*
@@ -279,12 +313,13 @@ class CallContext {
   }
   
   
-  func matchFormations(_ ctx1: CallContext, _ ctx2:CallContext, _ sexy:Bool) -> [Int]? {
+  func matchFormations(_ ctx1: CallContext, _ ctx2:CallContext, sexy:Bool, fuzzy:Bool=false) -> [Int]? {
     if (ctx1.dancers.count != ctx2.dancers.count) {
       return nil
     }
     //  Find mapping using DFS
     var mapping = [Int](repeating: -1, count: ctx1.dancers.count)
+    var rotated = [Bool](repeating: false, count: ctx1.dancers.count)
     var mapindex = 0
     while (mapindex >= 0 && mapindex < ctx1.dancers.count) {
       var nextmapping = mapping[mapindex] + 1
@@ -292,7 +327,7 @@ class CallContext {
       while (!found && nextmapping < ctx2.dancers.count) {
         mapping[mapindex] = nextmapping
         mapping[mapindex + 1] = nextmapping ^ 1
-        if (testMapping(ctx1, ctx2, mapping: mapping, index: mapindex, sexy: sexy)) {
+        if (testMapping(ctx1, ctx2, mapping: mapping, index: mapindex, sexy: sexy, fuzzy:fuzzy)) {
           found = true
         } else {
           nextmapping += 1
@@ -302,7 +337,15 @@ class CallContext {
         //  No more mappings for this dancer
         mapping[mapindex] = -1
         mapping[mapindex + 1] = -1
-        mapindex -= 2
+        //  If fuzzy, try rotating this dancer
+        if (fuzzy && !rotated[mapindex]) {
+          ctx1.dancers[mapindex].rotateStartAngle(180.0)
+          ctx1.dancers[mapindex+1].rotateStartAngle(180.0)
+          rotated[mapindex] = true
+        } else {
+          rotated[mapindex] = false
+          mapindex -= 2
+        }
       } else {
         //  Mapping found
         mapindex += 2
@@ -311,7 +354,7 @@ class CallContext {
     return mapindex < 0 ? nil : mapping
   }
   
-  func testMapping(_ ctx1: CallContext, _ ctx2:CallContext, mapping:[Int], index i:Int, sexy:Bool) -> Bool {
+  func testMapping(_ ctx1: CallContext, _ ctx2:CallContext, mapping:[Int], index i:Int, sexy:Bool, fuzzy:Bool) -> Bool {
     if (sexy && (ctx1.dancers[i].gender != ctx2.dancers[mapping[i]].gender)) {
       return false
     }
@@ -324,10 +367,18 @@ class CallContext {
         let relq2 = self.dancerRelation(ctx1.dancers[j], ctx1.dancers[i])
         let relt2 = self.dancerRelation(ctx2.dancers[mapping[j]],ctx2.dancers[mapping[i]])
         //  If dancers are side-by-side, make sure handholding matches by checking distance
-        if (relq1 == 2 || relq1 == 6) {
+        if (!fuzzy && (relq1 == 2 || relq1 == 6)) {
           let d1 = CallContext.distance(ctx1.dancers[i], ctx1.dancers[j])
           let d2 = CallContext.distance(ctx2.dancers[mapping[i]], ctx2.dancers[mapping[j]])
-          return relq1==relt1 && relq2==relt2 && (d1 < 2.1) == (d2 < 2.1)
+          if ((d1 < 2.1) != (d2 < 2.1)) {
+            return false
+          }
+        }
+        if (fuzzy) {
+          let reldif1 = (relt1-relq1).Abs
+          let reldif2 = (relt2-relq2).Abs
+          return (reldif1==0 || reldif1==1 || reldif1==7) &&
+            (reldif2==0 || reldif2==1 || reldif2==7)
         } else {
           return relq1==relt1 && relq2==relt2
         }
@@ -365,6 +416,66 @@ class CallContext {
     let yave = dancers.map { $0.location.y } .reduce(0, +) / CGFloat(dancers.count)
     dancers.forEach { $0.starttx = $0.starttx.postTranslate(xave, y: yave) }
   }
+  
+  //  See if the current dancer positions resemble a standard formation
+  //  and, if so, snap to the standard
+  static let standardFormations = [
+    "Normal Lines",
+    "Normal Lines Compact",
+    "Double Pass Thru",
+    "Static Square",
+    "Quarter Tag",
+    "Tidal Line RH",
+    "Diamonds RH Girl Points",
+    "Diamonds RH PTP Girl Points",
+    "Hourglass RH BP",
+    "Galaxy RH GP",
+    "Butterfly RH",
+    "O RH",
+    "Sausage RH"
+  ]
+  struct BestMapping { let name:String; let mapping:[Int]; let offsets:[Vector3D]; let totOffset:CGFloat }
+  func matchStandardFormation() {
+    //  Make sure newly added animations are finished
+    dancers.forEach { $0.path.recalculate(); $0.animateToEnd() }
+    //  Work on a copy with all dancers active, mapping only uses active dancers
+    let ctx1 = CallContext(source:self);
+    ctx1.dancers.forEach { $0.data.active = true }
+    var bestMapping:BestMapping? = nil
+    CallContext.standardFormations.forEach { f in
+      let ctx2 = CallContext(formation:TamUtils.getFormation(f))
+      //  See if this formation matches
+      if let mapping = matchFormations(ctx1,ctx2,sexy: false,fuzzy: true) {
+        //  If it does, get the offsets
+        let offsets = ctx1.computeFormationOffsets(ctx2,mapping)
+        let totOffset = offsets.reduce(0.0) { s,v in s+v.length }
+        if (bestMapping==nil || totOffset < bestMapping!.totOffset) {
+          bestMapping = BestMapping (
+            name: f,  // only used for debugging
+            mapping: mapping,
+            offsets: offsets,
+            totOffset: totOffset
+          )
+        }
+      }
+    }
+    if (bestMapping != nil) {
+      for (i,d) in dancers.enumerated() {
+        if (bestMapping!.offsets[i].length > 0.1) {
+          //  Get the last movement
+          let m = d.path.movelist.removeLast()
+          //  Transform the offset to the dancer's angle
+          d.animateToEnd()
+          let vd = bestMapping!.offsets[i].rotate(-d.tx.angle)
+          //  Apply it
+          d.path.movelist.append(m.skew(-vd.x,-vd.y))
+          d.animateToEnd()
+        }
+      }
+    }
+  }
+  
+  
   
   //  Return max number of beats among all the dancers
   var maxBeats:CGFloat { get { return dancers.reduce(0, { max($0,$1.path.beats) } ) } }

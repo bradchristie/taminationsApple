@@ -178,8 +178,35 @@ class Movement {
   * Return a new Movement with the end point shifted by x and y
   */
   func skew(_ x:CGFloat, _ y:CGFloat) -> Movement {
+    return beats < fullbeats ? skewClip(x,y) : skewFull(x,y)
+  }
+
+  func skewFull(_ x:CGFloat, _ y:CGFloat) -> Movement {
     return Movement(fullbeats: fullbeats, hands: hands, cx1: cx1, cy1: cy1, cx2: cx2+x, cy2: cy2+y, x2: x2+x, y2: y2+y, cx3: cx3, cx4: cx4, cy4: cy4, x4: x4, y4: y4, beats: beats)
   }
+
+  /**
+   *   Skew a movement that has been clipped, adjusting so the amount of
+   *   skew is appplied to the clip point
+   */
+  func skewClip(_ x:CGFloat, _ y:CGFloat) -> Movement {
+    var vdelta = Vector3D(x: x,y: y)
+    let vfinal = translate().location + vdelta
+    var m = self;
+    var maxiter = 100
+    repeat {
+      // Shift the end point by the current difference
+      m = m.skewFull(vdelta.x,vdelta.y)
+      // See how that affects the clip point
+      let loc = m.translate().location
+      vdelta = vfinal - loc
+      maxiter -= 1
+    } while (vdelta.length > 0.001 && maxiter > 0)
+    //  If timed out, return original rather than something that
+    //  might put the dancers in outer space
+    return maxiter > 0 ? m : self
+  }
+  
   
   func reflect() -> Movement { return scale(1,-1) }
   

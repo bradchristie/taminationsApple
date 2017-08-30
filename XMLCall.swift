@@ -49,7 +49,7 @@ class XMLCall : Call {
       ctx3.analyze()
     }
     
-    let vdif = computeFormationOffsets(ctx,ctx2)
+    let vdif = ctx.computeFormationOffsets(ctx2,xmlmap)
     xmlmap.enumerated().forEach { (i3,m) in
       let p = Path(allp[m>>1])
       if (p.movelist.isEmpty) {
@@ -72,41 +72,13 @@ class XMLCall : Call {
     ctx.analyze()
   }
   
-  
-  //  Once a mapping of the current formation to an XML call is found,
-  //  we need to compute the difference between the two,
-  //  and that difference will be added as an offset to the first movement
-  func computeFormationOffsets(_ ctx1:CallContext, _ ctx2:CallContext) -> [Vector3D] {
-    var dvbest = [Vector3D]()
-    var dtotbest:CGFloat = -1
-    //  We don't know how the XML formation needs to be turned to overlap
-    //  the current formation.  So do an RMS fit to find the best match.
-    var bxa:Array<Array<CGFloat>> = [[0,0,0],[0,0,0],[0,0,0]]
-    ctx1.actives.enumerated().forEach { (i,d1) in
-      let v1 = d1.location
-      let v2 = ctx2.dancers[xmlmap[i]].location
-      bxa[0][0] += v1.x * v2.x
-      bxa[0][1] += v1.y * v2.x
-      bxa[1][0] += v1.x * v2.y
-      bxa[1][1] += v1.y * v2.y
+  override func postProcess(_ ctx: CallContext, index: Int) {
+    super.postProcess(ctx, index: index)
+    //  If just this one call then assume it knows what
+    //  the ending formation should be
+    if (ctx.callstack.count > 1) {
+      ctx.matchStandardFormation()
     }
-    let (ua,_,va) = Matrix.svd22(bxa)
-    let ut = Matrix()
-    ut.putArray(Matrix.transpose(ua))
-    let v = Matrix()
-    v.putArray(va)
-    let rotmat = v.preConcat(ut)
-    //  Now rotate the formation and compute any remaining
-    //  differences in position
-    ctx1.actives.enumerated().forEach { (j,d2) in
-      let v1 = d2.location
-      let v2 = ctx2.dancers[xmlmap[j]].location.concatenate(rotmat)
-      dvbest += [v1 - v2]
-      dtotbest += dvbest[j].length
-    }
-    
-    return dvbest
   }
-  
   
 }

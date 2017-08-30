@@ -133,6 +133,11 @@ class Dancer {
     animate(beat)
   }
   
+  func rotateStartAngle(_ angle:CGFloat) {
+    starttx = starttx.preRotate(angle.toRadians)
+    tx = Matrix(starttx)
+  }
+  
   var beats:CGFloat {
     return path.beats
   }
