@@ -29,13 +29,13 @@ struct CallListDatum {
 }
 
 struct TamXref {
-  let doc: Ji
-  let xref: JiNode
+  let doc: XMLDocument
+  let xref: XMLElement
   
   /**
    *  Returns animation element, looking up cross-reference if needed.
    */
-  init(_ tam:JiNode) {
+  init(_ tam:XMLElement) {
     if let link = tam["xref-link"] {
       self.doc = TamUtils.getXMLAsset(link)
       var s = "//tam"
@@ -45,7 +45,7 @@ struct TamXref {
       if let from = tam["xref-from"] {
         s = s + "[@from='\(from)']"
       }
-      self.xref = self.doc.xPath(s)![0]
+      self.xref = self.doc.xpath(s)[0]
     } else {
       self.xref = tam
       self.doc = TamUtils.fdoc
@@ -64,8 +64,8 @@ class TamUtils {
     //  Read the global list of calls and save in a local list
     //  to speed up searching
     let callindex = getXMLAsset("src/callindex.xml")  // need to keep callindex in memory until calllistdata is filled
-    let nodelist = callindex.xPath("//call")!
-    calllistdata = nodelist.map { (n:JiNode) -> CallListDatum in
+    let nodelist = callindex.xpath("//call")
+    calllistdata = nodelist.map { (n:XMLElement) -> CallListDatum in
       CallListDatum(title: n["title"]!,text: n["text"]!,link: n["link"]!,sublevel: n["sublevel"]!,languages: n["languages"] ?? "")
     }
   }
@@ -83,7 +83,7 @@ class TamUtils {
     }
   }
   
-  class func getXMLAsset(_ name:String) -> Ji {
+  class func getXMLAsset(_ name:String) -> XMLDocument {
     //  Strip off any extension
     let pathparts = (name as NSString).pathComponents
     //  We can assume that the file has just one directory and then the filename
@@ -91,7 +91,7 @@ class TamUtils {
     let filename = pathparts[1].characters.split{$0 == "."}.map(String.init)[0]
     let filePath = Bundle.main.path(forResource: filename, ofType: "xml", inDirectory:path)!
     let xmlfile = try! Data(contentsOf: URL(fileURLWithPath: filePath))
-    let doc = Ji(data: xmlfile, isXML: true)!
+    let doc = try! XMLDocument(data: xmlfile)
     return doc
   }
  
@@ -99,29 +99,29 @@ class TamUtils {
   /**
   *    Returns list of animations from an xml document
   */
-  class func tamList(_ doc:Ji) -> [JiNode] {
-    return doc.xPath("//tam | //tamxref")!
+  class func tamList(_ doc:XMLDocument) -> NodeSet {
+    return doc.xpath("//tam | //tamxref")
   }
   
   
   //  From a tam element, look up any cross-references, then
   //  return all the processed paths
-  class func getPaths(_ tam:JiNode) -> [Path] {
-    return TamXref(tam).xref.xPath("path").map { Path(translatePath($0)) }
+  class func getPaths(_ tam:XMLElement) -> [Path] {
+    return TamXref(tam).xref.xpath("path").map { Path(translatePath($0)) }
   }
   
   //  Return the main title from an animation xml doc
   class func getTitle(_ link:String) -> String {
     let doc = getXMLAsset(link)
-    return doc.rootNode!["title"]!
+    return doc.root!["title"]!
   }
   
-  class func getFormation(_ fname:String) -> JiNode {
+  class func getFormation(_ fname:String) -> XMLElement {
     let xpath = "/formations/formation[@name='\(fname)']"
-    return fdoc.xPath(xpath)![0]
+    return fdoc.xpath(xpath)[0]
   }
   
-  class func translate(_ elem:JiNode) -> [Movement]? {
+  class func translate(_ elem:XMLElement) -> [Movement]? {
     switch elem.tag! {
     case "path" : return TamUtils.translatePath(elem)
     case "move" : return TamUtils.translateMove(elem)
@@ -133,25 +133,25 @@ class TamUtils {
   //  Takes a path, which is an XML element with children that
   //  are moves or movements.
   //  Returns an array of movements
-  class func translatePath(_ pathelem:JiNode) -> [Movement] {
-    return pathelem.children.filter{$0.name != "path"}.flatMap{TamUtils.translate($0)!}
+  class func translatePath(_ pathelem:XMLElement) -> [Movement] {
+    return pathelem.children.filter{$0.tag != "path"}.flatMap{TamUtils.translate($0)!}
   }
   
   //  Accepts a movement element from a XML file, either an animation definition
   //  or moves.xml
   //  Returns an array of a single movement
-  class func translateMovement(_ move:JiNode) -> [Movement]? {
+  class func translateMovement(_ move:XMLElement) -> [Movement]? {
     return [Movement(element:move)]
   }
   
   //  Takes a move, which is an XML element that references another XML
   //  path with its "select" attribute
   //  Returns an array of movements
-  class func translateMove(_ move:JiNode) -> [Movement]? {
+  class func translateMove(_ move:XMLElement) -> [Movement]? {
     //  First retrieve the requested path
     let movename = move["select"]!
     let xpath = "/moves/path[@name='\(movename)']"
-    let plist = mdoc.xPath(xpath)!
+    let plist = mdoc.xpath(xpath)
     let pathelem = plist[0]
     //  Get the list of movements
     let movements = TamUtils.translatePath(pathelem)
@@ -178,14 +178,14 @@ class TamUtils {
   *   Gets a named path (move) from the file of moves
   */
   class func getMove(_ name:String) -> Path {
-    return Path(TamUtils.translate(mdoc.xPath("/moves/path[@name='\(name)']")!.first!)!)
+    return Path(TamUtils.translate(mdoc.xpath("/moves/path[@name='\(name)']").first!)!)
   }
   
   /**
   *   Returns an array of numbers to use numering the dancers
   */
-  class func getNumbers(_ tam:JiNode) -> [String] {
-    let paths = tam.childrenWithName("path")
+  class func getNumbers(_ tam:XMLElement) -> [String] {
+    let paths = tam.children(tag:"path")
     var retval = Array(repeating: "", count: paths.count*2)
     let np = paths.count > 4 ? 4 : paths.count
     (0..<paths.count).forEach { (i:Int) -> () in
@@ -208,12 +208,12 @@ class TamUtils {
   }
   
   
-  class func getCouples(_ tam:JiNode) -> [String] {
+  class func getCouples(_ tam:XMLElement) -> [String] {
     var retval = ["1","3","1","3",
                   "2","4","2","4",
                   "5","6","5","6",
                   " "," "," "," "]
-    let paths = tam.childrenWithName("path")
+    let paths = tam.children(tag:"path")
     (0..<paths.count).forEach { (i:Int) -> () in
       let p = paths[i]
       let c = p["couples"]

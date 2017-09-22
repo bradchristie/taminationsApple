@@ -69,7 +69,7 @@ class AnimationView: UIView {
   var speed:SpeedValues = .normalspeed
   var geometry:GeometryType = .square
   var tamxref: TamXref?
-  var tam:JiNode?
+  var tam:XMLElement?
   var hasParts = false
   var idancer:InteractiveDancer? = nil
   
@@ -671,7 +671,7 @@ class AnimationView: UIView {
   }
   
   
-  func setAnimation(_ xtam:JiNode, intdan:Int = -1) {
+  func setAnimation(_ xtam:XMLElement, intdan:Int = -1) {
     tamxref = TamXref(xtam)
     tam = tamxref!.xref
     interactiveDancer = intdan
@@ -687,12 +687,12 @@ class AnimationView: UIView {
       }
       isRunning = false
       beats = 0
-      let tlist = tam!.childrenWithName("formation")
+      let tlist = tam!.children(tag:"formation")
       let formation = tlist.count > 0 ? tlist[0]
         : tam!["formation"] != nil ? TamUtils.getFormation(tam!["formation"]!)
         : tam!
-      let flist = formation.childrenWithName("dancer")
-      let paths = tam!.childrenWithName("path")
+      let flist = formation.children(tag:"dancer")
+      let paths = tam!.children(tag:"path")
       dancers = [Dancer]()
       
       //  Except for the phantoms, these are the standard colors
@@ -731,7 +731,7 @@ class AnimationView: UIView {
       var im = Matrix()
       if (interactiveDancer > 0) {
         let selector = interactiveDancer == Gender.boy.rawValue ? "dancer[@gender='boy']" : "dancer[@gender='girl']"
-        let glist = formation.xPath(selector)
+        let glist = formation.xpath(selector)
         icount = (Int)(arc4random_uniform((UInt32)(glist.count)))
         //  If the animations starts with "Heads" or "Sides"
         //  then select the first dancer.
@@ -757,7 +757,7 @@ class AnimationView: UIView {
         let angle = CGFloat(Double(fd["angle"]!)!)
         let gender = fd["gender"]
         let g:Gender = gender=="boy" ? .boy : gender=="girl" ? .girl : .phantom
-        let movelist = paths.count > i ? TamUtils.translatePath(tam!.childrenWithName("path")[i]) : [Movement]()
+        let movelist = paths.count > i ? TamUtils.translatePath(tam!.children(tag:"path")[i]) : [Movement]()
         //  Each dancer listed in the formation corresponds to
         //  one, two, or three real dancers depending on the geometry
         for geom in geoms {

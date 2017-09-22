@@ -37,7 +37,7 @@ class TamButton : UIButton {
 
   override func sizeToFit() {
     //  Size the button to fit the label's width
-    let labelSize = titleLabel?.text!.size(attributes: [NSFontAttributeName:buttonFont()])
+    let labelSize = titleLabel?.text!.size(withAttributes: [NSAttributedStringKey.font:buttonFont()])
     super.sizeToFit()  //  but that leaves no margin on the sides, so ...
     bounds = CGRect(x: 0,y: 0,width: labelSize!.width+20,height: labelSize!.height+10)
    }

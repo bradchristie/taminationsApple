@@ -114,8 +114,13 @@ class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSe
 
   override func viewDidAppear(_ animated: Bool) {
     //  If link passed in from URL sent to app, go there immediately
+    let settings = UserDefaults.standard
     if firstcall && intent["link"] != nil {
       self.navigationController?.pushViewController(SecondLandscapeViewController(intent), animated: true)
+    } else if (!TipViewController.showed && !settings.bool(forKey: "hidetips")) {
+      let tc = TipViewController(nibName: nil, bundle: nil)
+      tc.modalPresentationStyle = .overCurrentContext
+      self.navigationController?.present(tc,animated: true)
     }
     firstcall = false
     levelLayout.unselect(isLandscape: true)

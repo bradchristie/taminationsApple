@@ -77,6 +77,7 @@ extension Sequence {
 
 extension String {
   
+  //  Length property
   var length:Int {
     get {
       return characters.count
@@ -90,6 +91,7 @@ extension String {
     return range(of: "^"+query+"$", options: .regularExpression) != nil
   }
   
+  //  Other replace methods
   func replaceFirst(_ query:String, _ replacement:String) -> String {
     var retval = self
     if let r = range(of: query, options: .regularExpression) {
@@ -110,7 +112,9 @@ extension String {
   func trim() -> String {
     return self.trimmingCharacters(in: CharacterSet.whitespaces)
   }
-  
+
+  //  Subscript methods to accept ints and return strings
+  //  More convenient than the String API methods
   subscript (i: Int) -> Character {
     return self[self.characters.index(self.startIndex, offsetBy: i)]
   }
@@ -120,20 +124,15 @@ extension String {
   }
   
   subscript (r: Range<Int>) -> String {
-    return substring(with: characters.index(startIndex, offsetBy: r.lowerBound) ..< characters.index(startIndex, offsetBy: r.upperBound))
+    return String(self[characters.index(startIndex, offsetBy: r.lowerBound) ..< characters.index(startIndex, offsetBy: r.upperBound)])
   }
   
-  func split() -> Array<String> {
+  //  More convenience methods
+  func split() -> [String] {
     return components(separatedBy: CharacterSet.whitespaces)
   }
   func split(_ c:String) -> [String] {
     return components(separatedBy: c)
-  }
-  
-  func substr(_ i:Int, _ j:Int) -> String {
-    let start = self.characters.index(self.startIndex, offsetBy: i)
-    let end = self.characters.index(self.startIndex, offsetBy: j)
-    return self.substring(with: start..<end)
   }
   
   // Returns an array of strings, starting with the entire string,
@@ -162,7 +161,7 @@ extension String {
     return chopped().flatMap { (s:String) -> [String] in s.diced() }
   }
   
-  func indexOf(_ s:String) -> Int {
+  func indexOfAsInt(_ s:String) -> Int {
     let range = self.range(of: s)
     if (range == nil) {
       return -1

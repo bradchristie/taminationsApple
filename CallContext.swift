@@ -106,9 +106,9 @@ class CallContext {
   }
   
   //  Create a context from a formation defined in XML
-  convenience init(formation:JiNode) {
+  convenience init(formation:XMLElement) {
     self.init()
-    let fds = formation.xPath("dancer")
+    let fds = formation.xpath("dancer")
     for (i,fd) in fds.enumerated() {
       //  TODO this assumes square geometry
       var m = Matrix().postRotate(CGFloat(Double(fd["angle"]!)!)*CG_PI/180)
@@ -215,11 +215,11 @@ class CallContext {
     //  Found xml file with call, now look through each animation
     _ = callfiles.exists { (d:CallListDatum) -> Bool in
       let doc = TamUtils.getXMLAsset(d.link)
-      let tams = doc.xPath("//tam")!
+      let tams = doc.xpath("//tam")
       found = tams.nonEmpty
-      return tams.exists { (tam:JiNode) -> Bool in
+      return tams.exists { (tam:XMLElement) -> Bool in
         if (tam["title"]!.lowercased().replaceAll("\\W", "").matches(callquery)) {
-          let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xPath("formation").first!
+          let f = tam["formation"] != nil ? TamUtils.getFormation(tam["formation"]!) : tam.xpath("formation").first!
           let ctx2 = CallContext(formation: f)
           let sexy = tam["gender-specific"] != nil
           //  Try to match the formation to the current dancer positions

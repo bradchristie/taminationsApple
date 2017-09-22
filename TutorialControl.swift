@@ -57,8 +57,8 @@ class TutorialControl : PracticeControl {
     let settings = UserDefaults.standard
     let gender = settings.integer(forKey: "practicegender")==1 ? Gender.girl : Gender.boy
     let offset = gender == .boy ? 0 : 1
-    let tamlist = tamdoc.xPath("/tamination/tam")
-    let tam = tamlist![tutnum*2+offset]
+    let tamlist = tamdoc.xpath("/tamination/tam")
+    let tam = tamlist[tutnum*2+offset]
     titleSetter?.setThisTitle(tam["title"]!)
     practiceLayout.animationView.setAnimation(tam, intdan: gender.rawValue)
     practiceLayout.animationView.setSpeed(Speed(rawValue: settings.integer(forKey: "practicespeed"))!)

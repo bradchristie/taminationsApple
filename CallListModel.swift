@@ -56,7 +56,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     let mylevel = LevelData.find(level)!
     //  Read all the data now so searching is more interactive
     let xmlpath = mylevel.selector
-    let nodes = mylevel.doc.xPath(xmlpath)!
+    let nodes = mylevel.doc.xpath(xmlpath)
     calllistdata = nodes.map{ node in CallListData(title:node["title"]!,link:node["link"]!,sublevel:node["sublevel"]!) }
     buildTable()
   }
@@ -76,7 +76,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
         }
       }
       //  TODO arrays in Swift are passed by value - this probably could be better
-      let i = max(indexstr.indexOf(cld.title.uppercased()[0]),0)
+      let i = max(indexstr.indexOfAsInt(cld.title.uppercased()[0]),0)
       if (i != previndex) {
         if (work.count > 0) {
           sections.append(work)
@@ -97,7 +97,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     return UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40))
   }
   func levelFont() -> UIFont { return UIFont.systemFont(ofSize: 14) }
-  func levelSize(_ cld:CallListData) -> CGSize { return cld.sublevel.size(attributes: [NSFontAttributeName:levelFont()]) }
+  func levelSize(_ cld:CallListData) -> CGSize { return cld.sublevel.size(withAttributes: [NSAttributedStringKey.font:levelFont()]) }
   
   //  Calculates wrapping for a row given the strings for the call and the level
   func wrappedStringForRowAtIndexPath(_ tableView: UITableView, indexPath:IndexPath, toFitWidth:CGFloat) -> String {
@@ -113,7 +113,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
         continue
       }
       let text = oneline + " " + word
-      let labelSize = text.size(attributes: [NSFontAttributeName:callFont(tableView)])
+      let labelSize = text.size(withAttributes: [NSAttributedStringKey.font:callFont(tableView)])
       //  Add 50+ for margins, spacing, index on right
       if (labelSize.width > toFitWidth - levelSize(cld).width - 54) {
         labeltext = labeltext + oneline + "\n"
@@ -169,7 +169,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
     let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     if (cld.height == 0) {
       let labeltext = wrappedStringForRowAtIndexPath(tableView, indexPath: indexPath, toFitWidth: tableView.bounds.width)
-      let labelSize = labeltext.size(attributes: [NSFontAttributeName:callFont(tableView)])
+      let labelSize = labeltext.size(withAttributes: [NSAttributedStringKey.font:callFont(tableView)])
       cld.height = labelSize.height + 10
     }
     return cld.height

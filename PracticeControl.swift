@@ -47,15 +47,15 @@ class PracticeControl : NSObject, AnimationReadyListener, AnimationProgressListe
   }
  
   func nextAnimation() {
-    var tam:JiNode? = nil
+    var tam:XMLElement? = nil
     let selector = LevelData.find(level!)!.selector
-    let calls = calldoc.xPath(selector)!
+    let calls = calldoc.xpath(selector)
     while (tam == nil) {
       let e = calls[(Int)(arc4random_uniform((UInt32)(calls.count)))]
       //  Remember link for definition
       link = e["link"]!
       let tamdoc = TamUtils.getXMLAsset(link)
-      let tams = tamdoc.xPath("/tamination/tam")!
+      let tams = tamdoc.xpath("/tamination/tam")
         //  For now, skip any "difficult" animations
         .filter{($0["difficulty"] ?? "") != "3"}
         //  Skip any call with parens in the title - it could be a cross-reference

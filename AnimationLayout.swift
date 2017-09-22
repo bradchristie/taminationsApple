@@ -51,7 +51,7 @@ class AnimationLayout: UIView {
     visualConstraints("V:|[a][b(==100)]-2-[c(==40)]|",fillHorizontal:true)
     
     tamsays.font = UIFont.italicSystemFont(ofSize: frame.height/30)
-    tamsays.backgroundColor = UIColor(colorLiteralRed: 1, green: 1, blue: 1, alpha: 0.5)
+    tamsays.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
     tamsays.numberOfLines = 0
     addSubview(tamsays)
     visualConstraints("V:|[d]",fillHorizontal: true)

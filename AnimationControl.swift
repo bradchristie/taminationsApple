@@ -26,8 +26,8 @@ class AnimationControl {
   var from:String = ""
   var group:String = ""
   var animname:String = ""
-  var tamdoc:Ji?  //  Need to hang onto tamdoc and tam ptrs
-  var tam:JiNode?  // so they don't get yanked out from under animation
+  var tamdoc:XMLDocument?  //  Need to hang onto tamdoc and tam ptrs
+  var tam:XMLElement?  // so they don't get yanked out from under animation
   var progressFun:(_ beat:CGFloat)->Void = { arg in }
   var optionsFun:(_ options:String)->Void = { arg in }
   
@@ -45,8 +45,8 @@ class AnimationControl {
     animname = (group.length > 1 ? title : title+"from"+from).replaceAll("\\W", "")
     
     //  Show any Taminator text
-    let saychild = tam!.childrenWithName("taminator")
-    animationLayout.tamsays.text = saychild.count > 0 ? saychild[0].content!.trim().replaceAll("\\s+", " ") : ""
+    let saychild = tam!.children(tag:"taminator")
+    animationLayout.tamsays.text = saychild.count > 0 ? saychild[0].stringValue.trim().replaceAll("\\s+", " ") : ""
     
     progressFun = { (beat:CGFloat) -> Void in
       animationLayout.animationPanel.slider.value = Float(beat / animationView.totalBeats)

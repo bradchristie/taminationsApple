@@ -87,7 +87,7 @@ class Movement {
         cx3:cx1, cx4:cx2, cy4:cy2, x4:x2, y4:y2, beats:beats)
   }
   
-  init(element elem:JiNode) {
+  init(element elem:XMLElement) {
     beats = CGFloat(Double(elem["beats"]!)!)  //  Yes, needs to be unwrapped twice, first for finding the attribute, second for conversion to number
     fullbeats = beats
     hands = Movement.getHands(elem["hands"]!)

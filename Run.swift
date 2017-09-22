@@ -30,14 +30,18 @@ class Run : Action {
         //  Partner must be inactive
         switch d.data.partner {
         case .some(let d2) where !d2.data.active:
-          d.path.add(TamUtils.getMove(d.data.beau ? "Run Right" : "Run Left"))
+          let m = d.data.beau ? "Run Right" : "Run Left"
+          let dist = CallContext.distance(d,d2)
+          d.path.add(TamUtils.getMove(m).scale(1.0,dist/2))
         default:
           throw CallError("Dancer \(d.number) has nobody to Run around") as Error
         }
       } else {
         switch d.data.partner {
         case .some(let d2) where d2.data.active:
-          d.path.add(TamUtils.getMove(d.data.beau ? "Dodge Right" : "Dodge Left"))
+          let m = d.data.beau ? "Dodge Right" : "Dodge Left"
+          let dist = CallContext.distance(d,d2)
+          d.path.add(TamUtils.getMove(m).scale(1.0,dist/2))
         default:
           break  // not involved
         }

@@ -91,12 +91,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         myroot = LevelViewController(myintent)
       }
     }
-    let nav = istablet ? UINavigationController.init(rootViewController: myroot)
-                       : PortraitNavigationController.init(rootViewController:myroot)
+    let nav = istablet ? UINavigationController(rootViewController: myroot)
+                       : PortraitNavigationController(rootViewController:myroot)
     nav.customNavBar()
     mywindow?.rootViewController = nav
     mywindow?.addSubview(myroot.view)
     mywindow?.makeKeyAndVisible()
+    
   }
   
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {

@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class XMLCall : Call {
   
-  let doc:Ji
-  let xelem:JiNode
+  let doc:XMLDocument
+  let xelem:XMLElement
   let xmlmap:[Int]
   let ctx2:CallContext
-  init(doc:Ji, xelem:JiNode, xmlmap:[Int], ctx:CallContext) {
+  init(doc:XMLDocument, xelem:XMLElement, xmlmap:[Int], ctx:CallContext) {
     self.doc = doc
     self.xelem = xelem
     self.xmlmap = xmlmap

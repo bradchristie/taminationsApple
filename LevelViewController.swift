@@ -49,6 +49,12 @@ class LevelViewController: TamViewController, LevelSelectionListener {
   }
   
   override func viewDidAppear(_ animated: Bool) {
+    let settings = UserDefaults.standard
+    if (!TipViewController.showed && !settings.bool(forKey: "hidetips")) {
+      let tc = TipViewController(nibName: nil, bundle: nil)
+      tc.modalPresentationStyle = .overCurrentContext
+      self.navigationController?.present(tc,animated: true)
+    }
     levelLayout.unselect()
   }
   

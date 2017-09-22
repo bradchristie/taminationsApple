@@ -328,7 +328,7 @@ class SequencerModel : NSObject, UITableViewDataSource, UITableViewDelegate, OEE
   @objc func tableView(_ tableView:UITableView, heightForRowAt indexPath:IndexPath) -> CGFloat {
     let constraintSize = CGSize(width: tableView.bounds.width, height: CGFloat(MAXFLOAT))
     let labelSize = callNames[(indexPath as NSIndexPath).row].boundingRect(with: constraintSize,options:[NSStringDrawingOptions.usesLineFragmentOrigin],
-      attributes:[NSFontAttributeName:cellFont(layout!)],context:nil)
+      attributes:[NSAttributedStringKey.font:cellFont(layout!)],context:nil)
     return labelSize.height + 10  }
   
   @objc func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -38,6 +38,7 @@ class SettingsModel : NSObject {
     view.gridControl.isOn = settings.bool(forKey: "grid")
     view.pathControl.isOn = settings.bool(forKey: "path")
     view.phantomsControl.isOn = settings.bool(forKey: "phantoms")
+    view.tipsControl.isOn = !settings.bool(forKey: "hidetips")
     switch settings.integer(forKey: "speed") {
     case 2 :
       view.speedControl.selectedSegmentIndex = 2
@@ -77,6 +78,7 @@ class SettingsModel : NSObject {
     view.numbersControl.addTarget(self, action: #selector(SettingsModel.numbersSelector), for: .valueChanged)
     view.phantomsControl.addTarget(self, action: #selector(SettingsModel.phantomsSelector), for: .valueChanged)
     view.geometryControl.addTarget(self, action: #selector(SettingsModel.geometrySelector), for: .valueChanged)
+    view.tipsControl.addTarget(self, action: #selector(SettingsModel.tipsSelector), for: .valueChanged)
     
   }
   
@@ -125,6 +127,10 @@ class SettingsModel : NSObject {
     default : g = .square
     }
     UserDefaults.standard.set(g.rawValue, forKey: "geometry")
+    settingsListener?.settingsChanged()
+  }
+  @objc func tipsSelector() {
+    UserDefaults.standard.set(!view.tipsControl.isOn, forKey: "hidetips")
     settingsListener?.settingsChanged()
   }
   

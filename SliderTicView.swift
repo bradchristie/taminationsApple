@@ -51,8 +51,8 @@ class SliderTicView: UIView {
       ctx?.strokePath()
       //  Draw tic labels
       let attributes = [
-        NSForegroundColorAttributeName: UIColor.white,
-        NSFontAttributeName: UIFont(name: "Helvetica", size: height/2.0)!
+        NSAttributedStringKey.foregroundColor: UIColor.white,
+        NSAttributedStringKey.font: UIFont(name: "Helvetica", size: height/2.0)!
       ]
       if (beats > 2) {
         x = width*2/beats + xmargin - height/3   //  hack for centering text

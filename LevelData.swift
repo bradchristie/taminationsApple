@@ -25,10 +25,10 @@ struct LevelData {
   let name:String
   let dir:String
   let selector:String
-  let doc:Ji
+  let doc:XMLDocument
   let color:UIColor
   
-  init(_ name:String, _ dir:String, _ selector:String, _ doc:Ji, _ color:UIColor) {
+  init(_ name:String, _ dir:String, _ selector:String, _ doc:XMLDocument, _ color:UIColor) {
     self.name = name
     self.dir = dir
     self.selector = selector

@@ -32,6 +32,7 @@ class SettingsView: UIScrollView {
   let numbersHint:UILabel
   let phantomsControl:UISwitch
   let geometryControl:UISegmentedControl
+  let tipsControl:UISwitch
   
   override init(frame: CGRect) {
     let speedPanel = UIView(frame:CGRect(x: 0,y: 0,width: frame.width,height: 76))
@@ -133,6 +134,21 @@ class SettingsView: UIScrollView {
     geometryPanel.addSubview(geometryLabel)
     geometryPanel.addSubview(geometryControl)
     
+    let tipsPanel = UIView(frame:CGRect(x: 0,y: 488,width: frame.width,height: 64))
+    tipsPanel.backgroundColor = UIColor.white
+    let tipsLabel = UILabel(frame:CGRect(x: 20,y: 2,width: 96,height: 21))
+    tipsLabel.text = "Tips"
+    tipsLabel.font = UIFont.systemFont(ofSize: 17)
+    tipsControl = UISwitch(frame:CGRect(x: 223,y: 0,width: 0,height: 0))
+    let tipsHint = UILabel(frame:CGRect(x: 20,y: 20,width: 195,height: 48))
+    tipsHint.text = "Show Tip of the Day at startup"
+    tipsHint.font = UIFont.systemFont(ofSize: 14)
+    tipsHint.numberOfLines = 0
+    tipsPanel.addSubview(tipsLabel)
+    tipsPanel.addSubview(tipsControl)
+    tipsPanel.addSubview(tipsHint)
+
+    
     super.init(frame:frame)
     backgroundColor = UIColor.gray
     addSubview(speedPanel)
@@ -142,9 +158,10 @@ class SettingsView: UIScrollView {
     addSubview(numbersPanel)
     addSubview(phantomsPanel)
     addSubview(geometryPanel)
+    addSubview(tipsPanel)
     
     //  This is needed to enable scrolling on smaller devices (iPhone 4s)
-    contentSize = CGSize(width: frame.width, height: geometryPanel.frame.origin.y + geometryPanel.bounds.height)
+    contentSize = CGSize(width: frame.width, height: tipsPanel.frame.origin.y + tipsPanel.bounds.height)
   }
 
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }

@@ -78,7 +78,7 @@ class AnimListModel : NSObject, UITableViewDataSource, UITableViewDelegate {
     //  Get the xml file listing the animations
     let tamxml = TamUtils.getXMLAsset(link)
     //  Get the title from the xml file
-    title = tamxml.rootNode!["title"] ?? "Title Missing !!"
+    title = tamxml.root!["title"] ?? "Title Missing !!"
     //  If we came from the master index, the user clicked call could be
     //  something different than the main title of this call
     //  TODO "clickedfullname"
@@ -250,7 +250,7 @@ class AnimListModel : NSObject, UITableViewDataSource, UITableViewDelegate {
       let wd = data.celltype == CellType.Indented ? 60 : data.celltype == CellType.Plain ? 40 : 10
       let constraintSize = CGSize(width: tableView.bounds.width-CGFloat(wd), height: CGFloat(MAXFLOAT))
       let labelSize = data.text.boundingRect(with: constraintSize,options:[NSStringDrawingOptions.usesLineFragmentOrigin],
-        attributes:[NSFontAttributeName:cellFont(tableView)],context:nil)
+        attributes:[NSAttributedStringKey.font:cellFont(tableView)],context:nil)
       return labelSize.height + 10
     }
   }
