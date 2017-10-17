@@ -116,6 +116,8 @@ class Dancer {
       //  Already geometrically rotated so don't do it again
          geom:GeometryMaker.makeOne(from.geom.geometry()),moves:[Movement]())
     clonedFrom = from
+    //  For the sequencer, copy dancer data
+    data.active = from.data.active
   }
   
   func animate(_ beat:CGFloat) {

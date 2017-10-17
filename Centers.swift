@@ -20,6 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Centers : FilterActives {
   
+  let callname:String
+  
+  init(_ calltext:String) {
+    callname = calltext.capitalize()
+  }
+  
   override var name:String { get { return "Centers" } }
   
   override func isActive(_ d: Dancer) -> Bool {

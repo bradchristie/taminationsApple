@@ -165,16 +165,22 @@ class CallContext {
       if (!calltext.chopped().exists { (callname:String) -> Bool in
         var success = false
         //  First try to find an exact match in Taminations
-        //  Then look for a code match
         do {
           try success = self.matchXMLCall(callname)
         } catch let err2 as CallError  {
           err = err2
         } catch { }
+        //  Then look for a code match
         do {
           try success = success || self.matchCodedCall(callname)
         } catch let err3 as CallError {
           err = err3
+        } catch { }
+        //  Finally try a fuzzier match in Taminations
+        do {
+          try success = success || self.matchXMLCall(callname,fuzzy:true)
+        } catch let err4 as CallError  {
+          err = err4
         } catch { }
         if (success) {
           //  Remove the words we matched, break out of and
@@ -189,7 +195,7 @@ class CallContext {
     }
   }
   
-  func matchXMLCall(_ calltext:String) throws -> Bool {
+  func matchXMLCall(_ calltext:String, fuzzy:Bool=false) throws -> Bool {
     var found = false
     var matches = false
     var ctx = self
@@ -223,7 +229,7 @@ class CallContext {
           let ctx2 = CallContext(formation: f)
           let sexy = tam["gender-specific"] != nil
           //  Try to match the formation to the current dancer positions
-          if let mm = self.matchFormations(ctx, ctx2, sexy: sexy) {
+          if let mm = self.matchFormations(ctx, ctx2, sexy: sexy, fuzzy:fuzzy) {
             matches = true
             // add XMLCall object to the call stack
             ctx0.callstack.append(XMLCall(doc:doc, xelem: tam, xmlmap: mm, ctx: ctx2))
@@ -313,7 +319,8 @@ class CallContext {
   }
   
   
-  func matchFormations(_ ctx1: CallContext, _ ctx2:CallContext, sexy:Bool, fuzzy:Bool=false) -> [Int]? {
+  func matchFormations(_ ctx1: CallContext, _ ctx2:CallContext,
+                       sexy:Bool=false, fuzzy:Bool=false, rotate:Bool=false) -> [Int]? {
     if (ctx1.dancers.count != ctx2.dancers.count) {
       return nil
     }
@@ -338,7 +345,7 @@ class CallContext {
         mapping[mapindex] = -1
         mapping[mapindex + 1] = -1
         //  If fuzzy, try rotating this dancer
-        if (fuzzy && !rotated[mapindex]) {
+        if (rotate && !rotated[mapindex]) {
           ctx1.dancers[mapindex].rotateStartAngle(180.0)
           ctx1.dancers[mapindex+1].rotateStartAngle(180.0)
           rotated[mapindex] = true
@@ -420,10 +427,9 @@ class CallContext {
   //  See if the current dancer positions resemble a standard formation
   //  and, if so, snap to the standard
   static let standardFormations = [
-    "Normal Lines",
     "Normal Lines Compact",
+    "Normal Lines",
     "Double Pass Thru",
-    "Static Square",
     "Quarter Tag",
     "Tidal Line RH",
     "Diamonds RH Girl Points",
@@ -432,7 +438,10 @@ class CallContext {
     "Galaxy RH GP",
     "Butterfly RH",
     "O RH",
-    "Sausage RH"
+    "Sausage RH",
+    "T-Bone URRD",
+    "T-Bone RUUL",
+    "Static Square"
   ]
   struct BestMapping { let name:String; let mapping:[Int]; let offsets:[Vector3D]; let totOffset:CGFloat }
   func matchStandardFormation() {
@@ -445,11 +454,12 @@ class CallContext {
     CallContext.standardFormations.forEach { f in
       let ctx2 = CallContext(formation:TamUtils.getFormation(f))
       //  See if this formation matches
-      if let mapping = matchFormations(ctx1,ctx2,sexy: false,fuzzy: true) {
+      if let mapping = matchFormations(ctx1,ctx2,sexy: false,fuzzy: true, rotate:true) {
         //  If it does, get the offsets
         let offsets = ctx1.computeFormationOffsets(ctx2,mapping)
         let totOffset = offsets.reduce(0.0) { s,v in s+v.length }
-        if (bestMapping==nil || totOffset < bestMapping!.totOffset) {
+        //  Favor formations closer to the top of the list
+        if (bestMapping==nil || totOffset+0.1 < bestMapping!.totOffset) {
           bestMapping = BestMapping (
             name: f,  // only used for debugging
             mapping: mapping,

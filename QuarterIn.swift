@@ -20,7 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QuarterIn : QuarterTurns {
   
-  override var name:String { get { return "Quarter In" } }
+  let callname:String
+  init(_ calltext:String) {
+    callname = calltext.capWords()
+  }
+  override var name:String { get { return callname } }
   
   override func select(_ ctx: CallContext, _ d: Dancer) -> String {
     return d.data.beau ? "Quarter Right" : "Quarter Left"

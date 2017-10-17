@@ -22,7 +22,7 @@ import UIKit
 
 class LevelViewController: TamViewController, LevelSelectionListener {
 
-  var levelLayout:LevelLayoutBase!
+  var levelLayout:LevelLayout!
   
   override func loadView() {
     levelLayout = LevelLayout(frame: contentFrame)

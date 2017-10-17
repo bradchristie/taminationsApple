@@ -30,7 +30,7 @@ class CodedCall : Call {
     case "box counter rotate" : return BoxCounterRotate()
     case "box the gnat" : return BoxtheGnat()
     case "boys" : return Boys()
-    case "centers" : return Centers()
+    case let c where c.matches("centers?") : return Centers(c)
     case "circulate" : return Circulate()
     case "cross run" : return CrossRun()
     case "ends" : return Ends()
@@ -46,9 +46,10 @@ class CodedCall : Call {
     case "heads" : return Heads()
     case "hinge" : return Hinge()
     case "leaders" : return Leaders()
+    case "left touch a quarter" : return LeftTouchAQuarter()
     case "one and a half" : return OneAndaHalf()
     case "pass thru" : return PassThru()
-    case "quarter in" : return QuarterIn()
+    case let c where c.matches("quarter (in|out)") : return QuarterIn(c)
     case "quarter out" : return QuarterOut()
     case "run" : return Run()
     case "sides" : return Sides()
@@ -56,20 +57,18 @@ class CodedCall : Call {
     case "slip" : return Slip()
     case "star thru" : return StarThru()
     case "trailers" : return Trailers()
-    case "touch a quarter" : return TouchAQuarter()
+    case let c where c.matches("(left )?touch a quarter") : return TouchAQuarter(c)
     case "trade" : return Trade()
     case "turn back" : return TurnBack()
     case "turn thru" : return TurnThru()
     case "very centers" : return VeryCenters()
     case "wheel around" : return WheelAround()
+    case let c where c.matches("z[ai]g") : return Zig(c)
+    case let c where c.matches("z[ai]g z[ai]g") : return ZigZag(c)
     case "zoom" : return Zoom()
     default : return nil
     }
   }
-  
-  override func postProcess(_ ctx: CallContext, index: Int) {
-    super.postProcess(ctx, index: index)
-    ctx.matchStandardFormation()
-  }
+
   
 }

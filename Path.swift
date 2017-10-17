@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import UIKit
 
 
-class Path {
+class Path : IfDo {
   
   var movelist:[Movement] = []
   var transformlist:[Matrix] = []
@@ -80,8 +80,9 @@ class Path {
     return m
   }
   
-  func reflect() {
+  func reflect() -> Path {
     movelist = movelist.map{$0.reflect()}
+    return self
   }
   
   var beats:CGFloat { get {

@@ -20,9 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ZigZag : QuarterTurns {
   
-  override var name:String { get { return "Zig Zag" } }
+  let callname:String
+  init(_ calltext:String) {
+    callname = calltext.capWords()
+  }
+  override var name:String { get { return callname } }
   
   override func select(_ ctx: CallContext, _ d: Dancer) -> String {
-    return d.data.leader ? "Quarter Right" : d.data.trailer ? "Quarter Left" : "Stand"
+    if (d.data.leader) {
+      return name.matches("Zig Z[ai]g") ? "Quarter Right" : "Quarter Left"
+    } else if (d.data.trailer) {
+      return name.matches("Z[ai]g Zig") ? "Quarter Right" : "Quarter Left"
+    } else {
+      return "Stand"
+    }
   }
 }

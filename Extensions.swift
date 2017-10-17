@@ -20,6 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import UIKit
 
+protocol IfDo {
+  associatedtype Myself
+  func ifdo(_ e:Bool, f:(Myself) -> Myself) -> Myself 
+}
+extension IfDo {
+  func ifdo(_ e:Bool, f:(Self) -> Self) -> Self {
+    return e ? f(self) : self
+  }
+}
+
 //  Swift seems to be missing a logical XOR
 func ^(b1:Bool, b2:Bool) -> Bool {
   return b1 ? !b2 : b2
@@ -107,6 +117,14 @@ extension String {
   func replaceAll(_ query: String, _ replacement: String) -> String {
     return self.replacingOccurrences(of: query, with: replacement,
       options: .regularExpression, range: nil)
+  }
+  
+  func capitalize() -> String {
+    return self[0].uppercased() + self.dropFirst().lowercased()
+  }
+  
+  func capWords() -> String {
+    return self.split(" ").map { $0.capitalize() }.joined(separator:" ")
   }
   
   func trim() -> String {

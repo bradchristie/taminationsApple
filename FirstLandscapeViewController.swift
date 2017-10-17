@@ -84,6 +84,7 @@ class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSe
   func levelSelected(_ level: String) {
     levelLayout.unselect()
     title = "Taminations"
+    levelLayout.selectLevel(level)
     switch level {
     case "About" : rightview.bringSubview(toFront: aboutLayout)
     case "Settings" : rightview.bringSubview(toFront: settingsLayout)
@@ -97,7 +98,6 @@ class FirstLandscapeViewController: TamViewController, CallListFollower, LevelSe
     self.model.reset(self,level)
     calllistLayout.reloadData()
     rightview.bringSubview(toFront: calllistLayout)
-    levelLayout.selectLevel(level)
     title = "Taminations - " + LevelData.find(level)!.name
   }
   
