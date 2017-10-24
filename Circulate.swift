@@ -25,12 +25,21 @@ class Circulate : Action {
   override func perform(_ ctx: CallContext, index: Int) throws {
     //  If just 4 dancers, try Box Circulate
     if (ctx.actives.count == 4) {
-      do {
-        try ctx.applyCalls("box circulate")
-      } catch is CallError {
-        //  That didn't work, try to find a circulate path for each dancer
-        try super.perform(ctx,index: index)
+      if (ctx.actives.every { d in d.data.center } ) {
+        do {
+          try ctx.applyCalls("box circulate")
+        } catch is CallError {
+          //  That didn't work, try to find a circulate path for each dancer
+          try super.perform(ctx,index: index)
+        }
       }
+      else {
+        try super.perform(ctx,index:index)
+      }
+    }
+      //  If two-faced lines, do Couples Circulate
+    else if (ctx.isTwoFacedLines()) {
+      try ctx.applyCalls("couples circulate")
     }
     //  If in waves or lines, then do All 8 Circulate
     else if (ctx.isLines()) {

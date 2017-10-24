@@ -27,4 +27,12 @@ class Roll : QuarterTurns {
     let roll = d.path.movelist.last!.brotate!.rolling
     return roll < -0.1 ? "Quarter Right" : roll > 0.1 ? "Quarter Left" : "Stand"
   }
+  
+  override func preProcess(_ ctx: CallContext, index: Int) throws {
+    try super.preProcess(ctx, index: index)
+    if (index == 0) {
+      throw CallError("'and Roll' must follow another call.");
+    }
+  }
+  
 }

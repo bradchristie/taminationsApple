@@ -34,6 +34,7 @@ class SequencerView: UIView {
   let typeNow: UIButton
   let calltext:UILabel
   let editText:UITextField
+  let beatView:UILabel
   
   override init(frame: CGRect) {
     let graymike = UIImage(contentsOfFile: Bundle.main.path(forResource: "mic-gray", ofType: "png", inDirectory:"files/images")!)
@@ -45,6 +46,8 @@ class SequencerView: UIView {
     speakNow.setImage(redmike, for: .selected)
     typeNow = UIButton()
     typeNow.setImage(graykbd, for:UIControlState())
+    beatView = UILabel()
+    beatView.font = UIFont(name:"Helvetica", size: 30)!
     calltext = UILabel()
     calltext.font = UIFont(name:"Helvetica Bold", size: frame.size.height/40)
     calltext.text = "Tap the keyboard or microphone to begin"
@@ -71,7 +74,8 @@ class SequencerView: UIView {
     animationView.addSubview(typeNow)
     animationView.addSubview(calltext)
     animationView.addSubview(speakNow)
-    animationView.visualConstraints("V:|-12-[a] V:|-12-[b] V:|-12-[c] |-12-[a(==\(bw))]-[b]-[c(==\(bw))]-12-|")
+    animationView.addSubview(beatView)
+    animationView.visualConstraints("V:|-12-[a] V:|-12-[b] V:|-12-[c] V:[d]-| |-12-[a(==\(bw))]-[b]-[c(==\(bw))]-12-| [d]-|")
     editText.isHidden = true
     callList = UITableView()
     super.init(frame:frame)

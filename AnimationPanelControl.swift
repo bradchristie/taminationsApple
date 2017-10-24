@@ -30,12 +30,14 @@ class AnimationPanelControl : NSObject, AnimationProgressListener, AnimationDone
     panel = p
     view = v
     //  Hook up button actions
-    panel.startButton.addTarget(self, action: #selector(AnimationPanelControl.startAction), for: .touchUpInside)
+    panel.startButton.addTarget(self, action: #selector(AnimationPanelControl.prevAction), for: .touchUpInside)
     panel.backButton.addTarget(self, action: #selector(AnimationPanelControl.backAction), for: .touchUpInside)
     panel.playButton.addTarget(self, action: #selector(AnimationPanelControl.playAction), for: .touchUpInside)
     panel.forwardButton.addTarget(self, action: #selector(AnimationPanelControl.forwardAction), for: .touchUpInside)
-    panel.endButton.addTarget(self, action: #selector(AnimationPanelControl.endAction), for: .touchUpInside)
+    panel.endButton.addTarget(self, action: #selector(AnimationPanelControl.nextAction), for: .touchUpInside)
     panel.slider.addTarget(self, action: #selector(AnimationPanelControl.sliderAction), for: .valueChanged)
+    panel.startButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(AnimationPanelControl.startAction)))
+    panel.endButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(AnimationPanelControl.endAction)))
     //  Hook up animation callbacks
     view.animationProgressListener = self
     view.animationDoneListener = self
@@ -49,6 +51,9 @@ class AnimationPanelControl : NSObject, AnimationProgressListener, AnimationDone
   @objc func backAction() {
     view.doBackup()
   }
+  @objc func prevAction() {
+    view.doPrevPart()
+  }
   @objc func playAction() {
     if (view.isRunning) {
       view.doPause()
@@ -60,6 +65,9 @@ class AnimationPanelControl : NSObject, AnimationProgressListener, AnimationDone
   }
   @objc func forwardAction() {
     view.doForward()
+  }
+  @objc func nextAction() {
+    view.doNextPart()
   }
   @objc func endAction() {
     view.doEnd()

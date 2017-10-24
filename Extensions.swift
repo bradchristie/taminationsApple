@@ -295,13 +295,14 @@ extension UINavigationController {
     let navbar = navigationBar
     navbar.isTranslucent = false
     let grad = CAGradientLayer()
-    grad.frame = navbar.bounds
+    //  Add status bar size to frame for background image, otherwise looks especially bad on iOS 11
+    grad.frame = CGRect(x: 0, y: 0, width: navbar.bounds.width, height: navbar.bounds.height+20)
     grad.colors = [UIColor(red:0,green:0.75,blue:0,alpha:1).cgColor,UIColor(red:0,green:0.25,blue:0,alpha:1).cgColor]
     UIGraphicsBeginImageContext(grad.frame.size)
     grad.render(in: UIGraphicsGetCurrentContext()!)
     let bgimage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
-    navbar.setBackgroundImage(bgimage, for: UIBarMetrics.default)
+    navbar.setBackgroundImage(bgimage, for: UIBarPosition.topAttached, barMetrics: UIBarMetrics.default)
   }
   
   open override var supportedInterfaceOrientations : UIInterfaceOrientationMask {

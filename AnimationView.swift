@@ -164,7 +164,8 @@ class AnimationView: UIView {
    */
   func doNextPart() {
     if (beat < beats) {
-      beat = partsValues().filter({$0 <= beat})[0]
+      let pv = partsValues().filter({$0 > beat})
+      beat = pv.count > 0 ? pv[0] : beats
       setNeedsDisplay()
     }
   }
@@ -174,7 +175,8 @@ class AnimationView: UIView {
    */
   func doPrevPart() {
     if (beat > -leadin) {
-      beat = partsValues().reversed().filter({$0 >= beat})[0]
+      let pv = partsValues().reversed().filter({$0 < beat})
+      beat = pv.count > 0 ? pv[0] : 0
       setNeedsDisplay()
     }
   }

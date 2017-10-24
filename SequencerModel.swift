@@ -269,6 +269,8 @@ class SequencerModel : NSObject, UITableViewDataSource, UITableViewDelegate, OEE
 
   func animationProgress(beat:CGFloat) -> Void {
     layout.animationPanel.slider.value = Float(beat / layout.animationView.totalBeats)
+    let b = min(max(0,beat-layout!.animationView.leadin),layout!.animationView.movingBeats)
+    layout.beatView.text = "\(Int(b))"
   }
   
   func animationPart(part:Int) {

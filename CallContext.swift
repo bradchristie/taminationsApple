@@ -411,7 +411,7 @@ class CallContext {
     analyze()
     //  Concepts and modifications primarily use the preProcess and
     //  postProcess methods
-    callstack.enumerated().forEach { (i,c) in c.preProcess(self, index: i) }
+    try callstack.enumerated().forEach { (i,c) in try c.preProcess(self, index: i) }
     //  Core calls primarly use the performCall method
     try callstack.enumerated().forEach { (i,c) in try c.performCall(self, index: i) }
     callstack.enumerated().forEach { (i,c) in c.postProcess(self, index: i) }
@@ -619,6 +619,12 @@ class CallContext {
     return dancers.every { d in dancersInFront(d).count + dancersInBack(d).count == 3 }
   }
   
+  func isTwoFacedLines() -> Bool {
+    return isLines() &&
+      dancers.every { d in isInCouple(d) } &&
+      dancers.filter { d in d.data.leader }.count == 4 &&
+      dancers.filter { d in d.data.trailer }.count == 4
+  }
   
   //  Find the range of the dancers current position
   //  For now we assume the dancers are centered

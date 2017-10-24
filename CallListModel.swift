@@ -96,8 +96,13 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   func callFont(_ tableView:UITableView) -> UIFont {
     return UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40))
   }
-  func levelFont() -> UIFont { return UIFont.systemFont(ofSize: 14) }
-  func levelSize(_ cld:CallListData) -> CGSize { return cld.sublevel.size(withAttributes: [NSAttributedStringKey.font:levelFont()]) }
+  func levelFont(_ tableView:UITableView) -> UIFont {
+    return UIFont.systemFont(ofSize: max(18,tableView.bounds.size.height/60))
+  }
+  func levelSize(_ tableView:UITableView, _ cld:CallListData) -> CGSize {
+    return cld.sublevel.size(withAttributes: [NSAttributedStringKey.font:levelFont(tableView)])
+    
+  }
   
   //  Calculates wrapping for a row given the strings for the call and the level
   func wrappedStringForRowAtIndexPath(_ tableView: UITableView, indexPath:IndexPath, toFitWidth:CGFloat) -> String {
@@ -115,7 +120,7 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
       let text = oneline + " " + word
       let labelSize = text.size(withAttributes: [NSAttributedStringKey.font:callFont(tableView)])
       //  Add 50+ for margins, spacing, index on right
-      if (labelSize.width > toFitWidth - levelSize(cld).width - 54) {
+      if (labelSize.width > toFitWidth - levelSize(tableView,cld).width - 54) {
         labeltext = labeltext + oneline + "\n"
         oneline = word
       } else {
@@ -127,16 +132,49 @@ class CallListModel : NSObject, UITableViewDataSource, UITableViewDelegate, UISe
   
   //  Required data source methods
   @objc func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "calllisttablecell") ?? UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "calllisttablecell")
     let cld = sections[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row]
     let labeltext = wrappedStringForRowAtIndexPath(tableView, indexPath: indexPath, toFitWidth: tableView.bounds.width)
+    var cell = tableView.dequeueReusableCell(withIdentifier: "calllisttablecell")
+    if (cell == nil) {
+      cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "calllisttablecell")
+      let labelView = UILabel()
+      labelView.text = labeltext
+      labelView.font = callFont(tableView)
+      labelView.numberOfLines = 0
+      labelView.tag = 1
+      cell?.contentView.addSubview(labelView)
+  
+      let levelView = UILabel()
+      levelView.textAlignment = NSTextAlignment.right
+      levelView.font = UIFont.systemFont(ofSize: max(18,tableView.bounds.size.height/60))
+      levelView.numberOfLines = 1
+      levelView.tag = 2
+      cell?.contentView.addSubview(levelView)
+    }
+    let rowRect = tableView.rectForRow(at: indexPath)
+    let labelView = cell?.contentView.viewWithTag(1) as! UILabel
+    let labelSize = labeltext.size(withAttributes: [NSAttributedStringKey.font:callFont(tableView)])
+    labelView.text = labeltext
+    labelView.frame = CGRect(x: 12, y: 5, width: rowRect.width, height: labelSize.height)
+    
+    let levelView = cell?.contentView.viewWithTag(2) as! UILabel
+    levelView.text = cld.sublevel
+    levelView.frame = CGRect(x: 0, y: 5, width: rowRect.width-32, height: labelSize.height)
+    
+    cell?.backgroundColor = LevelData.find(cld.sublevel)?.color
+
+    /*
     cell.textLabel?.text = labeltext
-    cell.textLabel?.font = UIFont.systemFont(ofSize: max(24,tableView.bounds.size.height/40))
+    cell.textLabel?.font = callFont(tableView)
     cell.textLabel?.numberOfLines = 0
     cell.detailTextLabel?.text = cld.sublevel
+    cell.detailTextLabel?.font = UIFont.systemFont(ofSize: max(18,tableView.bounds.size.height/60))
+    cell.detailTextLabel?.numberOfLines = 1
     cell.backgroundColor = LevelData.find(cld.sublevel)?.color
-    cell.accessibilityIdentifier = labeltext    // for testing
-    return cell
+//    cell.contentView.visualConstraints("|[a][b]|",fillVertical:true)
+    */
+    cell?.accessibilityIdentifier = labeltext    // for testing
+    return cell!
   }
   
   @objc func numberOfSections(in tableView: UITableView) -> Int {

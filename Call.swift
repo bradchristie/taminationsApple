@@ -22,7 +22,7 @@ class Call {
   
   var name:String { get { return "" } }
   func performCall(_ ctx:CallContext, index:Int) throws { }
-  func preProcess(_ ctx:CallContext, index:Int) { }
+  func preProcess(_ ctx:CallContext, index:Int) throws { }
   func postProcess(_ ctx:CallContext, index:Int) {  }
   
 }
