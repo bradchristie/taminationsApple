@@ -68,26 +68,41 @@ class Bezier {
     self.ay = y2 - y1 - cy - by
   }
   
+  //  Compute X, Y values for a specific t value
+  private func xt(_ t:CGFloat) -> CGFloat { return x1 + t*(cx + t*(bx + t*ax)) }
+  private func yt(_ t:CGFloat) ->CGFloat { return y1 + t*(cy + t*(by + t*ay)) }
+  //  Compute dx, dy values for a specific t value
+  private func dxt(_ t:CGFloat) -> CGFloat { return cx + t*(2.0*bx + t*3.0*ax) }
+  private func dyt(_ t:CGFloat) -> CGFloat { return cy + t*(2.0*by + t*3.0*ay) }
+  private func angle(_ t:CGFloat) -> CGFloat { return atan2(dyt(t),dxt(t)) }
+  
   //  Return the movement along the curve given "t" between 0 and 1
   func translate(_ t:CGFloat) -> Matrix {
-    let x = x1 + t*(cx + t*(bx + t*ax))
-    let y = y1 + t*(cy + t*(by + t*ay))
+    let x = xt(t)
+    let y = yt(t)
     return Matrix.makeTranslation(x,y)
   }
   
   //  Return the angle of the derivative given "t" between 0 and 1
   func rotate(_ t:CGFloat) -> Matrix {
-    let x = cx + t*(2.0*bx + t*3.0*ax)
-    let y = cy + t*(2.0*by + t*3.0*ay)
-    let theta = atan2(y,x)
+    let theta = angle(t)
     return Matrix.makeRotation(theta)
   }
 
   //  Return turn direction at end of curve
   var rolling:CGFloat { get {
-    let v1 = Vector3D(x: x2-ctrlx2, y: y2-ctrly2)
-    let v2 = Vector3D(x: x2-ctrlx1, y: y2-ctrly1)
-    return v2.cross(v1).z
+    //  Check angle at end
+    var theta = angle(1.0)
+    //  If it's 180 then use angle at halfway point
+    if (theta.angleEquals(CG_PI)) {
+      theta = angle(0.5)
+    }
+    //  If angle is 0 then no turn
+    if (theta.angleEquals(0.0)) {
+      return 0.0
+    } else {
+      return theta
+    }
   } }
   
 }

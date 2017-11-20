@@ -25,38 +25,45 @@ class Trade : Action {
   override func performOne(_ d: Dancer, _ ctx: CallContext) throws -> Path {
     //  Figure out what dancer we're trading with
     var leftcount = 0
-    var bestleft = d
+    var bestleft:Dancer? = nil
     var rightcount = 0
-    var bestright = d
+    var bestright:Dancer? = nil
     ctx.actives.forEach { d2 in
       if (d2 != d) {
         if (CallContext.isLeft(d)(d2)) {
-          if (leftcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestleft)) {
+          if (leftcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestleft!)) {
             bestleft = d2
           }
           leftcount += 1
         } else if (CallContext.isRight(d)(d2)) {
-          if (rightcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestright)) {
+          if (rightcount==0 || CallContext.distance(d,d2) < CallContext.distance(d,bestright!)) {
             bestright = d2
           }
           rightcount += 1
         }
       }
     }
-    
+    //  Check that the trading dancer is facing same or opposite direction
+    if (bestright != nil && !CallContext.isRight(bestright!,d) && !CallContext.isLeft(bestright!,d)) {
+      bestright = nil
+    }
+    if (bestleft != nil && !CallContext.isRight(bestleft!,d) && !CallContext.isLeft(bestleft!,d)) {
+      bestleft = nil
+    }
+
     var dtrade = d
     var samedir = false
     var call = ""
     //  We trade with the nearest dancer in the direction with
     //  an odd number of dancers
-    if (rightcount % 2 == 1 && leftcount % 2 == 0) {
-      dtrade = bestright
+    if (bestright != nil && ((rightcount % 2 == 1 && leftcount % 2 == 0) || bestleft==nil)) {
+      dtrade = bestright!
       call = "Run Right"
-      samedir = CallContext.isLeft(dtrade)(d)
-    } else if (rightcount % 2 == 0 && leftcount % 2 == 1) {
-      dtrade = bestleft
+      samedir = CallContext.isLeft(dtrade,d)
+    } else if (bestleft != nil && ((rightcount % 2 == 0 && leftcount % 2 == 1) || bestright==nil)) {
+      dtrade = bestleft!
       call = "Run Left"
-      samedir = CallContext.isRight(dtrade)(d)
+      samedir = CallContext.isRight(dtrade,d)
     } else {
       throw CallError("Unable to calculate Trade") as Error
     }

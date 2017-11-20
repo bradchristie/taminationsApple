@@ -25,7 +25,7 @@ class OneAndaHalf : CodedCall {
   override func performCall(_ ctx: CallContext, index: Int) throws {
     //  At this point the call has already been done once
     //  So just do half of it again
-    try ctx.applyCall("half "+ctx.callstack.head.name)
+    try ctx.applyCalls("half "+ctx.callstack.head.name)
   }
   
 }

@@ -90,7 +90,7 @@ extension String {
   //  Length property
   var length:Int {
     get {
-      return characters.count
+      return count
     }
   }
   
@@ -98,7 +98,7 @@ extension String {
    * Tests whether this string matches the given regularExpression. This method returns
    * true only if the regular expression matches the <i>entire</i> input string. */
   func matches(_ query:String) -> Bool {
-    return range(of: "^"+query+"$", options: .regularExpression) != nil
+    return range(of: "^("+query+")$", options: .regularExpression) != nil
   }
   
   //  Other replace methods
@@ -134,7 +134,7 @@ extension String {
   //  Subscript methods to accept ints and return strings
   //  More convenient than the String API methods
   subscript (i: Int) -> Character {
-    return self[self.characters.index(self.startIndex, offsetBy: i)]
+    return self[self.index(self.startIndex, offsetBy: i)]
   }
   
   subscript (i: Int) -> String {
@@ -142,7 +142,7 @@ extension String {
   }
   
   subscript (r: Range<Int>) -> String {
-    return String(self[characters.index(startIndex, offsetBy: r.lowerBound) ..< characters.index(startIndex, offsetBy: r.upperBound)])
+    return String(self[index(startIndex, offsetBy: r.lowerBound) ..< index(startIndex, offsetBy: r.upperBound)])
   }
   
   //  More convenience methods
@@ -184,7 +184,7 @@ extension String {
     if (range == nil) {
       return -1
     } else {
-      return self.characters.distance(from: self.startIndex, to: range!.lowerBound)
+      return self.distance(from: self.startIndex, to: range!.lowerBound)
     }
   }
 

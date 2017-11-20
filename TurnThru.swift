@@ -27,13 +27,14 @@ class TurnThru : Action {
     //  in front of this dancer
     //  who is also facing this dancer
     if let d2 = ctx.dancerInFront(d) {
-      let dist = CallContext.distance(d,d2)
-      return TamUtils.getMove("Extend Left").scale(dist/2,0.5) +
-        TamUtils.getMove("Swing Right").scale(0.5,0.5) +
-        TamUtils.getMove("Extend Right").scale(dist/2,0.5)
-    } else {
-      throw CallError("Cannot find dancer to Turn Thru with \(d.number)") as Error;
+      if (d2.data.active && ctx.dancerInFront(d2) == d) {
+        let dist = CallContext.distance(d,d2)
+        return TamUtils.getMove("Extend Left").scale(dist/2,0.5) +
+          TamUtils.getMove("Swing Right").scale(0.5,0.5) +
+          TamUtils.getMove("Extend Right").scale(dist/2,0.5)
+      }
     }
+    throw CallError("Cannot find dancer to Turn Thru with \(d.number)") as Error;
   }
   
 }

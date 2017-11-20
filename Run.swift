@@ -27,23 +27,47 @@ class Run : Action {
     //  because partners of the runners need to dodge
     try ctx.dancers.forEach { d in
       if (d.data.active) {
-        //  Partner must be inactive
+        //  Find dancer to run around
+        //  Usually it's the partner
         switch d.data.partner {
-        case .some(let d2) where !d2.data.active:
-          let m = d.data.beau ? "Run Right" : "Run Left"
+        case .some(var d2):
+          //  But special case of t-bones, could be the dancer on the other side,
+          //  check if another dancer is running around this dancer's "partner"
+          if let d3 = d2.data.partner {
+            if (d != d3 && d3.data.active) {
+              if let d4 = CallContext.isRight(d)(d3) ? ctx.dancerToRight(d) : ctx.dancerToLeft(d) {
+                d2 = d4
+              } else {
+                throw CallError("Dancer \(d.number) has nobody to Run around") as Error
+              }
+            }
+          }
+          //  Partner must be inactive
+          if (d2.data.active) {
+            throw CallError("Dancer \(d.number) has nobody to Run around") as Error
+          }
+          var m = CallContext.isRight(d)(d2) ? "Run Right" : "Run Left"
           let dist = CallContext.distance(d,d2)
           d.path.add(TamUtils.getMove(m).scale(1.0,dist/2))
+          //  Also set path for partner
+          if (CallContext.isRight(d2)(d)) {
+            m = "Dodge Right"
+          }
+          else if (CallContext.isLeft(d2)(d)) {
+            m = "Dodge Left"
+          }
+          else if (CallContext.isInFront(d2)(d)) {
+            m = "Forward 2"
+          }
+          else if (CallContext.isInBack(d2)(d)) {
+            m = "Back 2"   //  really ???
+          }
+          else {
+            m = "Stand";   // should never happen
+          }
+          d2.path = TamUtils.getMove(m).scale(1,dist/2);
         default:
           throw CallError("Dancer \(d.number) has nobody to Run around") as Error
-        }
-      } else {
-        switch d.data.partner {
-        case .some(let d2) where d2.data.active:
-          let m = d.data.beau ? "Dodge Right" : "Dodge Left"
-          let dist = CallContext.distance(d,d2)
-          d.path.add(TamUtils.getMove(m).scale(1.0,dist/2))
-        default:
-          break  // not involved
         }
       }
     }

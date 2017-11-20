@@ -30,6 +30,8 @@ class XMLCall : Call {
     self.xmlmap = xmlmap
     self.ctx2 = ctx
   }
+  
+  override var name:String { get { return xelem.attr("title")! } }
 
   override func performCall(_ ctx: CallContext, index: Int) {
     let allp = TamUtils.getPaths(xelem)
@@ -68,6 +70,17 @@ class XMLCall : Call {
       //  use the new position
       ctx.actives[i3].animateToEnd()
     }
+    
+    //  Mark dancers that had no XML move as inactive
+    //  Needed for post-call modifications e.g. spread
+    var inactives:[Dancer] = []
+    xmlmap.enumerated().forEach { (m,i4) in
+      if (allp[m>>1].movelist.count == 0) {
+        inactives.append(ctx.actives[i4])
+      }
+    }
+    inactives.forEach  { d in d.data.active = false }
+    
     ctx.levelBeats()
     ctx.analyze()
   }

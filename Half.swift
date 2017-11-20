@@ -24,7 +24,7 @@ class Half : Action {
   var halfbeats:CGFloat = 0
   var call = Call()
   
-  override var name:String { get { return "One Half" } }
+  override var name:String { get { return "Half" } }
   
   override func perform(_ ctx: CallContext, index: Int) throws {
 

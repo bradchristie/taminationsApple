@@ -28,6 +28,8 @@ class Vector3D {
   var y:CGFloat = 0.0
   var z:CGFloat = 0.0
   
+  init() { }
+  
   init(x: CGFloat, y: CGFloat) {
     self.x = x
     self.y = y

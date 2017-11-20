@@ -71,11 +71,13 @@ class CallContext {
       return d1 != d2 && angle(d1,d2).angleEquals(CG_PI/2)
     }
   }
+  static func isLeft(_ d1:Dancer, _ d2:Dancer) -> Bool { return isLeft(d1)(d2) }
   static func isRight(_ d1:Dancer) -> (Dancer) -> Bool {
     return { (d2:Dancer) -> Bool in
       return d1 != d2 && angle(d1,d2).angleEquals(-CG_PI/2)
     }
   }
+  static func isRight(_ d1:Dancer, _ d2:Dancer) -> Bool { return isRight(d1)(d2) }
   
   var callname = ""
   var callstack = [Call]()
@@ -573,6 +575,13 @@ class CallContext {
     else {
       return false
     }
+  }
+  
+  //  Return true if this dancer is in tandem with another dancer
+  func isInTandem(_ d:Dancer) -> Bool {
+    return d.data.trailer ? dancerInFront(d)!.data.leader :
+           d.data.leader ? dancerInBack(d)!.data.trailer :
+    false
   }
   
   //  Return true if this is 4 dancers in a box

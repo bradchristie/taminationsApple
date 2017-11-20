@@ -88,7 +88,7 @@ class TamUtils {
     let pathparts = (name as NSString).pathComponents
     //  We can assume that the file has just one directory and then the filename
     let path = "files/" + pathparts[0]
-    let filename = pathparts[1].characters.split{$0 == "."}.map(String.init)[0]
+    let filename = pathparts[1].split{$0 == "."}.map(String.init)[0]
     let filePath = Bundle.main.path(forResource: filename, ofType: "xml", inDirectory:path)!
     let xmlfile = try! Data(contentsOf: URL(fileURLWithPath: filePath))
     let doc = try! XMLDocument(data: xmlfile)
@@ -192,8 +192,8 @@ class TamUtils {
       let p = paths[i]
       let n = p["numbers"]
       if (n != nil) {
-        retval[i*2] = String(n!.characters.first!)
-        retval[i*2+1] = String(n!.characters.last!)
+        retval[i*2] = String(n!.first!)
+        retval[i*2+1] = String(n!.last!)
       }
       else if (i > 3) { // phantoms
         retval[i*2] = " "
@@ -218,8 +218,8 @@ class TamUtils {
       let p = paths[i]
       let c = p["couples"]
       if (c != nil) {
-        retval[i*2] = String(c!.characters.first!)
-        retval[i*2+1] = String(c!.characters.last!)
+        retval[i*2] = String(c!.first!)
+        retval[i*2+1] = String(c!.last!)
       }
     }
     return retval
