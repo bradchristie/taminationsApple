@@ -50,22 +50,16 @@ class Run : Action {
           let dist = CallContext.distance(d,d2)
           d.path.add(TamUtils.getMove(m).scale(1.0,dist/2))
           //  Also set path for partner
-          if (CallContext.isRight(d2)(d)) {
-            m = "Dodge Right"
-          }
-          else if (CallContext.isLeft(d2)(d)) {
-            m = "Dodge Left"
-          }
-          else if (CallContext.isInFront(d2)(d)) {
-            m = "Forward 2"
-          }
-          else if (CallContext.isInBack(d2)(d)) {
-            m = "Back 2"   //  really ???
-          }
-          else {
-            m = "Stand";   // should never happen
-          }
-          d2.path = TamUtils.getMove(m).scale(1,dist/2);
+          m = If (CallContext.isRight(d2)(d))
+            .Then ("Dodge Right")
+          .ElseIf (CallContext.isLeft(d2)(d))
+            .Then ("Dodge Left")
+          .ElseIf (CallContext.isInFront(d2)(d))
+            .Then ("Forward 2")
+          .ElseIf (CallContext.isInBack(d2)(d))
+            .Then ("Back 2")   //  really ???
+          .Else ("Stand")   // should never happen
+          d2.path = TamUtils.getMove(m).scale(1,dist/2)
         default:
           throw CallError("Dancer \(d.number) has nobody to Run around") as Error
         }

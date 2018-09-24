@@ -106,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let url = launchOptions?[UIApplicationLaunchOptionsKey.url]
     let intent = url==nil ? [:] : processURL(url as! URL)
     performStartup(intent)
-    return false   // so method below is not called
+    return true   // xxx  so method below is not called
   }
 
   //  This method is called when a browser sends a custom link to Taminations
@@ -114,6 +114,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     //  Since we don't know the current navigation state, just replace it
     performStartup(processURL(url))
     return true;     // we handled the URL
+  }
+  
+  func application(_ application: UIApplication,
+                   continue userActivity: NSUserActivity,
+                   restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+    performStartup(processURL(userActivity.webpageURL!))
+    return true
   }
   
   func applicationWillResignActive(_ application: UIApplication) {

@@ -30,6 +30,63 @@ extension IfDo {
   }
 }
 
+class If<T> {
+  var isTrue:Bool
+  var matched:Bool
+  var retval:T?
+  init(_ exp:Bool) {
+    isTrue = exp
+    matched = false
+  }
+  func Then(_ value:T) -> If {
+    if (isTrue && !matched) {
+      matched = true
+      retval = value
+    }
+    return self
+  }
+  func ElseIf(_ exp:Bool) -> If {
+    if (!matched) {
+      isTrue = exp
+    }
+    return self
+  }
+  func Else(_ value:T) -> T {
+    if (!matched) {
+      retval = value
+    }
+    return retval!
+  }
+}
+
+//  Simulation of Kotlin 'when'
+typealias IsType<T,U> = (T,()->U)->()
+typealias LikeType<T,U> = (String,(T)->U)->()
+typealias ElseType<U> = (U)->()
+func When<T:Equatable,U>(_ exp:T, f:( IsType<T,U>, LikeType<T,U>, ElseType<U> )->() ) ->U {
+  var matched = false
+  var retval:U?
+  let Is = { (_ arg:T, g:()->U) in
+    if (!matched && arg == exp) {
+      matched = true
+      retval = g()
+    }
+  }
+  let Like = { (_ regex:String, g:(T)->U) in
+    if (!matched && String(describing: exp).matches(regex)) {
+      matched = true
+      retval = g(exp)
+    }
+  }
+  let Else = { (_ arg:U)->() in
+    if (!matched) {
+      retval = arg
+    }
+  }
+  f(Is,Like, Else)
+  return retval!
+}
+
 //  Swift seems to be missing a logical XOR
 func ^(b1:Bool, b2:Bool) -> Bool {
   return b1 ? !b2 : b2

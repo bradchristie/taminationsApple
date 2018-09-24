@@ -21,54 +21,54 @@
 class CodedCall : Call {
   
   static func getCodedCall(_ callname:String) -> CodedCall? {
-    switch callname.lowercased() {
-    case "allemande left" : return AllemandeLeft()
-    case "and roll" : return Roll()
-    case "and spread" : return Spread()
-    case "beaus" : return Beaus()
-    case "belles" : return Belles()
-    case "box counter rotate" : return BoxCounterRotate()
-    case "box the gnat" : return BoxtheGnat()
-    case "boys" : return Boys()
-    case let c where c.matches("centers?") : return Centers(c)
-    case "circulate" : return Circulate()
-    case "cross run" : return CrossRun()
-    case "ends" : return Ends()
-    case "explode and" : return ExplodeAnd()
-    case "face in" : return FaceIn()
-    case "face left" : return FaceLeft()
-    case "face out" : return FaceOut()
-    case "face right" : return FaceRight()
-    case "facing dancers" : return FacingDancers()
-    case "girls" : return Girls()
-    case let c where c.matches("^(half)|(1/2)$") : return Half()
-    case "half sashay" : return HalfSashay()
-    case "heads" : return Heads()
-    case "hinge" : return Hinge()
-    case "leaders" : return Leaders()
-    case "left touch a quarter" : return LeftTouchAQuarter()
-    case let c where c.matches("(onc?e and a half)|(1 1/2)") : return OneAndaHalf()
-    case "pass thru" : return PassThru()
-    case let c where c.matches("quarter (in|out)") : return QuarterIn(c)
-    case "quarter out" : return QuarterOut()
-    case "run" : return Run()
-    case "sides" : return Sides()
-    case "slide thru" : return SlideThru()
-    case "slip" : return Slip()
-    case "star thru" : return StarThru()
-    case "trailers" : return Trailers()
-    case let c where c.matches("(left )?touch a quarter") : return TouchAQuarter(c)
-    case "trade" : return Trade()
-    case "turn back" : return TurnBack()
-    case "turn thru" : return TurnThru()
-    case "very centers" : return VeryCenters()
-    case "wheel around" : return WheelAround()
-    case let c where c.matches("z[ai]g") : return Zig(c)
-    case let c where c.matches("z[ai]g z[ai]g") : return ZigZag(c)
-    case "zoom" : return Zoom()
-    default : return nil
+    
+    return When (callname.lowercased()) { Is, Like, Else in
+      Is ("allemande left") { AllemandeLeft() }
+      Is ("and roll") { Roll() }
+      Is ("and spread") { Spread() }
+      Is ("beaus") { Beaus() }
+      Is ("belles") { Belles() }
+      Is ("box counter rotate") { BoxCounterRotate() }
+      Is ("box the gnat") { BoxtheGnat() }
+      Is ("boys") { Boys() }
+      Like ("centers?") { Centers($0) }
+      Is ("circulate") { Circulate() }
+      Is ("cross run") { CrossRun() }
+      Is ("ends") { Ends() }
+      Is ("explode and") { ExplodeAnd() }
+      Is ("face in") { FaceIn() }
+      Is ("face left") { FaceLeft() }
+      Is ("face out") { FaceOut() }
+      Is ("face right") { FaceRight() }
+      Is ("facing dancers") { FacingDancers() }
+      Is ("girls") { Girls() }
+      Like ("^(half)|(1/2)$") { x in Half() }
+      Is ("half sashay") { HalfSashay() }
+      Is ("heads") { Heads() }
+      Is ("hinge") { Hinge() }
+      Is ("leaders") { Leaders() }
+      Is ("left touch a quarter") { LeftTouchAQuarter() }
+      Like ("(onc?e and a half)|(1 1/2)") { x in OneAndaHalf() }
+      Is ("pass thru") { PassThru() }
+      Like ("quarter (in|out)") { QuarterIn($0) }
+      Is ("quarter out") { QuarterOut() }
+      Is ("run") { Run() }
+      Is ("sides") { Sides() }
+      Is ("slide thru") {SlideThru() }
+      Is ("slip") { Slip() }
+      Is ("star thru") { StarThru() }
+      Is ("trailers") { Trailers() }
+      Like ("(left )?touch a quarter") { TouchAQuarter($0) }
+      Is ("trade") { Trade() }
+      Is ("turn back") { TurnBack() }
+      Is ("turn thru") { TurnThru() }
+      Is ("very centers") { VeryCenters() }
+      Is ("wheel around") { WheelAround() }
+      Like ("z[ai]g") { Zig($0) }
+      Like ("z[ai]g z[ai]g") { ZigZag($0) }
+      Is ("zoom") { Zoom() }
+      Else (nil)
     }
   }
 
-  
 }

@@ -49,6 +49,7 @@ class TamViewController : UIViewController {
   let intent:[String:String]
   let levelButton = TamButton()
   let shareButton = ShareButton()
+  let logoButton = LogoButton()
   var levelText = ""
   var shareText = ""
   var levelAction:()->Void = { }
@@ -60,6 +61,7 @@ class TamViewController : UIViewController {
     super.init(nibName:nil,bundle:nil)
     levelButton.addTarget(self, action: #selector(TamViewController.levelSelector), for: .touchUpInside)
     shareButton.addTarget(self, action: #selector(TamViewController.shareSelector), for: .touchUpInside)
+    logoButton.addTarget(self, action: #selector(TamViewController.logoSelector), for: .touchUpInside)
   }
   required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
   
@@ -84,6 +86,13 @@ class TamViewController : UIViewController {
         backButton.sizeToFit()
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         backButton.addTarget(self, action: #selector(TamViewController.backAction), for: .touchUpInside)
+      } else if (!(navigationController?.visibleViewController is FirstLandscapeViewController) &&
+                (!(navigationController?.visibleViewController is LevelViewController))) {
+        //  Looks like we got here by a direct handoff from Safari
+        //  Let the user go back to the main Taminations page
+        navigationItem.hidesBackButton = false
+        logoButton.sizeToFit()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: logoButton)
       } else {
         navigationItem.hidesBackButton = true
       }
@@ -105,6 +114,9 @@ class TamViewController : UIViewController {
       _ = navigationController?.popViewController(animated: true)
     } else if (presentingViewController != nil) {
       dismiss(animated: true, completion: nil)
+    } else if (!(navigationController?.visibleViewController is FirstLandscapeViewController) &&
+      (!(navigationController?.visibleViewController is LevelViewController))) {
+      navigationController?.pushViewController(FirstLandscapeViewController([:]), animated: true)
     }
   }
   
@@ -165,6 +177,15 @@ class TamViewController : UIViewController {
   }
   @objc func shareSelector() {
     shareAction()
+  }
+  
+  @objc func logoSelector() {
+    let isTablet = UIDevice.current.userInterfaceIdiom == .pad
+    if (isTablet && UIDevice.current.orientation.isLandscape) {
+      navigationController?.setViewControllers([FirstLandscapeViewController([:])], animated: true)
+    } else {
+      navigationController?.setViewControllers([LevelViewController([:])], animated: true)
+    }
   }
 
   override func viewDidAppear(_ animated: Bool) {
